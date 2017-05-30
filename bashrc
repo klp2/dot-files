@@ -11,6 +11,7 @@ elif [[ "$unamestr" == 'Darwin' ]]; then
 fi
 
 export EDITOR=vim
+export me=$USER
 
 # use vim mappings to move around the command line
 set -o vi
@@ -95,6 +96,8 @@ alias t="tmux"
 
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
+source ~/perl5/perlbrew/etc/bashrc
+
 # http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
 pathadd() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
@@ -103,6 +106,7 @@ pathadd() {
 }
 
 pathadd "/usr/local/sbin";
+pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
 
 LOCALPERLBIN=~/perl5/bin
@@ -154,6 +158,8 @@ if [[ $platform == 'osx' ]]; then
     export PATH="~/dot-files/bin/osx:$PATH"
 fi
 
+source '.local-bashrc'
+
 # clean up PATH
 # http://linuxg.net/oneliners-for-removing-the-duplicates-in-your-path/
 PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '!arr[$0]++'`
@@ -162,11 +168,6 @@ PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '!arr[$0]++'`
 for key in `ls $HOME/.ssh/keys`; do
     ssh-add $HOME/.ssh/keys/$key >& /dev/null
 done 
-
-# https://unix.stackexchange.com/questions/19317/can-less-retain-colored-output
-fancydiff () {
-    git $1 --color=always $2 | diff-so-fancy | less -R
-}
 
 function cynprompt {
 
