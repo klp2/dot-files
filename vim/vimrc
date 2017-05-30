@@ -26,10 +26,12 @@ call pathogen#infect()
 " Bundle: https://github.com/w0rp/ale.git
 " Bundle: https://github.com/wincent/Command-T.git
 " Bundle: https://github.com/yko/mojo.vim.git
+" Bundle: https://github.com/flazz/vim-colorschemes.git
 
 syntax enable
+colorscheme peaksea
+set cc=90
 set background=dark
-colorscheme solarized
 
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 set laststatus=2
