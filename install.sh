@@ -32,27 +32,27 @@ $SELF_PATH/inc/vim-update-bundles/vim-update-bundles
 
 ./git-config.sh
 
-# go get github.com/github/hub
+go get github.com/github/hub
 
 # silence warnings when perlbrew not installed
 mkdir -p $HOME/perl5/perlbrew/etc
 touch $HOME/perl5/perlbrew/etc/bashrc
 
-# LOCALCHECKOUT=~/.tmux/plugins/tpm
-# if [ ! -d $LOCALCHECKOUT ]
-# then
-#     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-# else
-#     pushd $LOCALCHECKOUT
-#     git pull origin master
-#     popd
-# fi
+LOCALCHECKOUT=~/.tmux/plugins/tpm
+if [ ! -d $LOCALCHECKOUT ]
+then
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+else
+    pushd $LOCALCHECKOUT
+    git pull origin master
+    popd
+fi
 
 # git extras
-# echo "installing git-extras"
+echo "installing git-extras"
 
 # cd inc/git-extras
-# make install PREFIX="~/local"
+make install PREFIX="~/local"
 
-# # for some reason a "~" folder gets created in the git-extras install
-# sudo git clean -df
+# for some reason a "~" folder gets created in the git-extras install
+sudo git clean -df
