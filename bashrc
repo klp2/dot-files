@@ -108,6 +108,7 @@ pathadd() {
 pathadd "/usr/local/sbin";
 pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
+pathadd "$HOME/bin";
 
 LOCALPERLBIN=~/perl5/bin
 
@@ -199,7 +200,7 @@ $WHITE>${LIGHT_GRAY}-$GRAY<\
 $LIGHT_BLUE$GRAD1\
 $GRAY>${LIGHT_GRAY}-$WHITE<\
 $LIGHT_GRAY\$(date +%H:%M:%S)\
-$WHITE>$LIGHT_GRAY=$GRAY=\
+$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt)\
 $LIGHT_GRAY\n\
 <$RED$SHLVL$LIGHT_GRAY> $GRAY-$BLUE-$LIGHT_BLUE[\
 $CYAN\w\
