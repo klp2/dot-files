@@ -85,7 +85,7 @@ alias o2d="perl -e 'printf qq|%d\n|, oct( shift )'"
 alias o2h="perl -e 'printf qq|%X\n|, oct( shift )'"
 
 alias ga="git add"
-alias lgb="git for-each-ref --sort=committerdate refs/heads/ --format=\'%\(committerdate:short\) %\(authorname\) %\(refname:short\)\'"
+alias lgb="git for-each-ref --sort=committerdate refs/heads/ --format='%(committerdate:short) %(authorname) %(refname:short)'"
 alias gb="git branch"
 alias co="git checkout"
 alias gs="git status"
