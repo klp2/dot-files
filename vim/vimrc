@@ -1,7 +1,6 @@
 " Load plugins using Pathogen. Don't worry if this bit doesn't make sense.
 
 runtime bundle/vim-pathogen/autoload/pathogen.vim
-" Bundle123: tpope/vim-pathogen
 " Bundle: https://github.com/tpope/vim-pathogen
 call pathogen#infect()
 
@@ -27,6 +26,7 @@ call pathogen#infect()
 " Bundle: https://github.com/wincent/Command-T.git
 " Bundle: https://github.com/yko/mojo.vim.git
 " Bundle: https://github.com/flazz/vim-colorschemes.git
+" Bundle: https://github.com/rhysd/accelerated-jk
 
 syntax enable
 colorscheme peaksea
@@ -203,5 +203,11 @@ autocmd FileType html.epl setlocal sw=2 ts=2 sts=2
 
 " Don't override iTerm2's window transparency
 hi Normal ctermbg=none
+
+" Accelerated up and down on wrapped lines 
+"nnoremap  j  gj
+"nnoremap  k  gk
+nmap j <Plug>(accelerated_jk_gj)
+nmap k <Plug>(accelerated_jk_gk)
 
 source ~/.local_vimrc
