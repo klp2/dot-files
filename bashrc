@@ -31,7 +31,11 @@ HISTFILESIZE=2000
 PS1='a\033[00;34m\332\304\260\033[01;34m\260\261\033[01;37;44m \h \033[01;34;40m\261\260\033[00;34m\260\304(\033[01;37m\t\033[00;34m)-(\033[01;37m\u\033[00;34m@\033[01;37m$(basename `tty`)\033[00;34m)\304(\033[01;37m\w/\033[00;34m)\304-\n\300 \033[01;37m\$ \033[00;37;40m'
 
 # uses ls options (i.e.. colors, formatting, etc)
-LS_OPTIONS='-G'
+if [[ $platform == 'osx' ]]; then
+    LS_OPTIONS='-G'
+elif [[ $platform == 'linux' ]]; then
+    LS_OPTIONS="--color=auto"
+fi
 LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
 
 # search history
