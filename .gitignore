@@ -1,1 +1,3 @@
 .tidyall.d/
+*.swp
+tidyall.ERR
