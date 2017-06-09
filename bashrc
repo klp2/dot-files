@@ -174,7 +174,7 @@ if [[ $platform == 'osx' ]]; then
     export PATH="~/dot-files/bin/osx:$PATH"
 fi
 
-source '.local-bashrc'
+source "$HOME/.local-bashrc"
 
 # clean up PATH
 # http://linuxg.net/oneliners-for-removing-the-duplicates-in-your-path/
