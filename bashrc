@@ -4,10 +4,21 @@
 # http://stackoverflow.com/questions/394230/detect-the-os-from-a-bash-script
 platform='unknown'
 unamestr=`uname`
+hostname=`hostname`
 if [[ "$unamestr" == 'Linux' ]]; then
    platform='linux'
 elif [[ "$unamestr" == 'Darwin' ]]; then
    platform='osx'
+fi
+
+if [[ $platform == 'linux' ]]; then
+    hostname=`hostname -f`
+else
+    hostname=`hostname`
+fi
+
+if [[ $hostname =~ "maxmind" ]]; then
+    alias perl=mm-perl
 fi
 
 export EDITOR=vim
