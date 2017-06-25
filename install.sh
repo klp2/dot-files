@@ -16,6 +16,13 @@ ln -sf $SELF_PATH/tmux/tmux-osx.conf ~/.tmux-osx.conf
 ln -sf $SELF_PATH/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf $SELF_PATH/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf $SELF_PATH/vim/vimrc ~/.vimrc
+ln -sf $SELF_PATH/vim/vim_templates ~/.vim_templates
+
+if ! [ -d ~/bin ]
+then
+    mkdir ~/bin
+fi
+cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
 
 if [ -f /usr/local/bin/mm-perl ]
 then
@@ -23,7 +30,6 @@ then
 else
     ln -sf $SELF_PATH/vim/vanilla_local_vimrc ~/.local_vimrc
 fi
-
 
 git submodule init
 git submodule update
