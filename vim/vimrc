@@ -31,6 +31,8 @@ call pathogen#infect()
 " Bundle: https://github.com/klp2/dc_trackperlvars.git
 " Bundle: https://github.com/klp2/dc_eqalignssimple.git
 " Bundle: https://github.com/klp2/dc_smartcom.git
+" Bundle: https://github.com/klp2/dc_foldsearches.git
+" Bundle: https://github.com/jceb/vim-hier
 
 syntax enable
 colorscheme peaksea
@@ -161,6 +163,48 @@ iab     pritn  print
 iab      Pelr  Perl
 iab      pelr  perl
 
+"=====[ Search folding ]=====================
+
+" Don't start new buffers folded
+set foldlevelstart=99
+
+" Highlight folds
+highlight Folded  ctermfg=cyan ctermbg=black
+
+" Toggle on and off...
+nmap <silent> <expr>  zz  FS_ToggleFoldAroundSearch({'context':1})
+
+" Show only sub defns (and maybe comments)...
+let perl_sub_pat = '^\s*\%(sub\|func\|method\|package\)\s\+\k\+'
+let vim_sub_pat  = '^\s*fu\%[nction!]\s\+\k\+'
+augroup FoldSub
+    autocmd!
+    autocmd BufEnter * nmap <silent> <expr>  zp  FS_FoldAroundTarget(perl_sub_pat,{'context':1})
+    autocmd BufEnter * nmap <silent> <expr>  za  FS_FoldAroundTarget(perl_sub_pat.'\zs\\|^\s*#.*',{'context':0, 'folds':'invisible'})
+    autocmd BufEnter *.vim,.vimrc nmap <silent> <expr>  zp  FS_FoldAroundTarget(vim_sub_pat,{'context':1})
+    autocmd BufEnter *.vim,.vimrc nmap <silent> <expr>  za  FS_FoldAroundTarget(vim_sub_pat.'\\|^\s*".*',{'context':0, 'folds':'invisible'})
+    autocmd BufEnter * nmap <silent> <expr>             zv  FS_FoldAroundTarget(vim_sub_pat.'\\|^\s*".*',{'context':0, 'folds':'invisible'})
+augroup END
+
+" Show only 'use' statements
+nmap <silent> <expr>  zu  FS_FoldAroundTarget('^\s*use\s\+\S.*;',{'context':1})
+
+
+
+"=====[ Smarter interstitial completions of identifiers ]=============
+"
+" When autocompleting within an identifier, prevent duplications...
+
+augroup Undouble_Completions
+    autocmd!
+    autocmd CompleteDone *  call Undouble_Completions()
+augroup END
+
+function! Undouble_Completions ()
+    let col  = getpos('.')[2]
+    let line = getline('.')
+    call setline('.', substitute(line, '\(\.\?\k\+\)\%'.col.'c\zs\1', '', ''))
+endfunction
 "=====[ ,, as => without delays ]===================
 
 inoremap <expr><silent>  ,  Smartcomma()
@@ -172,6 +216,64 @@ function! Smartcomma ()
     else
         return ','
     endif
+endfunction
+
+"=====[ Configure Hier for error highlighting ]===================
+" You also need to install the following:  https://github.com/jceb/vim-hier
+
+highlight HierError    ctermfg=red     cterm=bold
+highlight HierWarning  ctermfg=magenta cterm=bold
+
+let g:hier_highlight_group_qf  = 'HierError'
+let g:hier_highlight_group_qfw = 'HierWarning'
+
+let g:hier_highlight_group_loc  = 'Normal'
+let g:hier_highlight_group_locw = 'HierWarning'
+let g:hier_highlight_group_loci = 'Normal'
+
+"=====[ Configure ALE for error tracking ]==================
+" You also need to install the following:  https://github.com/w0rp/ale
+
+highlight AleError    ctermfg=red     cterm=bold
+highlight AleWarning  ctermfg=magenta cterm=bold
+
+augroup ALE_Autoconfig
+    au!
+    autocmd User GVI_Start  silent call Stop_ALE()
+    autocmd User PV_Start   silent call Stop_ALE()
+    autocmd User PV_End     silent call Start_ALE()
+    autocmd User ALELint    silent HierUpdate
+augroup END
+
+let g:ale_set_loclist          = 0
+let g:ale_set_quickfix         = 1
+let g:ale_set_signs            = 0
+let g:ale_linters              = { 'perl': ['perl'] }
+" let g:ale_perl_perl_executable = 'polyperl'
+" let g:ale_perl_perl_options    = '-cw -Ilib'
+
+nmap <silent> ;m [Toggle automake on Perl files] :call Toggle_ALE()<CR>
+
+function! Start_ALE ()
+    ALEEnable
+    HierStart
+endfunction
+
+function! Stop_ALE ()
+    silent call s:ChangeProfile(&filetype)
+    ALEDisable
+    HierStop
+    call setqflist([])
+    redraw!
+endfunction
+
+function! Toggle_ALE ()
+    if g:ale_enabled
+        call Stop_ALE()
+    else
+        call Start_ALE()
+    endif
+    echo 'Error highlighting ' . (g:ale_enabled ? 'on' : 'off')
 endfunction
 
 " Indent using tabs (while in visual mode)
@@ -336,7 +438,7 @@ autocmd FileType html.epl setlocal sw=2 ts=2 sts=2
 " Don't override iTerm2's window transparency
 hi Normal ctermbg=none
 
-" Accelerated up and down on wrapped lines 
+" Accelerated up and down on wrapped lines
 "nnoremap  j  gj
 "nnoremap  k  gk
 nmap j <Plug>(accelerated_jk_gj)
