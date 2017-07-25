@@ -23,6 +23,7 @@ then
     mkdir ~/bin
 fi
 cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
+cp $SELF_PATH/bin/git-prompt ~/bin/
 
 if [ -f /usr/local/bin/mm-perl ]
 then
