@@ -245,12 +245,11 @@ augroup ALE_Autoconfig
     autocmd User ALELint    silent HierUpdate
 augroup END
 
-let g:ale_set_loclist          = 0
-let g:ale_set_quickfix         = 1
-let g:ale_set_signs            = 0
-let g:ale_linters              = { 'perl': ['perl'] }
-" let g:ale_perl_perl_executable = 'polyperl'
-" let g:ale_perl_perl_options    = '-cw -Ilib'
+let g:ale_set_loclist                = 0
+let g:ale_set_quickfix               = 1
+let g:ale_set_signs                  = 0
+let g:ale_perl_perlcritic_executable = '/usr/local/bin/perlcritic'
+let g:ale_linters                    = { 'perl': 'all' }
 
 nmap <silent> ;m [Toggle automake on Perl files] :call Toggle_ALE()<CR>
 
@@ -275,6 +274,9 @@ function! Toggle_ALE ()
     endif
     echo 'Error highlighting ' . (g:ale_enabled ? 'on' : 'off')
 endfunction
+
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 " Indent using tabs (while in visual mode)
 vnoremap < <gv
