@@ -25,6 +25,11 @@ fi
 cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
 cp $SELF_PATH/bin/git-prompt ~/bin/
 
+if ! [ -d ~/.ssh/keys ]
+then
+    mkdir ~/.ssh/keys
+fi
+
 if [ -f /usr/local/bin/mm-perl ]
 then
     ln -sf $SELF_PATH/vim/maxmind_local_vimrc ~/.local_vimrc
