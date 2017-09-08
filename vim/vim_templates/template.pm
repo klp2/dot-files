@@ -15,7 +15,7 @@ use MM::Types qw( ArrayRef Bool Str );
 =cut
 
 
-has 'evil' => (
+has evil => (
     is            => 'ro',
     isa           => Bool,
     default       => 0,
@@ -24,7 +24,7 @@ has 'evil' => (
 
 
 with (
-    'MM::Role::Config',
+    'MM::Role::HasConfig',
 );
 
 =head1 DESCRIPTION
