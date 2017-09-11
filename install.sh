@@ -25,7 +25,7 @@ fi
 cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
 cp $SELF_PATH/bin/git-prompt ~/bin/
 
-if ! [ -d ~/.ssh/keys ]
+if ! [ -f ~/.ssh/keys ]
 then
     mkdir ~/.ssh/keys
 fi
