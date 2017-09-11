@@ -23,7 +23,6 @@ then
     mkdir ~/bin
 fi
 cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
-cp $SELF_PATH/bin/git-prompt ~/bin/
 
 if ! [ -f ~/.ssh/keys ]
 then
@@ -33,8 +32,10 @@ fi
 if [ -f /usr/local/bin/mm-perl ]
 then
     ln -sf $SELF_PATH/vim/maxmind_local_vimrc ~/.local_vimrc
+    cp $SELF_PATH/bin/mm-git-prompt ~/bin/
 else
     ln -sf $SELF_PATH/vim/vanilla_local_vimrc ~/.local_vimrc
+    cp $SELF_PATH/bin/git-prompt ~/bin/
 fi
 
 git submodule init
