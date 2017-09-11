@@ -1,6 +1,7 @@
 ## Prompt originally by cynikal at NYI, with some tweaks over the years
 ## The rest of the file influenced heavily by https://raw.githubusercontent.com/oalders/dot-files/master/bashrc when updating in 2017, as its been a long time since I've used bash
 
+
 # http://stackoverflow.com/questions/394230/detect-the-os-from-a-bash-script
 platform='unknown'
 unamestr=`uname`
@@ -118,7 +119,6 @@ alias t="tmux"
 
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
-source ~/perl5/perlbrew/etc/bashrc
 
 # http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
 pathadd() {
@@ -231,3 +231,5 @@ PS2="$LIGHT_CYAN-$CYAN-$GRAY-$LIGHT_GRAY "
 }
 
 cynprompt
+
+source ~/perl5/perlbrew/etc/bashrc
