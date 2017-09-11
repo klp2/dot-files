@@ -24,7 +24,7 @@ then
 fi
 cp $SELF_PATH/vim/bin/vim_file_template ~/bin/
 
-if ! [ -f ~/.ssh/keys ]
+if ! [ -d ~/.ssh/keys ]
 then
     mkdir ~/.ssh/keys
 fi
