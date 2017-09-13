@@ -4,7 +4,28 @@ set -eu -o pipefail
 
 echo "git config"
 
-git config --global user.email "phair.kevin@gmail.com"
+platform='unknown'
+unamestr=`uname`
+hostname=`hostname`
+
+if [[ "$unamestr" == 'Linux' ]]; then
+   platform='linux'
+elif [[ "$unamestr" == 'Darwin' ]]; then
+   platform='osx'
+fi
+
+if [[ $platform == 'linux' ]]; then
+    hostname=`hostname -f`
+else
+    hostname=`hostname`
+fi
+
+if [[ $hostname =~ "maxmind" ]]; then
+    git config --global user.email "kphair@maxmind.com"
+else
+    git config --global user.email "phair.kevin@gmail.com"
+fi
+
 git config --global user.name "Kevin Phair"
 
 git config --global branch.autosetuprebase always
