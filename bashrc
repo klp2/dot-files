@@ -60,6 +60,9 @@ LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
 # search history
 alias hist='history | ack $1'
 
+# cleanup homebrew refuse
+alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
+
 # check tty usage, sorting by tty's
 alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
 
