@@ -120,6 +120,10 @@ alias gc="git commit"
 alias gp="git push"
 alias t="tmux"
 
+# integer to ip address and back
+alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
+alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
+
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
 
