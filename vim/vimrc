@@ -33,6 +33,7 @@ call pathogen#infect()
 " Bundle: https://github.com/klp2/dc_smartcom.git
 " Bundle: https://github.com/klp2/dc_foldsearches.git
 " Bundle: https://github.com/jceb/vim-hier
+" Bundle: https://github.com/junegunn/fzf.vim
 
 syntax enable
 colorscheme peaksea
@@ -445,5 +446,13 @@ hi Normal ctermbg=none
 "nnoremap  k  gk
 nmap j <Plug>(accelerated_jk_gj)
 nmap k <Plug>(accelerated_jk_gk)
+
+" FZF
+set rtp+=/usr/local/opt/fzf
+set rtp+=~/.fzf
+nmap ; :Buffers<CR>
+nmap <Leader>r :Tags<CR>
+nmap <Leader>t :Files<CR>
+nmap <Leadera :Ag<CR>
 
 source ~/.local_vimrc

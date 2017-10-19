@@ -240,3 +240,5 @@ PS2="$LIGHT_CYAN-$CYAN-$GRAY-$LIGHT_GRAY "
 cynprompt
 
 source ~/perl5/perlbrew/etc/bashrc
+
+ -f ~/.fzf.bash ] && source ~/.fzf.bash
