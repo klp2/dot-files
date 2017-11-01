@@ -241,4 +241,4 @@ cynprompt
 
 source ~/perl5/perlbrew/etc/bashrc
 
- -f ~/.fzf.bash ] && source ~/.fzf.bash
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
