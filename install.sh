@@ -70,7 +70,7 @@ $SELF_PATH/inc/vim-update-bundles/vim-update-bundles
 mkdir -p $HOME/perl5/perlbrew/etc
 touch $HOME/perl5/perlbrew/etc/bashrc
 
-./install-fpp.sh
+bash ./install-fpp.sh
 
 LOCALCHECKOUT=~/.tmux/plugins/tpm
 if [ ! -d $LOCALCHECKOUT ]
