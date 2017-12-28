@@ -30,13 +30,13 @@ git config --global user.name "Kevin Phair"
 
 git config --global branch.autosetuprebase always
 git config --global color.ui "auto"
+git config --global diff.algorithm histogram
 git config --global github.user klp2
 git config --global help.autocorrect 10
 git config --global merge.conflictstyle diff3
 git config --global push.default simple
 git config --global rerere.enabled 1
 
-git config --global branch.autosetuprebase always
 git config --global alias.b  'branch'
 git config --global alias.ba 'branch -a'
 git config --global alias.cam 'commit --amend'
@@ -70,6 +70,9 @@ git config --global core.pager 'less -r'
 
 # takes a commit name as sole arg
 git config --global alias.whatis "show -s --pretty='tformat:%h (%s, %ad)' --date=short"
+
+# for Facebook Path Picker (fpp)
+git config --global grep.lineNumber true
 
 if [ -d '/Applications/Meld.app' ]
 then
