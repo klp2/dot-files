@@ -27,7 +27,7 @@ cp     $SELF_PATH/dataprinter ~/.dataprinter
 chmod 700 ~/.dataprinter
 
 ln -sf $LINK_FLAG $SELF_PATH/dzil ~/.dzil
-ln -sf $SElF_PATH/perlcriticrc ~/.perlcriticrc
+ln -sf $SELF_PATH/perlcriticrc ~/.perlcriticrc
 ln -sf $SELF_PATH/perltidyrc ~/.perltidyrc
 ln -sf $SELF_PATH/profile ~/.profile
 ln -sf $SELF_PATH/re.pl/repl.rc ~/.re.pl/repl.rc
