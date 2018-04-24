@@ -340,6 +340,8 @@ map <leader>jt <Esc>:%!json_xs -f json -t json-pretty<CR>
 :set list!
 :set listchars=tab:\|-
 
+autocmd FileType go :set nolist
+
 " enables shift-tab for outdent
 exe 'set t_kB=' . nr2char(27) . '[Z'
 
