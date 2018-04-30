@@ -253,8 +253,7 @@ augroup END
 let g:ale_set_loclist                = 0
 let g:ale_set_quickfix               = 1
 let g:ale_set_signs                  = 0
-let g:ale_perl_perlcritic_executable = '/usr/local/bin/perlcritic'
-let g:ale_linters                    = { 'perl': 'all' }
+let g:ale_linters = {'go': ['gofmt', 'golint', 'go vet', 'gometalinter'], 'perl': ['perl','perlcritic'] }
 
 nmap <silent> ;m [Toggle automake on Perl files] :call Toggle_ALE()<CR>
 
