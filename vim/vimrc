@@ -11,7 +11,7 @@ call pathogen#infect()
 " Bundle: https://github.com/ntpeters/vim-better-whitespace.git
 " Bundle: https://github.com/c9s/perlomni.vim.git
 " Bundle: https://github.com/fatih/vim-go.git
-" Bundle: https://github.com/henrik/vim-indexed-search.git
+" Bundle: https://github.com/google/vim-searchindex
 " Bundle: https://github.com/jreybert/vimagit.git
 " Bundle: https://github.com/Lokaltog/vim-powerline.git
 " Bundle: https://github.com/qstrahl/vim-matchmaker.git
