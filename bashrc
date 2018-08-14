@@ -163,6 +163,16 @@ function gh() { cd "$(git rev-parse --show-toplevel)"; }
 # If the first arg to "vi" contains "::" then assume it's a Perl module that's
 # either in lib or t/lib
 
+function diffcol() {
+    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
+    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $2 $3
+}
+
+function testme() {
+    awk -v col="$1" -v col2="$2" -v col3="$3" '{ print col }'
+    return 0
+}
+
 function vi() {
     local vi=$(type -fp vim)
     string=$1
