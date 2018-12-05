@@ -124,7 +124,7 @@ alias t="tmux"
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
 
-export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
+export COLORTERM LS_OPTIONS LSCOLORS S1
 
 
 # http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
@@ -138,6 +138,7 @@ pathadd "/usr/local/sbin";
 pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
 pathadd "$HOME/bin";
+pathadd "~/.vim/pack/bundle/start/fzf/bin"
 
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
