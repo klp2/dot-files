@@ -139,6 +139,12 @@ pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
 pathadd "$HOME/bin";
 
+if [[ $platform == 'osx' ]]; then
+    pathadd "/usr/local/MacGPG2/bin"
+fi
+
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+
 LOCALPERLBIN=~/perl5/bin
 
 if [[ ! -d ~/.plenv ]]; then
@@ -151,11 +157,16 @@ if [[ ! -d ~/.plenv ]]; then
     fi
 fi
 
+# in some places, an ack already existed, and the ack we want is ack-grep
 if ! type "ack" > /dev/null  2>&1; then
     if type 'ack-grep' > /dev/null 2>&1; then
         alias ack='ack-grep'
     fi
 fi
+
+alias grep='ack'
+alias g='grep'
+
 # gh = git home
 # brings you to the top level of the git repo you are currently in
 # http://stackoverflow.com/questions/957928/is-there-a-way-to-get-the-git-root-directory-in-one-command
