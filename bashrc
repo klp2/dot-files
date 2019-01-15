@@ -231,6 +231,12 @@ local LIGHT_BLUE="\[\033[1;34m\]"
 local WHITE="\[\033[1;37m\]"
 local RED="\[\033[0;31m\]"
 
+if [[ "$1" == 'nogit' ]]; then
+   gitline="$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN"
+else
+  gitline="$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt)"
+fi
+
 case $(id -u) in
      0)
          local PROMPT="#"
@@ -250,7 +256,7 @@ $WHITE>${LIGHT_GRAY}-$GRAY<\
 $LIGHT_BLUE$GRAD1\
 $GRAY>${LIGHT_GRAY}-$WHITE<\
 $LIGHT_GRAY\$(date +%H:%M:%S)\
-$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt)\
+$gitline\
 $LIGHT_GRAY\n\
 <$RED$SHLVL$LIGHT_GRAY> $GRAY-$BLUE-$LIGHT_BLUE[\
 $CYAN\w\
@@ -258,8 +264,35 @@ $LIGHT_BLUE]$BLUE-$GRAY-$LIGHT_GRAY $WHITE$PROMPT $LIGHT_GRAY"
 PS2="$LIGHT_CYAN-$CYAN-$GRAY-$LIGHT_GRAY "
 }
 
+
 cynprompt
 
 source ~/perl5/perlbrew/etc/bashrc
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+#
+# These functions override builtin BASH commands that change directories.
+#
+# This script should be added to either the system wide shell initialisation
+# file (/etc/profile) or a user specific initialisation file (~/.bash_profile 
+# or ~/.profile). In addition, if you are using X, terminals you start up
+# should be login terminals (typically -ls, --ls or something to that effect).
+#
+
+cd()
+{
+	builtin cd "$@" && eval "`ondir \"$OLDPWD\" \"$PWD\"`"
+}
+
+pushd()
+{
+	builtin pushd "$@" && eval "`ondir \"$OLDPWD\" \"$PWD\"`"
+}
+
+popd()
+{
+	builtin popd "$@" && eval "`ondir \"$OLDPWD\" \"$PWD\"`"
+}
+
+# Run ondir on login
+eval "`ondir /`"
