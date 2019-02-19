@@ -88,25 +88,25 @@ nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
 let g:ale_linters = {
-            \   'sh': ['language-server'],
-            \   'go': ['gofmt', 'golint', 'go vet', 'golangci-lint'],
-            \   'perl': ['syntax-check', 'perlcritic'],
-            \   'vim': ['vint'],
-            \   'yaml': ['yamllint'],
-            \}
+\   'sh': ['language-server'],
+\   'go': ['gofmt', 'golint', 'go vet', 'golangci-lint'],
+\   'perl': ['syntax-check', 'perlcritic'],
+\   'vim': ['vint'],
+\   'yaml': ['yamllint'],
+\}
 
 let g:ale_fixers = {
-            \   '*': ['remove_trailing_lines', 'trim_whitespace',],
-            \   'javascript': ['eslint'],
-            \   'json': ['prettier'],
-            \   'perl': ['perltidy'],
-            \   'sh': ['shfmt'],
-            \   'yaml': ['prettier'],
-            \}
+\   '*': ['remove_trailing_lines', 'trim_whitespace',],
+\   'javascript': ['eslint'],
+\   'json': ['prettier'],
+\   'perl': ['perltidy'],
+\   'sh': ['shfmt'],
+\   'yaml': ['prettier'],
+\}
 
 let g:ale_type_map = {
-            \    'perlcritic': {'ES': 'WS', 'E': 'W'},
-            \}
+\    'perlcritic': {'ES': 'WS', 'E': 'W'},
+\}
 
 " https://github.com/skaji/syntax-check-perl#integrate-with-vim-plug-and-ale
 let g:ale_perl_syntax_check_config = expand('~/dot-files/syntax-check-perl/config.pl')
