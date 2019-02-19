@@ -2,6 +2,8 @@ call plug#begin('~/.vim/plugged')
 Plug 'romainl/flattened'
 Plug 'klp2/dc_smartcom'
 Plug 'airblade/vim-gitgutter'
+Plug 'w0rp/ale'
+Plug 'skaji/syntax-check-perl'
 call plug#end()
 
 let mapleader = ","
@@ -80,11 +82,46 @@ endfunction
 " Bind to ,t (or leader+t)
 map <leader>t :call TidyAll()<cr>
 
+" Ale
+
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
+
+let g:ale_linters = {
+            \   'sh': ['language-server'],
+            \   'go': ['gofmt', 'golint', 'go vet', 'golangci-lint'],
+            \   'perl': ['syntax-check', 'perlcritic'],
+            \   'vim': ['vint'],
+            \   'yaml': ['yamllint'],
+            \}
+
+let g:ale_fixers = {
+            \   '*': ['remove_trailing_lines', 'trim_whitespace',],
+            \   'javascript': ['eslint'],
+            \   'json': ['prettier'],
+            \   'perl': ['perltidy'],
+            \   'sh': ['shfmt'],
+            \   'yaml': ['prettier'],
+            \}
+
+let g:ale_type_map = {
+            \    'perlcritic': {'ES': 'WS', 'E': 'W'},
+            \}
+
+" https://github.com/skaji/syntax-check-perl#integrate-with-vim-plug-and-ale
+let g:ale_perl_syntax_check_config = expand('~/dot-files/syntax-check-perl/config.pl')
+
+"
+" " show Perl::Critic rules which have been violated
+let g:ale_perl_perlcritic_showrules = 1
+
 " " =====[ Smart completion via <TAB> and <S-TAB> ]=============
 
 runtime plugged/dc_smartcom/plugin/smartcom.vim
 
 " Add extra completions (mainly for Perl programming)...
+
+runtime bundle/dc_smartcom/plugin/smartcom.vim
 
 let ANYTHING = ""
 let NOTHING  = ""
