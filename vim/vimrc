@@ -1,6 +1,7 @@
 call plug#begin('~/.vim/plugged')
 Plug 'romainl/flattened'
 Plug 'klp2/dc_smartcom'
+Plug 'airblade/vim-gitgutter'
 call plug#end()
 
 let mapleader = ","
@@ -10,6 +11,50 @@ set background=dark
 colorscheme flattened_dark
 
 set cc=90
+
+" quicker vim-gitgutter updates
+set updatetime=100
+let g:gutgutter_max_signs=1000
+
+" tabs
+set softtabstop=4
+set shiftwidth=4
+set tabstop=4
+set smarttab
+" use spaces rather than tabs
+set expandtab
+
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+set laststatus=2
+set bs=2
+
+"====[ Work out what kind of file this is ]========
+
+filetype plugin indent on
+
+augroup FiletypeInference
+    autocmd!
+    autocmd BufNewFile,BufRead  *.t      setfiletype perl
+    autocmd BufNewFile,BufRead  *.pod    setfiletype pod
+    autocmd BufNewFile,BufRead  *        call s:infer_filetype()
+augroup END
+
+function! s:infer_filetype ()
+    for line in getline(1,20)
+        if line =~ '^\s*use\s*v\?5\.\S\+\s*;\s*$'
+            setfiletype perl
+            return
+        elseif line =~ '^\s*use\s*v\?6\s*;\s*$'
+            setfiletype perl6
+            return
+        endif
+    endfor
+endfunction
+
+au BufReadPost *.pl   set keywordprg=perldoc\ -f
+
+" show line numbers
+autocmd FileType perl set number
 
 " ########### TidyAll ###########
 
