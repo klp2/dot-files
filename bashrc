@@ -68,7 +68,7 @@ alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
 
 # list all processes that are running with the string in it
 # stolen from here: http://www.karl-voit.at/scripts/any
-alias jn='ps auxwwwwwww|ack -i $1'
+alias jn='ps -auxwwwwwww|ack -i $1'
 
 # run ls with the specified colors
 alias ls="ls $LS_OPTIONS"
