@@ -4,13 +4,22 @@ Plug 'klp2/dc_smartcom'
 Plug 'airblade/vim-gitgutter'
 Plug 'w0rp/ale'
 Plug 'skaji/syntax-check-perl'
+Plug 'vim-scripts/peaksea'
+Plug 'vim-perl/vim-perl'
 call plug#end()
 
 let mapleader = ","
 
 syntax enable
+if ! has ("gui_running")
+    set t_Co=256
+endif
 set background=dark
-colorscheme flattened_dark
+colors peaksea
+
+" make sure comments really stand out
+highlight Comment ctermbg=255
+highlight Comment ctermfg=16
 
 set cc=90
 
@@ -79,8 +88,8 @@ function! TidyAll()
     call setpos( '.', cur_pos )
 endfunction
 
-" Bind to ,t (or leader+t)
-map <leader>t :call TidyAll()<cr>
+" Bind to ,pt (or leader+pt)
+map <leader>pt :call TidyAll()<cr>
 
 " Ale
 
