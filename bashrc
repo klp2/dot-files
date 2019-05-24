@@ -141,9 +141,9 @@ pathadd "$HOME/bin";
 
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 fi
 
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
 LOCALPERLBIN=~/perl5/bin
 
