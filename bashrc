@@ -124,6 +124,8 @@ alias t="tmux"
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
 
+alias gfn='geofeednames'
+
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
 
@@ -199,6 +201,14 @@ function vi() {
     fi
     $vi "$string"
 }
+
+# print out all of the ISP and Org names for networks listed in geofeed file
+function geofeednames() {
+    less $1 | cut -f1 -d, | xargs mmdbinspect --db \
+    /usr/local/share/GeoIP/GeoIP2-ISP.mmdb | \
+    jq '.[] | .Records[]? | { Network: .Network, isp: .Record.isp, org: .Record.organization}'
+}
+
 export GOPATH=~/go
 if [ -d $GOPATH ] ; then
     export PATH="$GOPATH/bin:$PATH"
