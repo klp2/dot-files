@@ -17,6 +17,7 @@ if [ "$(uname)" == "Darwin" ]; then
 echo $SELF_PATH
 
 mkdir -p ~/.re.pl
+mkdir -p ~/.config
 
 ln -sf $SELF_PATH/ackrc ~/.ackrc
 
@@ -38,6 +39,7 @@ ln -sf $SELF_PATH/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf $SELF_PATH/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf $SELF_PATH/vim/vimrc ~/.vimrc
 ln -sf $SELF_PATH/vim/vim_templates ~/.vim_templates
+ln -sf $SELF_PATH/i3 ~/.config/i3
 
 if ! [ -d ~/bin ]
 then
