@@ -1,46 +1,43 @@
-" Load plugins using Pathogen. Don't worry if this bit doesn't make sense.
+call plug#begin('~/.vim/plugged')
 
-runtime bundle/vim-pathogen/autoload/pathogen.vim
-" Bundle: https://github.com/tpope/vim-pathogen
-call pathogen#infect()
+Plug 'airblade/vim-gitgutter'
+Plug 'altercation/vim-colors-solarized'
+Plug 'bkad/CamelCaseMotion'
+Plug 'bling/vim-airline'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'c9s/perlomni.vim'
+Plug 'fatih/vim-go'
+Plug 'google/vim-searchindex'
+Plug 'jreybert/vimagit'
+Plug 'Lokaltog/vim-powerline'
+Plug 'qstrahl/vim-matchmaker'
+Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'vim-scripts/vim-json-bundle'
+Plug 'w0rp/ale'
+Plug 'wincent/Command-T'
+Plug 'yko/mojo.vim'
+Plug 'flazz/vim-colorschemes'
+Plug 'rhysd/accelerated-jk'
+Plug 'klp2/dc_automakedir'
+Plug 'klp2/dc_trackperlvars'
+Plug 'klp2/dc_eqalignssimple'
+Plug 'klp2/dc_smartcom'
+Plug 'klp2/dc_foldsearches'
+Plug 'jceb/vim-hier'
+Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all' }
+Plug 'tpope/vim-rhubarb'
+Plug 'mattn/webapi-vim'
+Plug 'mattn/gist-vim'
+Plug 'https://github.maxmind.com/maxmind/mm.vim'
 
-" Bundle: https://github.com/airblade/vim-gitgutter.git
-" Bundle: https://github.com/altercation/vim-colors-solarized.git
-" Bundle: https://github.com/bkad/CamelCaseMotion.git
-" Bundle: https://github.com/bling/vim-airline.git
-" Bundle: https://github.com/ntpeters/vim-better-whitespace.git
-" Bundle: https://github.com/c9s/perlomni.vim.git
-" Bundle: https://github.com/fatih/vim-go.git
-" Bundle: https://github.com/google/vim-searchindex
-" Bundle: https://github.com/jreybert/vimagit.git
-" Bundle: https://github.com/Lokaltog/vim-powerline.git
-" Bundle: https://github.com/qstrahl/vim-matchmaker.git
-" Bundle: https://github.com/scrooloose/nerdcommenter.git
-" Bundle: https://github.com/scrooloose/nerdtree.git
-" Bundle: https://github.com/sheerun/vim-polyglot.git
-" Bundle: https://github.com/tpope/vim-commentary.git
-" Bundle: https://github.com/tpope/vim-fugitive.git
-" Bundle: https://github.com/tpope/vim-surround.git
-" Bundle: https://github.com/vim-scripts/vim-json-bundle.git
-" Bundle: https://github.com/w0rp/ale.git
-" Bundle: https://github.com/wincent/Command-T.git
-" Bundle: https://github.com/yko/mojo.vim.git
-" Bundle: https://github.com/flazz/vim-colorschemes.git
-" Bundle: https://github.com/rhysd/accelerated-jk.git
-" Bundle: https://github.com/klp2/dc_automakedir.git
-" Bundle: https://github.com/klp2/dc_trackperlvars.git
-" Bundle: https://github.com/klp2/dc_eqalignssimple.git
-" Bundle: https://github.com/klp2/dc_smartcom.git
-" Bundle: https://github.com/klp2/dc_foldsearches.git
-" Bundle: https://github.com/jceb/vim-hier
-" Bundle: https://github.com/junegunn/fzf.vim
-" Bundle: https://github.com/tpope/vim-rhubarb
-" Bundle: https://github.com/mattn/webapi-vim
-" Bundle: https://github.com/mattn/gist-vim
-" Bundle: https://github.maxmind.com/maxmind/mm.vim
+call plug#end()
 
-syntax enable
-colorscheme peaksea
+:silent! colorscheme peaksea
 set cc=90
 set background=dark
 
@@ -49,8 +46,6 @@ set laststatus=2
 set bs=2
 
 "====[ Work out what kind of file this is ]========
-
-filetype plugin indent on
 
 augroup FiletypeInference
     autocmd!
@@ -97,69 +92,69 @@ augroup END
 
 " " =====[ Smart completion via <TAB> and <S-TAB> ]=============
 
-" Add extra completions (mainly for Perl programming)...
+"" Add extra completions (mainly for Perl programming)...
 
-runtime bundle/dc_smartcom/plugin/smartcom.vim
+"runtime ~/dot-files/vim/dc_smartcom/plugin/smartcom.vim
 
-let ANYTHING = ""
-let NOTHING  = ""
-let EOL      = '\s*$'
+"let ANYTHING = ""
+"let NOTHING  = ""
+"let EOL      = '\s*$'
 
-                " Left     Right      Insert                             Reset cursor
-                " =====    =====      ===============================    ============
-call SmartcomAdd( '<<',    ANYTHING,  "\<BS>\<BS>«"                                    )
-call SmartcomAdd( '>>',    ANYTHING,  "\<BS>\<BS>»"                                    )
-call SmartcomAdd( '?',     ANYTHING,  '?',                               {'restore':1} )
-call SmartcomAdd( '?',     '?',       "\<CR>\<ESC>O\<TAB>"                             )
-call SmartcomAdd( '{{',    ANYTHING,  '}}',                              {'restore':1} )
-call SmartcomAdd( '{{',    '}}',      NOTHING,                                         )
-call SmartcomAdd( 'qr{',   ANYTHING,  '}xms',                            {'restore':1} )
-call SmartcomAdd( 'qr{',   '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>"                 )
-call SmartcomAdd( 'm{',    ANYTHING,  '}xms',                            {'restore':1} )
-call SmartcomAdd( 'm{',    '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
-call SmartcomAdd( 's{',    ANYTHING,  '}{}xms',                          {'restore':1} )
-call SmartcomAdd( 's{',    '}{}xms',  "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
-call SmartcomAdd( '\*\*',  ANYTHING,  '**',                              {'restore':1} )
-call SmartcomAdd( '\*\*',  '\*\*',    NOTHING,                                         )
+"                " Left     Right      Insert                             Reset cursor
+"                " =====    =====      ===============================    ============
+"call SmartcomAdd( '<<',    ANYTHING,  "\<BS>\<BS>«"                                    )
+"call SmartcomAdd( '>>',    ANYTHING,  "\<BS>\<BS>»"                                    )
+"call SmartcomAdd( '?',     ANYTHING,  '?',                               {'restore':1} )
+"call SmartcomAdd( '?',     '?',       "\<CR>\<ESC>O\<TAB>"                             )
+"call SmartcomAdd( '{{',    ANYTHING,  '}}',                              {'restore':1} )
+"call SmartcomAdd( '{{',    '}}',      NOTHING,                                         )
+"call SmartcomAdd( 'qr{',   ANYTHING,  '}xms',                            {'restore':1} )
+"call SmartcomAdd( 'qr{',   '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>"                 )
+"call SmartcomAdd( 'm{',    ANYTHING,  '}xms',                            {'restore':1} )
+"call SmartcomAdd( 'm{',    '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
+"call SmartcomAdd( 's{',    ANYTHING,  '}{}xms',                          {'restore':1} )
+"call SmartcomAdd( 's{',    '}{}xms',  "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
+"call SmartcomAdd( '\*\*',  ANYTHING,  '**',                              {'restore':1} )
+"call SmartcomAdd( '\*\*',  '\*\*',    NOTHING,                                         )
 
-" Handle single : correctly...
-call SmartcomAdd( '^:\|[^:]:',  EOL,  "\<TAB>" )
+"" Handle single : correctly...
+"call SmartcomAdd( '^:\|[^:]:',  EOL,  "\<TAB>" )
 
-" In the middle of a keyword: delete the rest of the keyword before completing...
-                " Left     Right                    Insert
-                " =====    =====                    =======================
-"call SmartcomAdd( '\k',    '\k\+\%(\k\|\n\)\@!',    "\<C-O>cw\<C-X>\<C-N>",           )
-"call SmartcomAdd( '\k',    '\k\+\_$',               "\<C-O>cw\<C-X>\<C-N>",           )
+"" In the middle of a keyword: delete the rest of the keyword before completing...
+"                " Left     Right                    Insert
+"                " =====    =====                    =======================
+""call SmartcomAdd( '\k',    '\k\+\%(\k\|\n\)\@!',    "\<C-O>cw\<C-X>\<C-N>",           )
+""call SmartcomAdd( '\k',    '\k\+\_$',               "\<C-O>cw\<C-X>\<C-N>",           )
 
-"After an alignable, align...
-function! AlignOnPat (pat)
-    return "\<ESC>:call EQAS_Align('nmap',{'pattern':'" . a:pat . "'})\<CR>A"
-endfunction
-                " Left         Right        Insert
-                " ==========   =====        =============================
-call SmartcomAdd( '=',         ANYTHING,    "\<ESC>:call EQAS_Align('nmap')\<CR>A")
-call SmartcomAdd( '=>',        ANYTHING,    AlignOnPat('=>') )
-call SmartcomAdd( '\s#',       ANYTHING,    AlignOnPat('\%(\S\s*\)\@<= #') )
-call SmartcomAdd( '[''"]\s*:', ANYTHING,    AlignOnPat(':'),                   {'filetype':'vim'} )
-call SmartcomAdd( ':',         ANYTHING,    "\<TAB>",                          {'filetype':'vim'} )
-
-
-                " Left         Right   Insert                                  Where
-                " ==========   =====   =============================           ===================
-" Perl keywords...
-call SmartcomAdd( '^\s*for',   EOL,    " my $___ (___) {\n___\n}\n___",        {'filetype':'perl'} )
-call SmartcomAdd( '^\s*if',    EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-call SmartcomAdd( '^\s*while', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-call SmartcomAdd( '^\s*given', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-call SmartcomAdd( '^\s*when',  EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-call SmartcomAdd( '^\s*sub',   EOL,    " ___ (___) {\n___\n}\n___",            {'filetype':'perl'} )
+""After an alignable, align...
+"function! AlignOnPat (pat)
+"    return "\<ESC>:call EQAS_Align('nmap',{'pattern':'" . a:pat . "'})\<CR>A"
+"endfunction
+"                " Left         Right        Insert
+"                " ==========   =====        =============================
+"call SmartcomAdd( '=',         ANYTHING,    "\<ESC>:call EQAS_Align('nmap')\<CR>A")
+"call SmartcomAdd( '=>',        ANYTHING,    AlignOnPat('=>') )
+"call SmartcomAdd( '\s#',       ANYTHING,    AlignOnPat('\%(\S\s*\)\@<= #') )
+"call SmartcomAdd( '[''"]\s*:', ANYTHING,    AlignOnPat(':'),                   {'filetype':'vim'} )
+"call SmartcomAdd( ':',         ANYTHING,    "\<TAB>",                          {'filetype':'vim'} )
 
 
-" Convert between single- and double-quoted string endings...
-call SmartcomAdd(      '''[^"]*"',  NOTHING,  "\<ESC>?'\<CR>:nohlsearch\<CR>r\"a",        {'restore':1+1} )
-call SmartcomAdd( 'q\@<!q{[^"]*"',  NOTHING,  "\<BS>}\<ESC>?q{\<CR>:nohlsearch\<CR>sqq",  {'restore':1+2} )
-call SmartcomAdd(     '"[^'']*''',  NOTHING,  "\<ESC>?\"\<CR>:nohlsearch\<CR>r'a",        {'restore':1+1} )
-call SmartcomAdd(   'qq{[^'']*''',  NOTHING,  "\<BS>}\<ESC>?qq{\<CR>:nohlsearch\<CR>2sq", {'restore':1+1} )
+"                " Left         Right   Insert                                  Where
+"                " ==========   =====   =============================           ===================
+"" Perl keywords...
+"call SmartcomAdd( '^\s*for',   EOL,    " my $___ (___) {\n___\n}\n___",        {'filetype':'perl'} )
+"call SmartcomAdd( '^\s*if',    EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
+"call SmartcomAdd( '^\s*while', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
+"call SmartcomAdd( '^\s*given', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
+"call SmartcomAdd( '^\s*when',  EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
+"call SmartcomAdd( '^\s*sub',   EOL,    " ___ (___) {\n___\n}\n___",            {'filetype':'perl'} )
+
+
+"" Convert between single- and double-quoted string endings...
+"call SmartcomAdd(      '''[^"]*"',  NOTHING,  "\<ESC>?'\<CR>:nohlsearch\<CR>r\"a",        {'restore':1+1} )
+"call SmartcomAdd( 'q\@<!q{[^"]*"',  NOTHING,  "\<BS>}\<ESC>?q{\<CR>:nohlsearch\<CR>sqq",  {'restore':1+2} )
+"call SmartcomAdd(     '"[^'']*''',  NOTHING,  "\<ESC>?\"\<CR>:nohlsearch\<CR>r'a",        {'restore':1+1} )
+"call SmartcomAdd(   'qq{[^'']*''',  NOTHING,  "\<BS>}\<ESC>?qq{\<CR>:nohlsearch\<CR>2sq", {'restore':1+1} )
 "
 "=====[ Correct common mistypings in-the-fly ]=======================
 
