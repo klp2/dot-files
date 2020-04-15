@@ -30,9 +30,7 @@ rm -f ~/.vim/after
 
 rm -f ~/.vimrc
 ln -sf $PREFIX/vim/vim-plug-vimrc ~/.vimrc
-echo "About to install vim plugins"
 vim +'PlugInstall --sync' +qa
-echo "Done installing vim plugins"
 rm ~/.vimrc
 
 ln -sf $PREFIX/vim/vimrc ~/.vimrc

@@ -1,0 +1,43 @@
+call plug#begin('~/.vim/plugged')
+
+Plug 'airblade/vim-gitgutter'
+Plug 'altercation/vim-colors-solarized'
+Plug 'bkad/CamelCaseMotion'
+Plug 'bling/vim-airline'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'c9s/perlomni.vim'
+Plug 'fatih/vim-go'
+Plug 'google/vim-searchindex'
+Plug 'jreybert/vimagit'
+Plug 'Lokaltog/vim-powerline'
+Plug 'qstrahl/vim-matchmaker'
+Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'vim-scripts/vim-json-bundle'
+Plug 'w0rp/ale'
+Plug 'wincent/Command-T'
+Plug 'yko/mojo.vim'
+Plug 'flazz/vim-colorschemes'
+Plug 'rhysd/accelerated-jk'
+Plug 'klp2/dc_automakedir'
+Plug 'klp2/dc_trackperlvars'
+Plug 'klp2/dc_eqalignssimple'
+Plug 'klp2/dc_smartcom'
+Plug 'klp2/dc_foldsearches'
+Plug 'jceb/vim-hier'
+Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all' }
+Plug 'tpope/vim-rhubarb'
+Plug 'mattn/webapi-vim'
+Plug 'mattn/gist-vim'
+Plug 'https://github.maxmind.com/maxmind/mm.vim'
+
+Plug 'tpope/vim-sensible'
+
+source ~/.local_vim_plug_vimrc
+
+call plug#end()
+
