@@ -140,6 +140,7 @@ pathadd "/usr/local/sbin";
 pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
 pathadd "$HOME/bin";
+pathadd "/usr/local/go/bin";
 
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
