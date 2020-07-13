@@ -148,7 +148,9 @@ pathadd "/usr/local/go/bin";
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
 fi
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+if [[ $hostname != 'ct100-test.maxmind.com' ]]; then
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+fi
 
 
 LOCALPERLBIN=~/perl5/bin
