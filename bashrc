@@ -119,6 +119,9 @@ alias gd="git diff"
 alias gc="git commit"
 alias gp="git push"
 alias t="tmux"
+alias va="vagrant up"
+alias vs="vagrant ssh -- -A"
+alias vas="va && vs"
 
 # integer to ip address and back
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
