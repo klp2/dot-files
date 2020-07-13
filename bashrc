@@ -251,6 +251,11 @@ case $(id -u) in
          ;;
 esac
 
+local WITH_AGENT=""
+    if [ -n "$SSH_AUTH_SOCK" ]; then
+        WITH_AGENT+="🔑"
+    fi
+
 local TITLEBAR='\[\033]0;\u@\h:\w\007\]'
 
 local GRAD1=$(tty|cut -d/ -f3-)
@@ -261,7 +266,7 @@ $WHITE>${LIGHT_GRAY}-$GRAY<\
 $LIGHT_BLUE$GRAD1\
 $GRAY>${LIGHT_GRAY}-$WHITE<\
 $LIGHT_GRAY\$(date +%H:%M:%S)\
-$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt)\
+$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt) $WITH_AGENT\
 $LIGHT_GRAY\n\
 <$RED$SHLVL$LIGHT_GRAY> $GRAY-$BLUE-$LIGHT_BLUE[\
 $CYAN\w\
