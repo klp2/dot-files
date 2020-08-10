@@ -172,7 +172,7 @@ if ! type "ack" > /dev/null  2>&1; then
     fi
 fi
 
-alias grep='ack'
+alias grep='rg'
 alias g='grep'
 
 # gh = git home
