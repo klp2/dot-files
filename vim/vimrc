@@ -231,6 +231,11 @@ let g:hier_highlight_group_loc  = 'Normal'
 let g:hier_highlight_group_locw = 'HierWarning'
 let g:hier_highlight_group_loci = 'Normal'
 
+"====[ Golang stuff ]=====
+let g:go_fmt_command = "gofumports"
+" get signature/type info for object under cursor
+let g:go_auto_type_info = 1
+
 "=====[ Configure ALE for error tracking ]==================
 " You also need to install the following:  https://github.com/w0rp/ale
 
@@ -398,16 +403,17 @@ let g:matchmaker_enable_startup = 1
 " http://stackoverflow.com/questions/1327978/sorting-words-not-lines-in-vim
 :vnoremap <F1> d:execute 'normal a' . join(sort(split(getreg('"'))), ' ')<CR>
 
-map <F2> :NERDTreeToggle<CR>
+" map <F2> :NERDTreeToggle<CR>
+map <leader>nt :NERDTreeToggle<CR>
 
 set statusline+=%#warningmsg#
 set statusline+=%*
 
-map ,mmi o__PACKAGE__->meta->make_immutable;<ESC>
-map ,ddp ouse DDP;<CR>p( );<ESC>
-map ,perl :set paste<CR>O#!/usr/bin/env perl;<CR><CR>use strict;<CR>use warnings;<CR>use feature qw( say );<CR><ESC>
-map ,moose Opackage Foo::Bar;<CR><CR>use Moose;<CR><CR>use MooseX::StrictConstructor;<CR><CR>__PACKAGE__->meta->make_immutable;<CR>1;<ESC>
-map ,ss :set paste<CR>i    my $self = shift;<CR>
+map <leader>mmi o__PACKAGE__->meta->make_immutable;<ESC>
+map <leader>ddp ouse DDP;<CR>p( );<ESC>
+map <leader>perl :set paste<CR>O#!/usr/bin/env perl;<CR><CR>use strict;<CR>use warnings;<CR>use feature qw( say );<CR><ESC>
+map <leader>moose Opackage Foo::Bar;<CR><CR>use Moose;<CR><CR>use MooseX::StrictConstructor;<CR><CR>__PACKAGE__->meta->make_immutable;<CR>1;<ESC>
+map <leader>ss :set paste<CR>i    my $self = shift;<CR>
 
 " convert a file path to a Perl module name
 " ie Foo/Bar/Baz.pm => Foo::Bar::Baz
@@ -453,8 +459,8 @@ nmap k <Plug>(accelerated_jk_gk)
 set rtp+=/usr/local/opt/fzf
 set rtp+=~/.fzf
 nmap ; :Buffers<CR>
-nmap <Leader>r :Tags<CR>
-nmap <Leader>t :Files<CR>
-nmap <Leadera :Ag<CR>
+nmap <leader>r :Tags<CR>
+nmap <leader>t :Files<CR>
+nmap <leader>a :Ag<CR>
 
 source ~/.local_vimrc
