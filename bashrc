@@ -28,6 +28,13 @@ export me=$USER
 # use vim mappings to move around the command line
 set -o vi
 
+if [[ $platform == 'linux' ]]; then
+    # capslock = ctrl
+    setxkbmap -option ctrl:nocaps
+    # short-pressed ctrol is escape
+    xcape -e 'Control_L=Escape'
+fi
+
 # don't put duplicate lines in the history. See bash(1) for more options
 # http://www.linuxjournal.com/content/using-bash-history-more-efficiently-histcontrol
 export HISTCONTROL=ignoreboth
