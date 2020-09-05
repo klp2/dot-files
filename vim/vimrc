@@ -48,29 +48,6 @@ set bs=2
 
 let g:airline_theme='luna'
 
-"====[ Work out what kind of file this is ]========
-
-augroup FiletypeInference
-    autocmd!
-    autocmd BufNewFile,BufRead  *.t      setfiletype perl
-    autocmd BufNewFile,BufRead  *.pod    setfiletype pod
-    autocmd BufNewFile,BufRead  *        call s:infer_filetype()
-augroup END
-
-function! s:infer_filetype ()
-    for line in getline(1,20)
-        if line =~ '^\s*use\s*v\?5\.\S\+\s*;\s*$'
-            setfiletype perl
-            return
-        elseif line =~ '^\s*use\s*v\?6\s*;\s*$'
-            setfiletype perl6
-            return
-        endif
-    endfor
-endfunction
-
-au BufReadPost *.pl   set keywordprg=perldoc\ -f
-
 "=====[ Configure % key (via matchit plugin) ]==============================
 
 " Match angle brackets...
