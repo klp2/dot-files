@@ -11,6 +11,7 @@ Plug 'fatih/vim-go'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'sheerun/vim-polyglot'
+Plug 'petdance/vim-perl'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
@@ -18,7 +19,7 @@ Plug 'vim-scripts/vim-json-bundle'
 Plug 'w0rp/ale'
 Plug 'wincent/Command-T'
 Plug 'yko/mojo.vim'
-Plug 'flazz/vim-colorschemes'
+Plug 'joshdick/onedark.vim'
 Plug 'rhysd/accelerated-jk'
 Plug 'klp2/dc_automakedir'
 Plug 'klp2/dc_trackperlvars'
@@ -34,17 +35,22 @@ Plug 'https://github.maxmind.com/maxmind/mm.vim'
 
 call plug#end()
 
-:silent! colorscheme peaksea
-set cc=90
-set background=dark
+colorscheme onedark 
 
+"set a line on the right side to visually remind us to avoid long lines
+set cc=90
+
+let g:airline_theme='luna'
 set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 set laststatus=2
 set bs=2
 
-let g:airline_theme='luna'
-
+" gives us count of search matches
 set shortmess-=S
+
+" let vim-perl and vim-go handle those languages directly, as
+" vim-polyglot can take some time to pull in their updates
+let g:polyglot_disabled = ['go', 'perl']
 
 "=====[ Configure % key (via matchit plugin) ]==============================
 
