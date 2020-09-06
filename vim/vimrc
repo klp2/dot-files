@@ -9,6 +9,7 @@ Plug 'ntpeters/vim-better-whitespace'
 Plug 'c9s/perlomni.vim'
 Plug 'fatih/vim-go'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -378,7 +379,6 @@ let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
 " http://stackoverflow.com/questions/1327978/sorting-words-not-lines-in-vim
 :vnoremap <F1> d:execute 'normal a' . join(sort(split(getreg('"'))), ' ')<CR>
 
-" map <F2> :NERDTreeToggle<CR>
 map <leader>nt :NERDTreeToggle<CR>
 
 set statusline+=%#warningmsg#
