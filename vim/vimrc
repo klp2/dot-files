@@ -8,7 +8,6 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'c9s/perlomni.vim'
 Plug 'fatih/vim-go'
-Plug 'google/vim-searchindex'
 Plug 'jreybert/vimagit'
 Plug 'Lokaltog/vim-powerline'
 Plug 'qstrahl/vim-matchmaker'
@@ -47,6 +46,8 @@ set laststatus=2
 set bs=2
 
 let g:airline_theme='luna'
+
+set shortmess-=S
 
 "=====[ Configure % key (via matchit plugin) ]==============================
 

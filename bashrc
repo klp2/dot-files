@@ -146,6 +146,12 @@ pathadd() {
     fi
 }
 
+if [[ $platform == 'linux' ]]; then
+    if [[ -d "/home/linuxbrew/" ]]; then
+        pathadd "/home/linuxbrew/.linuxbrew/bin/"
+    fi
+fi
+
 pathadd "/usr/local/sbin";
 pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
