@@ -8,7 +8,6 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'c9s/perlomni.vim'
 Plug 'fatih/vim-go'
-Plug 'qstrahl/vim-matchmaker'
 Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'sheerun/vim-polyglot'
@@ -376,8 +375,6 @@ let g:auto_save = 1  " enable AutoSave on Vim startup
 let g:gitgutter_realtime = 0
 
 let g:auto_save_no_updatetime = 1  " do not change the 'updatetime' option
-
-let g:matchmaker_enable_startup = 1
 
 " http://stackoverflow.com/questions/1327978/sorting-words-not-lines-in-vim
 :vnoremap <F1> d:execute 'normal a' . join(sort(split(getreg('"'))), ' ')<CR>
