@@ -19,6 +19,9 @@ Plug 'yko/mojo.vim'
 " golang stuff
 Plug 'fatih/vim-go'
 
+" SQL stuff
+Plug 'oalders/prettysql'
+
 " JSON stuff
 Plug 'vim-scripts/vim-json-bundle'
 
