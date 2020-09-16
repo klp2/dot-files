@@ -1,3 +1,7 @@
+" let vim-perl and vim-go handle those languages directly, as
+" vim-polyglot can take some time to pull in their updates
+let g:polyglot_disabled = ['go', 'perl']
+
 call plug#begin('~/.vim/plugged')
 
 " perl stuff
@@ -44,7 +48,7 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'joshdick/onedark.vim'
 Plug 'vim-airline/vim-airline-themes'
 
-" utility
+" utility stuff
 Plug 'bling/vim-airline'
 Plug 'jceb/vim-hier'
 Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all' }
@@ -75,10 +79,6 @@ set bs=2
 
 " gives us count of search matches
 set shortmess-=S
-
-" let vim-perl and vim-go handle those languages directly, as
-" vim-polyglot can take some time to pull in their updates
-let g:polyglot_disabled = ['go', 'perl']
 
 map zg :GitGutterFold<CR>
 
