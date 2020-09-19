@@ -30,6 +30,7 @@ Plug 'oalders/prettysql'
 Plug 'vim-scripts/vim-json-bundle'
 
 " general programming language stuff
+Plug 'andymass/vim-matchup'
 Plug 'bkad/CamelCaseMotion'
 Plug 'mattn/webapi-vim'
 Plug 'ntpeters/vim-better-whitespace'
@@ -81,12 +82,6 @@ set bs=2
 set shortmess-=S
 
 map zg :GitGutterFold<CR>
-
-
-"=====[ Configure % key (via matchit plugin) ]==============================
-
-" Match angle brackets...
-set matchpairs+=<:>,«:»,｢:｣
 
 "=====[ Adjust keyword characters to match Perlish identifiers ]===============
 
