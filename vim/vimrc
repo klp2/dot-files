@@ -52,14 +52,14 @@ Plug 'vim-airline/vim-airline-themes'
 " utility stuff
 Plug 'bling/vim-airline'
 Plug 'jceb/vim-hier'
-Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all' }
+Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all', 'frozen': 1 }
 Plug 'rhysd/accelerated-jk'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'tpope/vim-rhubarb'
 Plug 'wincent/Command-T'
 
 " $work-specific stuff
-Plug 'https://github.maxmind.com/maxmind/mm.vim'
+Plug 'https://github.maxmind.com/maxmind/mm.vim', { 'frozen': 1 }
 
 call plug#end()
 
@@ -82,6 +82,21 @@ set bs=2
 set shortmess-=S
 
 map zg :GitGutterFold<CR>
+
+"====[ Use persistent undo ]=================
+
+if has('persistent_undo')
+    " Save all undo files in a single location (less messy, more risky)...
+    set undodir=$HOME/.vimundo
+
+    " Save a lot of back-history...
+    set undolevels=5000
+
+    " Actually switch on persistent undo
+    set undofile
+
+endif
+
 
 "=====[ Adjust keyword characters to match Perlish identifiers ]===============
 

@@ -10,6 +10,7 @@ echo $SELF_PATH
 
 mkdir -p ~/.re.pl
 mkdir -p ~/.config
+mkdir -p ~/.vimundo
 
 if ! [ -d ~/bin ]
 then
