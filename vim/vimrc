@@ -17,7 +17,7 @@ Plug 'klp2/dc_trackperlvars'
 Plug 'klp2/dc_eqalignssimple'
 Plug 'klp2/dc_smartcom'
 Plug 'klp2/dc_foldsearches'
-Plug 'petdance/vim-perl'
+Plug 'vim-perl/vim-perl'
 Plug 'yko/mojo.vim'
 
 " golang stuff
