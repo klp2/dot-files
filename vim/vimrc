@@ -1,6 +1,6 @@
 " let vim-perl and vim-go handle those languages directly, as
 " vim-polyglot can take some time to pull in their updates
-let g:polyglot_disabled = ['go', 'perl']
+let g:polyglot_disabled = ['go', 'perl', 'raku']
 
 call plug#begin('~/.vim/plugged')
 
