@@ -95,15 +95,15 @@ bindsym $mod+a focus parent
 # focus the child container
 #bindsym $mod+d focus child
 
-set $terms "1: terms"
-set $comms "2: comms"
+set $comms "1: comms"
+set $terms "2: terms"
 set $work_browser "3: work_browser"
 set $personal_browser "4: personal_browser"
 set $music "5: music"
 
 # switch to workspace
-bindsym $mod+1 workspace $terms
-bindsym $mod+2 workspace $comms
+bindsym $mod+1 workspace $comms
+bindsym $mod+2 workspace $terms
 bindsym $mod+3 workspace $work_browser
 bindsym $mod+4 workspace $personal_browser
 bindsym $mod+5 workspace $music
@@ -114,8 +114,8 @@ bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $terms
-bindsym $mod+Shift+2 move container to workspace $comms
+bindsym $mod+Shift+1 move container to workspace $comms
+bindsym $mod+Shift+2 move container to workspace $terms
 bindsym $mod+Shift+3 move container to workspace $work_browser
 bindsym $mod+Shift+4 move container to workspace $personal_browser
 bindsym $mod+Shift+5 move container to workspace $music
