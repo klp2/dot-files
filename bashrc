@@ -31,6 +31,8 @@ set -o vi
 if [[ $platform == 'linux' ]]; then
     # capslock = ctrl
     setxkbmap -option ctrl:nocaps
+    # capslock is toggled by pressing both shift keys
+    setxkbmap -option shift:both_capslock
     # short-pressed ctrol is escape
     xcape -e 'Control_L=Escape'
 fi
