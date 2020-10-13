@@ -40,13 +40,30 @@ fi
 # don't put duplicate lines in the history. See bash(1) for more options
 # http://www.linuxjournal.com/content/using-bash-history-more-efficiently-histcontrol
 export HISTCONTROL=ignoreboth
-export HISTTIMEFORMAT="%d/%m/%y %T "
-
-## TODO: look into separate persistent history file - http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
+export HISTTIMEFORMAT="%F %T "
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+export HISTSIZE=10000
+export HISTFILESIZE=1048576
+
+## http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
+log_bash_persistent_history() {
+  [[ $(history 1) =~ ^\ *[0-9]+\ +([^\ ]+\ [^\ ]+)\ +(.*)$ ]]
+  local date_part="${BASH_REMATCH[1]}"
+  local command_part="${BASH_REMATCH[2]}"
+  if [ "$command_part" != "$PERSISTENT_HISTORY_LAST" ]
+  then
+    echo $date_part "|" "$command_part" >> ~/.persistent_history
+    export PERSISTENT_HISTORY_LAST="$command_part"
+  fi
+}
+
+run_on_prompt_command() {
+    log_bash_persistent_history
+}
+
+PROMPT_COMMAND="run_on_prompt_command"
+
 
 # partial search
 if [[ $- == *i* ]]
