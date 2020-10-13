@@ -40,6 +40,7 @@ fi
 # don't put duplicate lines in the history. See bash(1) for more options
 # http://www.linuxjournal.com/content/using-bash-history-more-efficiently-histcontrol
 export HISTCONTROL=ignoreboth
+export HISTTIMEFORMAT="%d/%m/%y %T "
 
 ## TODO: look into separate persistent history file - http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
 
