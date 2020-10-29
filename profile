@@ -15,3 +15,4 @@ if [ -n "$BASH_VERSION" ]; then
     . "$HOME/.bashrc"
     fi
 fi
+eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)

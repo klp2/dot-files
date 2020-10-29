@@ -328,11 +328,11 @@ set hlsearch
 " lookahead as search pattern is specified
 set incsearch
 
-"Delete in normal mode to switch off highlighting till next search and clear messages...
-Nmap <silent> <BS> [Cancel highlighting]  :call HLNextOff() <BAR> :nohlsearch <BAR> :call VG_Show_CursorColumn('off')<CR>::HierClear<CR>
+""Delete in normal mode to switch off highlighting till next search and clear messages...
+"Nmap <silent> <BS> [Cancel highlighting]  :call HLNextOff() <BAR> :nohlsearch <BAR> :call VG_Show_CursorColumn('off')<CR>::HierClear<CR>
 
-"Double-delete to remove trailing whitespace...
-Nmap <silent> <BS><BS>  [Remove trailing whitespace] mz:call TrimTrailingWS()<CR>`z
+""Double-delete to remove trailing whitespace...
+"Nmap <silent> <BS><BS>  [Remove trailing whitespace] mz:call TrimTrailingWS()<CR>`z
 
 function! TrimTrailingWS ()
     if search('\s\+$', 'cnw')

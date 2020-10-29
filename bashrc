@@ -177,6 +177,9 @@ pathadd "/usr/local/bin";
 pathadd "$HOME/local/bin";
 pathadd "$HOME/bin";
 pathadd "/usr/local/go/bin";
+if [[ -d $HOME/.cargo ]]; then
+    pathadd "$HOME/.cargo/bin"
+fi
 
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
@@ -186,17 +189,17 @@ if [[ $hostname != 'ct100-test.maxmind.com' ]]; then
 fi
 
 
-LOCALPERLBIN=~/perl5/bin
+# LOCALPERLBIN=~/perl5/bin
 
-if [[ ! -d ~/.plenv ]]; then
-    PERL_CPANM_OPT="--local-lib=~/perl5"
-    # adds $HOME/perl5/bin to PATH
-    [ $SHLVL -eq 1 ] && eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"
+# if [[ ! -d ~/.plenv ]]; then
+#     PERL_CPANM_OPT="--local-lib=~/perl5"
+#     # adds $HOME/perl5/bin to PATH
+#     [ $SHLVL -eq 1 ] && eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"
 
-    if [ -d $LOCALPERBIN ] ; then
-        export PATH="$LOCALPERLBIN:$PATH"
-    fi
-fi
+#     if [ -d $LOCALPERBIN ] ; then
+#         export PATH="$LOCALPERLBIN:$PATH"
+#     fi
+# fi
 
 # in some places, an ack already existed, and the ack we want is ack-grep
 if ! type "ack" > /dev/null  2>&1; then
