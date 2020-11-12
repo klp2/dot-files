@@ -4,9 +4,8 @@ set -eu -o pipefail
 
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
-source ~/dot-files/bash_functions.sh
+source $SELF_PATH/bash_functions.sh
 
-echo $SELF_PATH
 
 mkdir -p ~/.re.pl
 mkdir -p ~/.config
@@ -27,7 +26,6 @@ ln -sf $SELF_PATH/bash_profile ~/.bash_profile
 cp     $SELF_PATH/dataprinter ~/.dataprinter
 chmod 700 ~/.dataprinter
 
-ln -sf $LINK_FLAG $SELF_PATH/dzil ~/.dzil
 ln -sf $SELF_PATH/perlcriticrc ~/.perlcriticrc
 ln -sf $SELF_PATH/perltidyrc ~/.perltidyrc
 ln -sf $SELF_PATH/profile ~/.profile
