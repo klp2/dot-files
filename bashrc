@@ -1,5 +1,7 @@
 ## Prompt originally by cynikal at NYI, with some tweaks over the years
-## The rest of the file influenced heavily by https://raw.githubusercontent.com/oalders/dot-files/master/bashrc when updating in 2017, as its been a long time since I've used bash
+## The rest of the file influenced heavily by
+## https://raw.githubusercontent.com/oalders/dot-files/master/bashrc
+## when updating in 2017, as its been a long time since I've used bash
 
 
 # http://stackoverflow.com/questions/394230/detect-the-os-from-a-bash-script

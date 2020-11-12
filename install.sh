@@ -6,8 +6,6 @@ SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 source $SELF_PATH/bash_functions.sh
 
-
-mkdir -p ~/.re.pl
 mkdir -p ~/.config
 mkdir -p ~/.vimundo
 
@@ -29,7 +27,6 @@ chmod 700 ~/.dataprinter
 ln -sf $SELF_PATH/perlcriticrc ~/.perlcriticrc
 ln -sf $SELF_PATH/perltidyrc ~/.perltidyrc
 ln -sf $SELF_PATH/profile ~/.profile
-ln -sf $SELF_PATH/re.pl/repl.rc ~/.re.pl/repl.rc
 ln -sf $SELF_PATH/screenrc ~/.screenrc
 ln -sf $SELF_PATH/tmux/tmux.conf ~/.tmux.conf
 ln -sf $SELF_PATH/tmux/tmux-osx.conf ~/.tmux-osx.conf
