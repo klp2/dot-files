@@ -182,7 +182,9 @@ pathadd "/usr/local/go/bin";
 if [[ -d $HOME/.cargo ]]; then
     pathadd "$HOME/.cargo/bin"
 fi
-
+if [[ -d /home/linuxbrew/.linuxbrew/bin ]]; then
+    pathadd "/home/linuxbrew/.linuxbrew/bin"
+fi
 if [[ $platform == 'osx' ]]; then
     pathadd "/usr/local/MacGPG2/bin"
 fi
@@ -322,3 +324,9 @@ cynprompt
 source ~/perl5/perlbrew/etc/bashrc
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+PATH="/home/kphair/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/kphair/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/kphair/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/kphair/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/kphair/perl5"; export PERL_MM_OPT;
