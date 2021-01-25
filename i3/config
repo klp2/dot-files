@@ -171,7 +171,9 @@ bar {
 # screensaver shenangigans
 # this locked up my  machine, will consider fixing later
 # set $i3lockwall sh ~/.config/i3/scripts/screensaver
-set $i3lockwall i3lock -c 000000
+set $i3lockwall i3lock -n -c 000000
+exec xset s 600 600
+exec --no-startup-id xss-lock -- $i3lockwall
 
 bindsym $mod+Ctrl+Shift+l exec --no-startup-id $i3lockwall
 
@@ -211,7 +213,7 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute s
 bindsym $mod+c exec google-chrome
 
 # slack
-bindsym $mod+t exec slack
+bindsym $mod+t exec --no-startup-id slack
 
 # screenshot stuff first borrowed from https://www.reddit.com/r/i3wm/comments/65vis5/screenshot_commands_from_my_i3_config/
 # Multi-screen screenshots with scrot
@@ -219,3 +221,12 @@ bindsym --release Print exec scrot 'screenshot_%Y%m%d_%H%M%S.png' -e 'mkdir -p ~
 
 # OSX-like area selection screenshots
 bindsym --release Shift+Print exec scrot -s 'screenshot_%Y%m%d_%H%M%S.png' -e 'mkdir -p ~/Pictures/screenshots && mv $f ~/Pictures/screenshots && xclip -selection clipboard -t image/png -i ~/Pictures/screenshots/`ls -1 -t ~/Pictures/screenshots | head -1`' # Area selection
+
+# hot pluggable second monitor
+exec --no-startup-id enact --pos right --watch &
+
+# Make the currently focused window a scratchpad
+bindsym $mod+Shift+minus move scratchpad
+
+# Show the first scratchpad window
+bindsym $mod+minus scratchpad show

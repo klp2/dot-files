@@ -86,6 +86,9 @@ elif [[ $platform == 'linux' ]]; then
 fi
 LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
 
+#go modules
+export GO111MODULE=on
+
 # search history
 alias hist='history | ack $1'
 
