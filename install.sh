@@ -14,6 +14,13 @@ then
     mkdir ~/bin
 fi
 
+envtype='remote'
+
+if [[ -e "$HOME/.laptop" ]]; then
+    envtype='laptop'
+fi
+
+
 $SELF_PATH/install/vim.sh
 
 ln -sf $SELF_PATH/ackrc ~/.ackrc
@@ -32,9 +39,11 @@ ln -sf $SELF_PATH/tmux/tmux.conf ~/.tmux.conf
 ln -sf $SELF_PATH/tmux/tmux-osx.conf ~/.tmux-osx.conf
 ln -sf $SELF_PATH/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf $SELF_PATH/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
-ln -sf $SELF_PATH/i3 ~/.config/i3
-ln -sf $SELF_PATH/i3status ~/.config/i3status
 
+if [[ $envtype == 'laptop' ]]; then
+    ln -sf $SELF_PATH/i3 ~/.config/i3
+    ln -sf $SELF_PATH/i3status ~/.config/i3status
+fi
 
 if ! [ -d ~/.ssh/keys ]
 then
@@ -45,10 +54,6 @@ git submodule init
 git submodule update
 
 ./git-config.sh
-
-# silence warnings when perlbrew not installed
-mkdir -p $HOME/perl5/perlbrew/etc
-touch $HOME/perl5/perlbrew/etc/bashrc
 
 bash ./install-fpp.sh
 

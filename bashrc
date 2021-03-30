@@ -14,13 +14,19 @@ elif [[ "$unamestr" == 'Darwin' ]]; then
    platform='osx'
 fi
 
+
 if [[ $platform == 'linux' ]]; then
     hostname=`hostname -f`
 else
     hostname=`hostname`
 fi
 
-if [[ $hostname =~ "maxmind" ]]; then
+envtype='remote'
+if [[ -e "$HOME/.laptop" ]]; then
+   envtype='laptop'
+fi
+
+if [[ $envtype != 'remote' ]]; then
     alias perl=mm-perl
 fi
 
@@ -30,13 +36,43 @@ export me=$USER
 # use vim mappings to move around the command line
 set -o vi
 
-if [[ $platform == 'linux' ]]; then
-    # capslock = ctrl
-    setxkbmap -option ctrl:nocaps
-    # capslock is toggled by pressing both shift keys
-    setxkbmap -option shift:both_capslock
-    # short-pressed ctrol is escape
-    xcape -e 'Control_L=Escape'
+# http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
+pathadd() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+
+if [[ $envtype == 'laptop' ]]; then
+   if [[ $platform == 'linux' ]]; then
+       # capslock = ctrl
+       setxkbmap -option ctrl:nocaps
+       # capslock is toggled by pressing both shift keys
+       setxkbmap -option shift:both_capslock
+       # short-pressed ctrol is escape
+       xcape -e 'Control_L=Escape'
+       # if [[ -d "/home/linuxbrew/" ]]; then
+       #     pathadd "/home/linuxbrew/.linuxbrew/bin/"
+       # fi
+
+       export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+
+      # cleanup homebrew refuse
+      alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
+
+      source ~/perl5/perlbrew/etc/bashrc
+
+      pathadd "$HOME/perl5/bin"
+      PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+      PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+      PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
+      PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
+   fi
+
+   if [[ $platform == 'osx' ]]; then
+       pathadd "/usr/local/MacGPG2/bin"
+       pathadd "$HOME/dot-files/bin/osx:$PATH"
+   fi
 fi
 
 # don't put duplicate lines in the history. See bash(1) for more options
@@ -66,7 +102,6 @@ run_on_prompt_command() {
 
 PROMPT_COMMAND="run_on_prompt_command"
 
-
 # partial search
 if [[ $- == *i* ]]
 then
@@ -92,8 +127,6 @@ export GO111MODULE=on
 # search history
 alias hist='history | ack $1'
 
-# cleanup homebrew refuse
-alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
 
 # check tty usage, sorting by tty's
 alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
@@ -164,18 +197,7 @@ alias gfn='geofeednames'
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
 
-# http://superuser.com/questions/39751/add-directory-to-path-if-its-not-already-there
-pathadd() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        PATH="$1:$PATH"
-    fi
-}
 
-if [[ $platform == 'linux' ]]; then
-    if [[ -d "/home/linuxbrew/" ]]; then
-        pathadd "/home/linuxbrew/.linuxbrew/bin/"
-    fi
-fi
 
 pathadd "/usr/local/sbin";
 pathadd "/usr/local/bin";
@@ -185,28 +207,7 @@ pathadd "/usr/local/go/bin";
 if [[ -d $HOME/.cargo ]]; then
     pathadd "$HOME/.cargo/bin"
 fi
-if [[ -d /home/linuxbrew/.linuxbrew/bin ]]; then
-    pathadd "/home/linuxbrew/.linuxbrew/bin"
-fi
-if [[ $platform == 'osx' ]]; then
-    pathadd "/usr/local/MacGPG2/bin"
-fi
-if [[ $hostname != 'ct100-test.maxmind.com' ]]; then
-    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-fi
 
-
-# LOCALPERLBIN=~/perl5/bin
-
-# if [[ ! -d ~/.plenv ]]; then
-#     PERL_CPANM_OPT="--local-lib=~/perl5"
-#     # adds $HOME/perl5/bin to PATH
-#     [ $SHLVL -eq 1 ] && eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"
-
-#     if [ -d $LOCALPERBIN ] ; then
-#         export PATH="$LOCALPERLBIN:$PATH"
-#     fi
-# fi
 
 # in some places, an ack already existed, and the ack we want is ack-grep
 if ! type "ack" > /dev/null  2>&1; then
@@ -215,15 +216,13 @@ if ! type "ack" > /dev/null  2>&1; then
     fi
 fi
 
-alias grep='rg'
-alias g='grep'
+# alias grep='rg'
+# alias g='grep'
 
 # gh = git home
 # brings you to the top level of the git repo you are currently in
 # http://stackoverflow.com/questions/957928/is-there-a-way-to-get-the-git-root-directory-in-one-command
 function gh() { cd "$(git rev-parse --show-toplevel)"; }
-# If the first arg to "vi" contains "::" then assume it's a Perl module that's
-# either in lib or t/lib
 
 function diffcol() {
     awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
@@ -235,6 +234,8 @@ function testme() {
     return 0
 }
 
+# If the first arg to "vi" contains "::" then assume it's a Perl module that's
+# either in lib or t/lib
 function vi() {
     local vi=$(type -fp vim)
     string=$1
@@ -261,11 +262,6 @@ function geofeednames() {
 export GOPATH=~/go
 if [ -d $GOPATH ] ; then
     export PATH="$GOPATH/bin:$PATH"
-fi
-
-
-if [[ $platform == 'osx' ]]; then
-    export PATH="~/dot-files/bin/osx:$PATH"
 fi
 
 source "$HOME/.local-bashrc"
@@ -324,12 +320,5 @@ PS2="$LIGHT_CYAN-$CYAN-$GRAY-$LIGHT_GRAY "
 
 cynprompt
 
-source ~/perl5/perlbrew/etc/bashrc
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-PATH="/home/kphair/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/home/kphair/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/kphair/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/kphair/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/kphair/perl5"; export PERL_MM_OPT;

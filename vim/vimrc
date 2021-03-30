@@ -491,7 +491,6 @@ nmap k <Plug>(accelerated_jk_gk)
 " FZF
 set rtp+=/usr/local/opt/fzf
 set rtp+=~/.fzf
-set rtp+=/home/linuxbrew/.linuxbrew/opt/fzf
 nmap ; :Buffers<CR>
 nmap <leader>r :Tags<CR>
 nmap <leader>t :Files<CR>
