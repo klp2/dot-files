@@ -53,6 +53,7 @@ Plug 'vim-airline/vim-airline-themes'
 " utility stuff
 Plug 'bling/vim-airline'
 Plug 'jceb/vim-hier'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all', 'frozen': 1 }
 Plug 'rhysd/accelerated-jk'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
