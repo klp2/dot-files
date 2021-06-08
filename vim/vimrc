@@ -49,6 +49,7 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 " look and feel stuff
 Plug 'joshdick/onedark.vim'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'dracula/vim', { 'as': 'dracula' }
 
 " utility stuff
 Plug 'bling/vim-airline'
@@ -65,7 +66,8 @@ Plug 'https://github.maxmind.com/maxmind/mm.vim', { 'frozen': 1 }
 
 call plug#end()
 
-colorscheme onedark
+"colorscheme onedark
+colorscheme dracula 
 
 "set a line on the right side to visually remind us to avoid long lines
 set cc=90
