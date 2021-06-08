@@ -25,8 +25,11 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 rm -rf ~/.vim/Trashed-Bundles ~/.vim/bundle
 
-# The abolish plugin interferes with a fresh install
-rm -f ~/.vim/after
+if ! [ -d ~/.vim/after/syntax/perl/ ]
+then
+    mkdir ~/.vim/after/syntax/perl/
+fi
+cp $PREFIX/vim/heredoc-sql.vim ~/.vim/after/syntax/perl/
 
 rm -f ~/.vimrc
 ln -sf $PREFIX/vim/vim-plug-vimrc ~/.vimrc
