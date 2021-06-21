@@ -429,7 +429,7 @@ function! TidyAll()
 endfunction
 
 " Bind to ,t (or leader+t)
-map <leader>t :TidyAll<cr>
+map <leader>T :TidyAll<cr>
 
 " Command-T remap
 map <leader>f :CommandT<cr>
@@ -492,8 +492,6 @@ nmap j <Plug>(accelerated_jk_gj)
 nmap k <Plug>(accelerated_jk_gk)
 
 " FZF
-set rtp+=/usr/local/opt/fzf
-set rtp+=~/.fzf
 nmap ; :Buffers<CR>
 nmap <leader>r :Tags<CR>
 nmap <leader>t :Files<CR>

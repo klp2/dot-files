@@ -131,6 +131,8 @@ alias hist='history | ack $1'
 # check tty usage, sorting by tty's
 alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
 
+alias time='NOWTIME=`date +%s`;/usr/bin/time -v -o time.output.$NOWTIME'
+
 # list all processes that are running with the string in it
 # stolen from here: http://www.karl-voit.at/scripts/any
 alias jn='ps auxwwwwwww|ack -i $1'
