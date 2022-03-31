@@ -12,6 +12,7 @@ call plug#begin('~/.vim/plugged')
 " necessarily strictly perl-related, but were definitely written with perl and
 " raku in mind, so I'm keeping them in the perl section
 Plug 'c9s/perlomni.vim'
+Plug 'dracula/vim'
 Plug 'klp2/dc_automakedir'
 Plug 'klp2/dc_trackperlvars'
 Plug 'klp2/dc_eqalignssimple'
@@ -28,6 +29,9 @@ Plug 'oalders/prettysql'
 
 " JSON stuff
 Plug 'vim-scripts/vim-json-bundle'
+
+" assembly stuff
+Plug 'zacharied/lc3.vim'
 
 " general programming language stuff
 Plug 'andymass/vim-matchup'
