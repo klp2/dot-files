@@ -51,9 +51,9 @@ if [[ $envtype == 'laptop' ]]; then
        setxkbmap -option shift:both_capslock
        # short-pressed ctrol is escape
        xcape -e 'Control_L=Escape'
-       # if [[ -d "/home/linuxbrew/" ]]; then
-       #     pathadd "/home/linuxbrew/.linuxbrew/bin/"
-       # fi
+       if [[ -d "/home/linuxbrew/" ]]; then
+           pathadd "/home/linuxbrew/.linuxbrew/bin/"
+       fi
 
        export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
@@ -83,6 +83,9 @@ export HISTTIMEFORMAT="%F %T "
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=10000
 export HISTFILESIZE=1048576
+
+# try to improve gcloud ssh performance
+export CLOUDSDK_PYTHON=$(which python3) CLOUDSDK_PYTHON_SITEPACKAGES=1
 
 ## http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
 log_bash_persistent_history() {
