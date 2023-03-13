@@ -45,6 +45,8 @@ bindsym $mod+d exec dmenu_run
 # focus does not follow mouse
 focus_follows_mouse no
 
+focus_on_window_activation focus
+
 # change focus
 bindsym $mod+h focus left
 bindsym $mod+j focus down 
@@ -95,34 +97,38 @@ bindsym $mod+a focus parent
 # focus the child container
 #bindsym $mod+d focus child
 
-set $comms "1: comms"
-set $terms "2: terms"
+set $slack "1: slack"
+set $pct "2: pct"
 set $work_browser "3: work_browser"
-set $personal_browser "4: personal_browser"
-set $music "5: music"
+set $gcp "4: gcp"
+set $vagrant "5: vagrant"
+set $mail "6: mail"
+set $vippen "7: vippen"
+set $build "8: build"
+set $local "9: local"
 
 # switch to workspace
-bindsym $mod+1 workspace $comms
-bindsym $mod+2 workspace $terms
+bindsym $mod+1 workspace $slack
+bindsym $mod+2 workspace $pct
 bindsym $mod+3 workspace $work_browser
-bindsym $mod+4 workspace $personal_browser
-bindsym $mod+5 workspace $music
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
+bindsym $mod+4 workspace $gcp
+bindsym $mod+5 workspace $vagrant
+bindsym $mod+6 workspace $mail
+bindsym $mod+7 workspace $vippen
+bindsym $mod+8 workspace $build
+bindsym $mod+9 workspace $local
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $comms
-bindsym $mod+Shift+2 move container to workspace $terms
+bindsym $mod+Shift+1 move container to workspace $slack
+bindsym $mod+Shift+2 move container to workspace $pct
 bindsym $mod+Shift+3 move container to workspace $work_browser
-bindsym $mod+Shift+4 move container to workspace $personal_browser
-bindsym $mod+Shift+5 move container to workspace $music
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+4 move container to workspace $gcp
+bindsym $mod+Shift+5 move container to workspace $vagrant
+bindsym $mod+Shift+6 move container to workspace $mail
+bindsym $mod+Shift+7 move container to workspace $vippen
+bindsym $mod+Shift+8 move container to workspace $build
+bindsym $mod+Shift+9 move container to workspace $local
 bindsym $mod+Shift+0 move container to workspace 10
 
 # immediately switch back to previous workspace
@@ -200,14 +206,14 @@ for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
 
 # Pulse Audio controls
-# bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +1% #increase sound volume
-# bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -1% #decrease sound volume
-# bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +1% #increase sound volume
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -1% #decrease sound volume
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle # mute sound
 
-# # alsa
-bindsym XF86AudioRaiseVolume exec "amixer -q sset Master,0 1+ unmute"
-bindsym XF86AudioLowerVolume exec "amixer -q sset Master,0 1- unmute"
-bindsym XF86AudioMute exec "amixer -q sset Master,0 toggle"
+# # # alsa
+# bindsym XF86AudioRaiseVolume exec "amixer -q sset Master,0 1+ unmute"
+# bindsym XF86AudioLowerVolume exec "amixer -q sset Master,0 1- unmute"
+# bindsym XF86AudioMute exec "amixer -q sset Master,0 toggle"
 
 # google chrome
 bindsym $mod+c exec google-chrome
@@ -230,3 +236,7 @@ bindsym $mod+Shift+minus move scratchpad
 
 # Show the first scratchpad window
 bindsym $mod+minus scratchpad show
+
+# Try to remove title bars
+default_border pixel 1
+# default_floating_border pixel 1

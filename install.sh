@@ -39,6 +39,7 @@ ln -sf $SELF_PATH/tmux/tmux.conf ~/.tmux.conf
 ln -sf $SELF_PATH/tmux/tmux-osx.conf ~/.tmux-osx.conf
 ln -sf $SELF_PATH/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf $SELF_PATH/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
+ln -sf $SELF_PATH/psql/psqlrc ~/.psqlrc
 
 if [[ $envtype == 'laptop' ]]; then
     ln -sf $SELF_PATH/i3 ~/.config/i3
