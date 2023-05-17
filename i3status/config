@@ -20,6 +20,7 @@ order += "disk /"
 order += "load"
 order += "memory"
 order += "tztime local"
+order += "tztime utc"
 
 wireless _first_ {
         format_up = "W: (%quality at %essid) %ip"
@@ -53,9 +54,14 @@ tztime local {
         format = "%Y-%m-%d %H:%M:%S"
 }
 
+tztime utc {
+        format = "%H:%M:%S"
+        timezone = "Etc/UTC"
+}
+
 volume master {
    format = "v: %volume"
-   format_muted = "v: %volume"
+   format_muted = "MUTED: %volume"
    device = "default"
    mixer = "Master"
    mixer_idx = 0
