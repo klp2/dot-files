@@ -265,7 +265,7 @@ let g:hier_highlight_group_locw = 'HierWarning'
 let g:hier_highlight_group_loci = 'Normal'
 
 "====[ Golang stuff ]=====
-let g:go_fmt_command = "gofumports"
+let g:go_fmt_command = "gopls"
 " get signature/type info for object under cursor
 let g:go_auto_type_info = 1
 map <leader>gt :GoTest<cr>
@@ -287,7 +287,8 @@ augroup END
 let g:ale_set_loclist                = 0
 let g:ale_set_quickfix               = 1
 let g:ale_set_signs                  = 0
-let g:ale_linters = {'go': ['gofumpt', 'gofumports', 'golint', 'go vet', 'golangci-lint'], 'perl': ['perl','perlcritic'] }
+"let g:ale_linters = {'go': ['gofumpt', 'gofumports', 'golint', 'go vet', 'golangci-lint'], 'perl': ['perl','perlcritic'] }
+let g:ale_linters = {'go': ['gofumpt', 'gopls', 'golint', 'go vet', 'golangci-lint'], 'perl': ['perl','perlcritic'] }
 "let g:ale_linters = {'go': ['gofmt', 'gopls', 'golangci-lint'], 'perl': ['perl','perlcritic'] }
 let g:ale_fixers =  { 'perl': ['perltidy'] }
 
