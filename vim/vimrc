@@ -49,6 +49,7 @@ Plug 'mattn/gist-vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'github/copilot.vim'
 
 " look and feel stuff
 Plug 'joshdick/onedark.vim'
