@@ -15,3 +15,9 @@ if [ -n "$BASH_VERSION" ]; then
     . "$HOME/.bashrc"
     fi
 fi
+. "$HOME/.cargo/env"
+source ~/.bash_completion/alacritty
+source /usr/share/bash-completion/completions/git
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"

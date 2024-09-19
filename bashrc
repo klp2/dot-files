@@ -45,10 +45,10 @@ pathadd() {
 
 if [[ $envtype == 'laptop' ]]; then
    if [[ $platform == 'linux' ]]; then
-       # capslock = ctrl
-       setxkbmap -option ctrl:nocaps
-       # capslock is toggled by pressing both shift keys
-       setxkbmap -option shift:both_capslock
+       # # capslock = ctrl
+       # setxkbmap -option ctrl:nocaps
+       # # capslock is toggled by pressing both shift keys
+       # setxkbmap -option shift:both_capslock
        # short-pressed ctrol is escape
        xcape -e 'Control_L=Escape'
        if [[ -d "/home/linuxbrew/" ]]; then
@@ -60,13 +60,13 @@ if [[ $envtype == 'laptop' ]]; then
       # cleanup homebrew refuse
       alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
 
-      source ~/perl5/perlbrew/etc/bashrc
+      # source ~/perl5/perlbrew/etc/bashrc
 
-      pathadd "$HOME/perl5/bin"
-      PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-      PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-      PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-      PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
+      # pathadd "$HOME/perl5/bin"
+      # PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+      # PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+      # PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
+      # PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
    fi
 
    if [[ $platform == 'osx' ]]; then
@@ -327,3 +327,17 @@ cynprompt
 
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+. "$HOME/.cargo/env"
+source /usr/share/bash-completion/completions/git
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# For plenv.  See: github.com/tokuhirom/plenv
+export PATH="$HOME/.plenv/versions/5.40.0/bin:$HOME/.plenv/bin:$HOME/.local/bin:$PATH"
+eval "$(plenv init -)"
+export PERL5LIB=$HOME/path/to/mm_website/lib
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

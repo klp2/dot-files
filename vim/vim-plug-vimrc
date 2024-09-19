@@ -38,7 +38,10 @@ Plug 'https://github.maxmind.com/maxmind/mm.vim'
 
 Plug 'tpope/vim-sensible'
 
-source ~/.local_vim_plug_vimrc
+:if filereadable(expand("~/.local_vim_plug_vimrc"))
+:    source ~/.local_vim_plug_vimrc
+:endif
+
 
 call plug#end()
 

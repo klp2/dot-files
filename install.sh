@@ -74,7 +74,7 @@ fi
 #git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
 # git extras
-echo "installing git-extras"
+# echo "installing git-extras"
 
-cd inc/git-extras
-make install PREFIX="$HOME/local"
+# cd inc/git-extras
+# make install PREFIX="$HOME/local"
