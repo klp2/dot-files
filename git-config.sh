@@ -22,6 +22,7 @@ git config --global github.user klp2
 git config --global help.autocorrect 10
 git config --global merge.conflictstyle diff3
 git config --global push.default simple
+git config --global push.autoSetupRemote true
 git config --global rerere.enabled 1
 
 git config --global alias.b  'branch'
