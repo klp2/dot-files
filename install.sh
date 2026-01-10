@@ -18,11 +18,27 @@ envtype='remote'
 
 if [[ -e "$HOME/.laptop" ]]; then
     envtype='laptop'
+elif [[ -e "$HOME/.desktop" ]]; then
+    envtype='desktop'
 fi
 
 
 $SELF_PATH/install/vim.sh
 $SELF_PATH/install/nvim.sh
+
+# Prompt setup - git-prompt-fallback and starship config
+cp $SELF_PATH/bin/git-prompt-fallback ~/bin/
+chmod +x ~/bin/git-prompt-fallback
+cp $SELF_PATH/bin/install-starship.sh ~/bin/
+chmod +x ~/bin/install-starship.sh
+mkdir -p ~/.config
+ln -sf $SELF_PATH/starship.toml ~/.config/starship.toml
+
+# Install starship on desktop/laptop if not already present (not on remote servers)
+if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship &> /dev/null; then
+    echo "Installing starship prompt..."
+    $SELF_PATH/bin/install-starship.sh ~/bin
+fi
 
 ln -sf $SELF_PATH/ackrc ~/.ackrc
 

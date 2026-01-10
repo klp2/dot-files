@@ -66,8 +66,10 @@ Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'tpope/vim-rhubarb'
 Plug 'wincent/Command-T'
 
-" $work-specific stuff
-Plug 'https://github.maxmind.com/maxmind/mm.vim', { 'frozen': 1 }
+" $work-specific stuff - only load if mm-perl exists
+if executable('mm-perl')
+    Plug 'https://github.maxmind.com/maxmind/mm.vim', { 'frozen': 1 }
+endif
 
 call plug#end()
 

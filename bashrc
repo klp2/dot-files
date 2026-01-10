@@ -24,9 +24,11 @@ fi
 envtype='remote'
 if [[ -e "$HOME/.laptop" ]]; then
    envtype='laptop'
+elif [[ -e "$HOME/.desktop" ]]; then
+   envtype='desktop'
 fi
 
-if [[ $envtype != 'remote' ]]; then
+if [[ $envtype == 'laptop' ]] && command -v mm-perl &> /dev/null; then
     alias perl=mm-perl
 fi
 
@@ -43,14 +45,13 @@ pathadd() {
     fi
 }
 
-if [[ $envtype == 'laptop' ]]; then
+if [[ $envtype == 'laptop' || $envtype == 'desktop' ]]; then
    if [[ $platform == 'linux' ]]; then
-       # # capslock = ctrl
-       # setxkbmap -option ctrl:nocaps
-       # # capslock is toggled by pressing both shift keys
-       # setxkbmap -option shift:both_capslock
-       # short-pressed ctrol is escape
-       xcape -e 'Control_L=Escape'
+       # xcape only works on X11, not Wayland
+       if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
+           xcape -e 'Control_L=Escape'
+       fi
+
        if [[ -d "/home/linuxbrew/" ]]; then
            pathadd "/home/linuxbrew/.linuxbrew/bin/"
        fi
@@ -59,14 +60,6 @@ if [[ $envtype == 'laptop' ]]; then
 
       # cleanup homebrew refuse
       alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
-
-      # source ~/perl5/perlbrew/etc/bashrc
-
-      # pathadd "$HOME/perl5/bin"
-      # PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-      # PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-      # PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-      # PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
    fi
 
    if [[ $platform == 'osx' ]]; then
@@ -269,7 +262,7 @@ if [ -d $GOPATH ] ; then
     export PATH="$GOPATH/bin:$PATH"
 fi
 
-source "$HOME/.local-bashrc"
+[ -f "$HOME/.local-bashrc" ] && source "$HOME/.local-bashrc"
 
 # clean up PATH
 # http://linuxg.net/oneliners-for-removing-the-duplicates-in-your-path/
@@ -315,7 +308,7 @@ $WHITE>${LIGHT_GRAY}-$GRAY<\
 $LIGHT_BLUE$GRAD1\
 $GRAY>${LIGHT_GRAY}-$WHITE<\
 $LIGHT_GRAY\$(date +%H:%M:%S)\
-$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt) $WITH_AGENT\
+$WHITE>$LIGHT_GRAY=$GRAY=$LIGHT_CYAN\$(git-prompt-fallback 2>/dev/null) $WITH_AGENT\
 $LIGHT_GRAY\n\
 <$RED$SHLVL$LIGHT_GRAY> $GRAY-$BLUE-$LIGHT_BLUE[\
 $CYAN\w\
@@ -323,21 +316,30 @@ $LIGHT_BLUE]$BLUE-$GRAY-$LIGHT_GRAY $WHITE$PROMPT $LIGHT_GRAY"
 PS2="$LIGHT_CYAN-$CYAN-$GRAY-$LIGHT_GRAY "
 }
 
-cynprompt
-
+# Use starship if available, otherwise fall back to cynprompt
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+else
+    cynprompt
+fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-. "$HOME/.cargo/env"
-source /usr/share/bash-completion/completions/git
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+[ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
 
-# For plenv.  See: github.com/tokuhirom/plenv
-export PATH="$HOME/.plenv/versions/5.40.0/bin:$HOME/.plenv/bin:$HOME/.local/bin:$PATH"
-eval "$(plenv init -)"
-export PERL5LIB=$HOME/path/to/mm_website/lib
+# pyenv - only if installed
+if [ -d "$HOME/.pyenv" ]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
 
+# plenv - only if installed
+if command -v plenv &> /dev/null; then
+    eval "$(plenv init -)"
+fi
+
+# nvm - only if installed
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"

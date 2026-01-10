@@ -25,10 +25,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 rm -rf ~/.vim/Trashed-Bundles ~/.vim/bundle
 
-if ! [ -d ~/.vim/after/syntax/perl/ ]
-then
-    mkdir ~/.vim/after/syntax/perl/
-fi
+mkdir -p ~/.vim/after/syntax/perl/
 cp $PREFIX/vim/heredoc-sql.vim ~/.vim/after/syntax/perl/
 
 rm -f ~/.vimrc

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Fallback git prompt - no dependencies beyond bash + git
+# Output: (branch[+3 ~2 !1]) or empty if not in git repo
+#
+# Symbols with counts:
+#   +N = N untracked files (new)
+#   -N = N deleted files
+#   ~N = N modified files
+#   !N = N staged changes
+
+# Exit silently if not in a git repo
+git rev-parse --is-inside-work-tree &>/dev/null || exit 0
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [[ -z "$branch" ]]; then
+    # Detached HEAD - show tag or short commit
+    branch=$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+    branch="'${branch}'"
+fi
+
+# Count status by type
+flags=""
+status=$(git status --porcelain 2>/dev/null)
+if [[ -n "$status" ]]; then
+    untracked=$(echo "$status" | grep -c '^??')
+    deleted=$(echo "$status" | grep -c '^.D')
+    modified=$(echo "$status" | grep -c '^.[MD]')
+    staged=$(echo "$status" | grep -c '^[MADRC]')
+
+    [[ $untracked -gt 0 ]] && flags+="+$untracked "
+    [[ $deleted -gt 0 ]] && flags+="-$deleted "
+    [[ $modified -gt 0 ]] && flags+="~$modified "
+    [[ $staged -gt 0 ]] && flags+="!$staged "
+fi
+
+# Trim trailing space
+flags="${flags% }"
+
+if [[ -n "$flags" ]]; then
+    printf "(%s[%s])" "$branch" "$flags"
+else
+    printf "(%s)" "$branch"
+fi

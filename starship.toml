@@ -1,0 +1,73 @@
+# Starship config - cynprompt style (cyan/blue/gray theme)
+# Install: symlink to ~/.config/starship.toml
+
+format = """
+[==](bright-black)[<](white)$username[@](cyan)$hostname[>](white)[-](bright-black)[<](bright-black)$time[>](bright-black)[==](bright-black)$git_branch$git_status $status
+[<](bright-black)$shlvl[>](bright-black) [-](bright-black)[-](blue)[\\[](bright-blue)$directory[\\]](bright-blue)[-](blue)[-](bright-black) $character"""
+
+[username]
+style_user = "bold cyan"
+format = "[$user]($style)"
+show_always = true
+
+[hostname]
+style = "bold cyan"
+format = "[$hostname]($style)"
+ssh_only = false
+
+[time]
+disabled = false
+style = "bright-white"
+format = "[$time]($style)"
+time_format = "%H:%M:%S"
+
+[git_branch]
+# Shows "(branch" - opening paren + branch name
+format = '[\(](cyan)[$branch](bold cyan)'
+style = "cyan"
+
+[git_status]
+# Shows counts: [+3 ~2 !1 ↑2]) when dirty, ) when clean
+format = '([\[](cyan)[$all_status$ahead_behind](cyan)[\]](cyan))[\)](cyan)'
+style = "cyan"
+untracked = '+${count} '
+modified = '~${count} '
+staged = '!${count} '
+deleted = '-${count} '
+ahead = '↑${count} '
+behind = '↓${count} '
+diverged = '⇕ '
+conflicted = '=${count} '
+stashed = '≡${count} '
+
+[directory]
+style = "cyan"
+format = "[$path]($style)"
+truncation_length = 0
+truncate_to_repo = false
+
+[shlvl]
+disabled = false
+style = "red"
+format = "[$shlvl]($style)"
+threshold = 1
+
+[character]
+success_symbol = "[\\$](bold white)"
+error_symbol = "[\\$](bold red)"
+
+[status]
+disabled = false
+format = "[$symbol]($style)"
+symbol = ""
+success_symbol = ""
+
+# Disable modules we don't need
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[kubernetes]
+disabled = true
