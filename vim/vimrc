@@ -5,19 +5,7 @@ let g:polyglot_disabled = ['go', 'perl', 'raku']
 call plug#begin('~/.vim/plugged')
 
 " perl stuff
-" ...mostly.  the klp2/dc_* stuff are plugins from Damian Conway, that he
-" uploaded at some point in time. I think he continued to update those but I
-" had trouble finding where, so I copied what I had into my own git repos,
-" under the theory that I might even update them myselves. They are not
-" necessarily strictly perl-related, but were definitely written with perl and
-" raku in mind, so I'm keeping them in the perl section
 Plug 'c9s/perlomni.vim'
-Plug 'dracula/vim'
-Plug 'klp2/dc_automakedir'
-Plug 'klp2/dc_trackperlvars'
-Plug 'klp2/dc_eqalignssimple'
-Plug 'klp2/dc_smartcom'
-Plug 'klp2/dc_foldsearches'
 Plug 'vim-perl/vim-perl'
 Plug 'yko/mojo.vim'
 
@@ -48,23 +36,22 @@ Plug 'airblade/vim-gitgutter'
 Plug 'mattn/gist-vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
-Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'github/copilot.vim'
 
 " look and feel stuff
+Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'joshdick/onedark.vim'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'dracula/vim', { 'as': 'dracula' }
 
 " utility stuff
 Plug 'bling/vim-airline'
+Plug 'embear/vim-foldsearch'
 Plug 'jceb/vim-hier'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all', 'frozen': 1 }
+Plug 'junegunn/vim-easy-align'
+Plug 'klp2/dc_automakedir'
 Plug 'rhysd/accelerated-jk'
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-Plug 'tpope/vim-rhubarb'
-Plug 'wincent/Command-T'
 
 " $work-specific stuff - only load if mm-perl exists
 if executable('mm-perl')
@@ -73,8 +60,12 @@ endif
 
 call plug#end()
 
-"colorscheme onedark
-colorscheme dracula 
+" Set colorscheme (with fallback for first install before PlugInstall)
+try
+  colorscheme dracula
+catch /^Vim\%((\a\+)\)\=:E185/
+  " Dracula not installed yet, use default
+endtry
 
 "set a line on the right side to visually remind us to avoid long lines
 set cc=90
@@ -117,81 +108,6 @@ set iskeyword+=@-@
 set iskeyword+=:
 set iskeyword-=,
 
-"=====[ Auto-setup for new files ]===========
-
-augroup New_File_Setup
-    autocmd!
-    autocmd BufNewFile   *  -1r !vim_file_template <afile>
-    autocmd BufNewFile   *  :silent call search('^[ \t]*[#"].*implementation[ \t]\+here')
-    autocmd BufNewFile   *  :redraw
-augroup END
-
-" " =====[ Smart completion via <TAB> and <S-TAB> ]=============
-
-"" Add extra completions (mainly for Perl programming)...
-
-"runtime ~/dot-files/vim/dc_smartcom/plugin/smartcom.vim
-
-"let ANYTHING = ""
-"let NOTHING  = ""
-"let EOL      = '\s*$'
-
-"                " Left     Right      Insert                             Reset cursor
-"                " =====    =====      ===============================    ============
-"call SmartcomAdd( '<<',    ANYTHING,  "\<BS>\<BS>«"                                    )
-"call SmartcomAdd( '>>',    ANYTHING,  "\<BS>\<BS>»"                                    )
-"call SmartcomAdd( '?',     ANYTHING,  '?',                               {'restore':1} )
-"call SmartcomAdd( '?',     '?',       "\<CR>\<ESC>O\<TAB>"                             )
-"call SmartcomAdd( '{{',    ANYTHING,  '}}',                              {'restore':1} )
-"call SmartcomAdd( '{{',    '}}',      NOTHING,                                         )
-"call SmartcomAdd( 'qr{',   ANYTHING,  '}xms',                            {'restore':1} )
-"call SmartcomAdd( 'qr{',   '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>"                 )
-"call SmartcomAdd( 'm{',    ANYTHING,  '}xms',                            {'restore':1} )
-"call SmartcomAdd( 'm{',    '}xms',    "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
-"call SmartcomAdd( 's{',    ANYTHING,  '}{}xms',                          {'restore':1} )
-"call SmartcomAdd( 's{',    '}{}xms',  "\<CR>\<C-D>\<ESC>O\<C-D>\<TAB>",                )
-"call SmartcomAdd( '\*\*',  ANYTHING,  '**',                              {'restore':1} )
-"call SmartcomAdd( '\*\*',  '\*\*',    NOTHING,                                         )
-
-"" Handle single : correctly...
-"call SmartcomAdd( '^:\|[^:]:',  EOL,  "\<TAB>" )
-
-"" In the middle of a keyword: delete the rest of the keyword before completing...
-"                " Left     Right                    Insert
-"                " =====    =====                    =======================
-""call SmartcomAdd( '\k',    '\k\+\%(\k\|\n\)\@!',    "\<C-O>cw\<C-X>\<C-N>",           )
-""call SmartcomAdd( '\k',    '\k\+\_$',               "\<C-O>cw\<C-X>\<C-N>",           )
-
-""After an alignable, align...
-"function! AlignOnPat (pat)
-"    return "\<ESC>:call EQAS_Align('nmap',{'pattern':'" . a:pat . "'})\<CR>A"
-"endfunction
-"                " Left         Right        Insert
-"                " ==========   =====        =============================
-"call SmartcomAdd( '=',         ANYTHING,    "\<ESC>:call EQAS_Align('nmap')\<CR>A")
-"call SmartcomAdd( '=>',        ANYTHING,    AlignOnPat('=>') )
-"call SmartcomAdd( '\s#',       ANYTHING,    AlignOnPat('\%(\S\s*\)\@<= #') )
-"call SmartcomAdd( '[''"]\s*:', ANYTHING,    AlignOnPat(':'),                   {'filetype':'vim'} )
-"call SmartcomAdd( ':',         ANYTHING,    "\<TAB>",                          {'filetype':'vim'} )
-
-
-"                " Left         Right   Insert                                  Where
-"                " ==========   =====   =============================           ===================
-"" Perl keywords...
-"call SmartcomAdd( '^\s*for',   EOL,    " my $___ (___) {\n___\n}\n___",        {'filetype':'perl'} )
-"call SmartcomAdd( '^\s*if',    EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-"call SmartcomAdd( '^\s*while', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-"call SmartcomAdd( '^\s*given', EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-"call SmartcomAdd( '^\s*when',  EOL,    " (___) {\n___\n}\n___",                {'filetype':'perl'} )
-"call SmartcomAdd( '^\s*sub',   EOL,    " ___ (___) {\n___\n}\n___",            {'filetype':'perl'} )
-
-
-"" Convert between single- and double-quoted string endings...
-"call SmartcomAdd(      '''[^"]*"',  NOTHING,  "\<ESC>?'\<CR>:nohlsearch\<CR>r\"a",        {'restore':1+1} )
-"call SmartcomAdd( 'q\@<!q{[^"]*"',  NOTHING,  "\<BS>}\<ESC>?q{\<CR>:nohlsearch\<CR>sqq",  {'restore':1+2} )
-"call SmartcomAdd(     '"[^'']*''',  NOTHING,  "\<ESC>?\"\<CR>:nohlsearch\<CR>r'a",        {'restore':1+1} )
-"call SmartcomAdd(   'qq{[^'']*''',  NOTHING,  "\<BS>}\<ESC>?qq{\<CR>:nohlsearch\<CR>2sq", {'restore':1+1} )
-"
 "=====[ Correct common mistypings in-the-fly ]=======================
 
 iab    retrun  return
@@ -199,7 +115,7 @@ iab     pritn  print
 iab      Pelr  Perl
 iab      pelr  perl
 
-"=====[ Search folding ]=====================
+"=====[ Search folding (vim-foldsearch) ]=====================
 
 " Don't start new buffers folded
 set foldlevelstart=99
@@ -207,23 +123,24 @@ set foldlevelstart=99
 " Highlight folds
 highlight Folded  ctermfg=cyan ctermbg=black
 
-" Toggle on and off...
-nmap <silent> <expr>  zz  FS_ToggleFoldAroundSearch({'context':1})
+" Toggle fold around current search - zz to fold, zz again to unfold
+let g:search_folded = 0
+function! ToggleFoldSearch()
+    if g:search_folded
+        normal! zE
+        let g:search_folded = 0
+    else
+        Fs
+        let g:search_folded = 1
+    endif
+endfunction
+nmap <silent> zz :call ToggleFoldSearch()<CR>
 
-" Show only sub defns (and maybe comments)...
-let perl_sub_pat = '^\s*\%(sub\|func\|method\|package\)\s\+\k\+'
-let vim_sub_pat  = '^\s*fu\%[nction!]\s\+\k\+'
-augroup FoldSub
-    autocmd!
-    autocmd BufEnter * nmap <silent> <expr>  zp  FS_FoldAroundTarget(perl_sub_pat,{'context':1})
-    autocmd BufEnter * nmap <silent> <expr>  za  FS_FoldAroundTarget(perl_sub_pat.'\zs\\|^\s*#.*',{'context':0, 'folds':'invisible'})
-    autocmd BufEnter *.vim,.vimrc nmap <silent> <expr>  zp  FS_FoldAroundTarget(vim_sub_pat,{'context':1})
-    autocmd BufEnter *.vim,.vimrc nmap <silent> <expr>  za  FS_FoldAroundTarget(vim_sub_pat.'\\|^\s*".*',{'context':0, 'folds':'invisible'})
-    autocmd BufEnter * nmap <silent> <expr>             zv  FS_FoldAroundTarget(vim_sub_pat.'\\|^\s*".*',{'context':0, 'folds':'invisible'})
-augroup END
+" Fold to show only subroutines/functions
+nmap <silent> zp :Fs /^\s*\%(sub\<bar>func\<bar>method\<bar>package\)\s\+\k\+/<CR>
 
-" Show only 'use' statements
-nmap <silent> <expr>  zu  FS_FoldAroundTarget('^\s*use\s\+\S.*;',{'context':1})
+" Unfold everything
+nmap <silent> zE :normal! zE<CR>:let g:search_folded = 0<CR>
 
 
 
@@ -269,6 +186,7 @@ let g:hier_highlight_group_loci = 'Normal'
 
 "====[ Golang stuff ]=====
 let g:go_fmt_command = "gopls"
+let g:go_template_autocreate = 0  " Use <leader>gomain instead
 " get signature/type info for object under cursor
 let g:go_auto_type_info = 1
 map <leader>gt :GoTest<cr>
@@ -437,8 +355,8 @@ endfunction
 " Bind to ,t (or leader+t)
 map <leader>T :TidyAll<cr>
 
-" Command-T remap
-map <leader>f :CommandT<cr>
+" fzf file finder (replaces Command-T)
+map <leader>f :Files<cr>
 
 " we set updatime this low to see better gitgutter results
 set updatetime=100
@@ -446,16 +364,27 @@ set updatetime=100
 " http://stackoverflow.com/questions/1327978/sorting-words-not-lines-in-vim
 :vnoremap <F1> d:execute 'normal a' . join(sort(split(getreg('"'))), ' ')<CR>
 
-map <leader>nt :NERDTreeToggle<CR>
-
 set statusline+=%#warningmsg#
 set statusline+=%*
 
-map <leader>mmi o__PACKAGE__->meta->make_immutable;<ESC>
-map <leader>ddp ouse DDP;<CR>p( );<ESC>
-map <leader>perl :set paste<CR>O#!/usr/bin/env perl;<CR><CR>use strict;<CR>use warnings;<CR>use feature qw( say );<CR><ESC>
-map <leader>moose Opackage Foo::Bar;<CR><CR>use Moose;<CR><CR>use MooseX::StrictConstructor;<CR><CR>__PACKAGE__->meta->make_immutable;<CR>1;<ESC>
-map <leader>ss :set paste<CR>i    my $self = shift;<CR>
+" Language templates
+function! PerlTemplate()
+  set paste
+  if expand('%:e') == 'pm'
+    " Module template - package name from file path
+    let l:pkg = substitute(expand('%:r'), '/', '::', 'g')
+    let l:pkg = substitute(l:pkg, '^lib::', '', '')
+    let l:pkg = substitute(l:pkg, '^t::lib::', '', '')
+    execute "normal! Opackage " . l:pkg . ";\<CR>\<CR>use strict;\<CR>use warnings;\<CR>\<CR>\<CR>1;\<ESC>"
+    normal! 2k
+  else
+    " Script template
+    execute "normal! O#!/usr/bin/env perl\<CR>\<CR>use strict;\<CR>use warnings;\<CR>use feature qw( say );\<CR>\<CR>\<ESC>"
+  endif
+  set nopaste
+endfunction
+map <leader>perl :call PerlTemplate()<CR>
+map <leader>gomain :set paste<CR>Opackage main<CR><CR>func main() {<CR>}<CR><ESC>:set nopaste<CR>kO
 
 " convert a file path to a Perl module name
 " ie Foo/Bar/Baz.pm => Foo::Bar::Baz
@@ -496,6 +425,11 @@ hi Normal ctermbg=none
 "nnoremap  k  gk
 nmap j <Plug>(accelerated_jk_gj)
 nmap k <Plug>(accelerated_jk_gk)
+
+" vim-easy-align - Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 " FZF
 nmap ; :Buffers<CR>

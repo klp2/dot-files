@@ -1,3 +1,9 @@
 " https://github.com/w0rp/ale/blob/master/doc/ale-perl.txt
 let g:ale_perl_perl_executable = '/usr/local/bin/mm-perl'
 let g:ale_perl_perl_options = '-c -Mwarnings -Ilib -It/lib -Idev/lib'
+
+" Work-specific Perl mappings
+map <leader>mmi o__PACKAGE__->meta->make_immutable;<ESC>
+map <leader>ddp ouse DDP;<CR>p( );<ESC>
+map <leader>moose Opackage Foo::Bar;<CR><CR>use Moose;<CR><CR>use MooseX::StrictConstructor;<CR><CR>__PACKAGE__->meta->make_immutable;<CR>1;<ESC>
+map <leader>ss :set paste<CR>i    my $self = shift;<CR>

@@ -27,7 +27,7 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 - Local customizations via `~/.local-bashrc` and `~/.local_vimrc`
 
 ### Editor Configuration
-- **Vim**: Uses vim-plug for plugins. Main config in `vim/vimrc`, plugin list in `vim/vim-plug-vimrc`. Perl and Go development focused with ALE linting, fzf integration, and perltidy formatting.
+- **Vim**: Uses vim-plug for plugins. Config in `vim/vimrc`. Go and Perl development focused with ALE linting, fzf integration, and perltidy formatting.
 - **Neovim**: Based on kickstart.nvim. Single `init.lua` with lazy.nvim for plugins. Symlinked to `~/.config/nvim/`.
 
 ### Shell Configuration

@@ -56,11 +56,8 @@ remove_symlink_if_points_to_dotfiles ~/.perltidyrc
 echo
 echo "=== Removing vim/neovim config ==="
 remove_symlink_if_points_to_dotfiles ~/.vimrc
-remove_symlink_if_points_to_dotfiles ~/.vim_templates
 remove_symlink_if_points_to_dotfiles ~/.local_vimrc
-remove_symlink_if_points_to_dotfiles ~/.vim/vim-plug-vimrc
 remove_symlink_if_points_to_dotfiles ~/.config/nvim/init.lua
-remove_symlink_if_points_to_dotfiles ~/.config/nvim/lua/plugins.lua
 
 echo
 echo "=== Removing tmux config symlinks ==="
