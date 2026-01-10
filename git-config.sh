@@ -68,7 +68,21 @@ git config --global alias.view-stash 'stash show -p stash@{0}'
 
 # https://unix.stackexchange.com/questions/19317/can-less-retain-colored-output
 git config --global color.ui always
-git config --global core.pager 'less -r'
+
+# Use delta for beautiful diffs if available, otherwise fall back to less
+if command -v delta &> /dev/null; then
+    git config --global core.pager 'delta'
+    git config --global interactive.diffFilter 'delta --color-only'
+    git config --global delta.navigate true
+    git config --global delta.line-numbers true
+    git config --global delta.side-by-side false
+else
+    git config --global core.pager 'less -r'
+fi
+
+# Modern convenience aliases
+git config --global alias.recent "branch --sort=-committerdate --format='%(committerdate:relative)%09%(refname:short)'"
+git config --global alias.uncommit 'reset --soft HEAD~1'
 
 # takes a commit name as sole arg
 git config --global alias.whatis "show -s --pretty='tformat:%h (%s, %ad)' --date=short"
