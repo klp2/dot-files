@@ -461,3 +461,41 @@ vim.keymap.set('n', '<leader>gomain', function()
   vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
   vim.api.nvim_win_set_cursor(0, { 4, 1 })
 end, { desc = 'Insert Go main template' })
+
+vim.keymap.set('n', '<leader>bash', function()
+  local lines = {
+    '#!/usr/bin/env bash',
+    '',
+    'set -eu -o pipefail',
+    '',
+  }
+  vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+  vim.api.nvim_win_set_cursor(0, { #lines + 1, 0 })
+end, { desc = 'Insert Bash template' })
+
+-- Perltidy (match vim = binding for Perl files)
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'perl',
+  callback = function()
+    vim.keymap.set('n', '=', ':%!perltidy -q<CR>', { buffer = true, desc = 'Perltidy buffer' })
+    vim.keymap.set('v', '=', ':!perltidy -q<CR>', { buffer = true, desc = 'Perltidy selection' })
+  end,
+})
+
+-- Strip trailing whitespace (vim: <leader>s, but that's search group here)
+vim.keymap.set('n', '<leader>cw', function()
+  local save = vim.fn.winsaveview()
+  vim.cmd([[%s/\s\+$//e]])
+  vim.fn.winrestview(save)
+end, { desc = '[C]ode: Strip [W]hitespace' })
+
+-- Sort lines (visual mode)
+vim.keymap.set('v', 'so', ':!sort -d<CR>', { desc = 'Sort lines' })
+vim.keymap.set('v', 'su', ':!sort -d | uniq<CR>', { desc = 'Sort unique' })
+
+-- Pretty-print JSON
+vim.keymap.set('n', '<leader>jt', ':%!jq .<CR>', { desc = '[J]son forma[t]' })
+
+-- Reflow paragraph
+vim.keymap.set('n', 'Q', 'gqap', { desc = 'Reflow paragraph' })
+vim.keymap.set('v', 'Q', 'gq', { desc = 'Reflow selection' })

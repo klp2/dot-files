@@ -62,7 +62,6 @@ remove_symlink_if_points_to_dotfiles ~/.config/nvim/init.lua
 echo
 echo "=== Removing tmux config symlinks ==="
 remove_symlink_if_points_to_dotfiles ~/.tmux.conf
-remove_symlink_if_points_to_dotfiles ~/.tmux-osx.conf
 remove_symlink_if_points_to_dotfiles ~/.tmux-default-layout
 remove_symlink_if_points_to_dotfiles ~/.tmux-three-win-layout
 

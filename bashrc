@@ -47,11 +47,6 @@ if [[ $envtype == 'laptop' || $envtype == 'desktop' ]]; then
     # cleanup homebrew refuse
     alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
   fi
-
-  if [[ $platform == 'osx' ]]; then
-    pathadd "/usr/local/MacGPG2/bin"
-    pathadd "$HOME/dot-files/bin/osx:$PATH"
-  fi
 fi
 
 # don't put duplicate lines in the history. See bash(1) for more options
@@ -62,9 +57,6 @@ export HISTTIMEFORMAT="%F %T "
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=10000
 export HISTFILESIZE=1048576
-
-# try to improve gcloud ssh performance
-export CLOUDSDK_PYTHON=$(which python3) CLOUDSDK_PYTHON_SITEPACKAGES=1
 
 ## http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
 log_bash_persistent_history() {
@@ -93,19 +85,12 @@ fi
 # on the next line.. see man bash(1) under PROMPTING
 PS1='a\033[00;34m\332\304\260\033[01;34m\260\261\033[01;37;44m \h \033[01;34;40m\261\260\033[00;34m\260\304(\033[01;37m\t\033[00;34m)-(\033[01;37m\u\033[00;34m@\033[01;37m$(basename `tty`)\033[00;34m)\304(\033[01;37m\w/\033[00;34m)\304-\n\300 \033[01;37m\$ \033[00;37;40m'
 
-# uses ls options (i.e.. colors, formatting, etc)
-if [[ $platform == 'osx' ]]; then
-  LS_OPTIONS='-G'
-elif [[ $platform == 'linux' ]]; then
-  LS_OPTIONS="--color=auto"
-fi
+# uses ls options (colors, formatting)
+LS_OPTIONS="--color=auto"
 LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
 
-#go modules
-export GO111MODULE=on
-
-# search history
-hist() { history | ack "$1"; }
+# search history (use rg for ripgrep)
+hist() { history | rg "$1"; }
 
 # check tty usage, sorting by tty's
 # shellcheck disable=SC2142  # \$7 is awk field reference, not bash positional param
@@ -113,26 +98,14 @@ alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
 
 alias time='NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
 
-# list all processes that are running with the string in it
-# stolen from here: http://www.karl-voit.at/scripts/any
-jn() { ps auxwwwwwww | ack -i "$1"; }
-
 # run ls with the specified colors
 alias ls="ls $LS_OPTIONS"
-# checks top 5/10 most cpu intensive programs
-alias cpu='ps u|head -1 && ps auxww|ack -v "USER"|sort +2|tail -5'
-alias cpu10='ps u|head -1 && ps auxww|ack -v "USER"|sort +2|tail -10'
-
-# checks top 5/10 most memory intensive programs
-alias mem='ps u|head -1 && ps auxww|ack -v "USER"|sort +3|tail -5'
-alias mem10='ps u|head -1 && ps auxww|ack -v "USER"|sort +3|tail -10'
 
 # checks the count on given process name
 alias pscnt='echo "The current process count is: $(ps ax|wc -l)"'
 
 # lists all the process sorted by pid/cputime
 alias allps='ps auxww|sort +1 -n|more'
-alias cpups='ps auxw|ack -v "USER"|sort +9'
 
 # lists load averages:
 # shellcheck disable=SC2142  # \$1 \$2 \$3 are awk field references, not bash positional params
@@ -145,7 +118,7 @@ alias cdr='cd $(git root)'
 alias delete-merged-branches='show-merged-branches | xargs -n 1 git branch -d'
 alias ll='ls -alhG'
 alias ps='ps auxw'
-alias show-merged-branches='git branch --no-color --merged | grep -v "\*" | grep -v master'
+alias show-merged-branches='git branch --no-color --merged | grep -v "\*" | grep -v main'
 
 # conversions
 alias d2b="perl -e 'printf qq|%b\n|, int( shift )'"
@@ -167,15 +140,10 @@ alias gd="git diff"
 alias gc="git commit -v -e -m"
 alias gp="git push"
 alias t="tmux"
-alias va="vagrant up"
-alias vs="vagrant ssh -- -A"
-alias vas="va && vs"
 
 # integer to ip address and back
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
-
-alias gfn='geofeednames'
 
 export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
 
@@ -183,16 +151,8 @@ pathadd "/usr/local/sbin"
 pathadd "/usr/local/bin"
 pathadd "$HOME/local/bin"
 pathadd "$HOME/bin"
-pathadd "/usr/local/go/bin"
 if [[ -d $HOME/.cargo ]]; then
   pathadd "$HOME/.cargo/bin"
-fi
-
-# in some places, an ack already existed, and the ack we want is ack-grep
-if ! type "ack" >/dev/null 2>&1; then
-  if type 'ack-grep' >/dev/null 2>&1; then
-    alias ack='ack-grep'
-  fi
 fi
 
 # Modern CLI tool configs
@@ -265,18 +225,6 @@ function vi() {
   fi
   $vi "$string"
 }
-
-# print out all of the ISP and Org names for networks listed in geofeed file
-function geofeednames() {
-  less "$1" | cut -f1 -d, | xargs mmdbinspect --db \
-    /usr/local/share/GeoIP/GeoIP2-ISP.mmdb |
-    jq '.[] | .Records[]? | { Network: .Network, isp: .Record.isp, org: .Record.organization}'
-}
-
-export GOPATH=~/go
-if [ -d $GOPATH ]; then
-  export PATH="$GOPATH/bin:$PATH"
-fi
 
 [ -f "$HOME/.local-bashrc" ] && source "$HOME/.local-bashrc"
 
@@ -362,10 +310,30 @@ if command -v plenv &>/dev/null; then
   eval "$(plenv init -)"
 fi
 
-# nvm - only if installed
+# nvm - lazy load for faster shell startup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  # Lazy-load nvm: define placeholder functions that load nvm on first use
+  nvm() {
+    unset -f nvm node npm npx
+    # shellcheck source=/dev/null
+    \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    nvm "$@"
+  }
+  node() {
+    nvm
+    command node "$@"
+  }
+  npm() {
+    nvm
+    command npm "$@"
+  }
+  npx() {
+    nvm
+    command npx "$@"
+  }
+fi
 
 # zoxide - must be at end of bashrc
 command -v zoxide &>/dev/null && eval "$(zoxide init bash)"

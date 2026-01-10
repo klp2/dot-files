@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a personal dotfiles repository that manages configuration for bash, vim, neovim, tmux, git, and related development tools. Configurations support both Linux and macOS, with conditional behavior based on hostname (MaxMind work vs personal) and platform detection.
+This is a personal dotfiles repository that manages configuration for bash, vim, neovim, tmux, git, and related development tools. Configurations are Linux-focused (Bazzite/Fedora), with conditional behavior based on hostname (MaxMind work vs personal) and environment type (desktop/laptop/server).
 
 ## Installation
 
@@ -17,7 +17,6 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 ## Key Architecture Decisions
 
 ### Environment Detection
-- Platform detected via `uname` (linux/osx) in `bashrc` and `git-config.sh`
 - Work vs personal distinguished by hostname containing "maxmind"
 - Environment types via marker files:
   - `~/.laptop` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only)
@@ -25,10 +24,15 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
   - Neither → remote server, minimal config
 - Wayland detection: `$XDG_SESSION_TYPE` checked before running X11-only tools like xcape
 - Local customizations via `~/.local-bashrc` and `~/.local_vimrc`
+- Work-specific items (gcloud, MaxMind tools) go in `~/.local-bashrc`
 
 ### Editor Configuration
-- **Vim**: Uses vim-plug for plugins. Config in `vim/vimrc`. Go and Perl development focused with ALE linting, fzf integration, and perltidy formatting.
-- **Neovim**: Based on kickstart.nvim. Single `init.lua` with lazy.nvim for plugins. Symlinked to `~/.config/nvim/`.
+- **Vim**: Uses vim-plug for plugins. Config in `vim/vimrc`. Go and Perl development focused with ALE linting, fzf integration, and perltidy formatting. Keybindings roughly aligned with neovim.
+- **Neovim**: Simplified config with lazy.nvim. Single `init.lua` with LSP (gopls, pyright, etc.), telescope, treesitter, copilot. Nightly builds via Homebrew. Keybindings:
+  - `=` runs perltidy (Perl files)
+  - `<leader>perl` / `<leader>gomain` / `<leader>bash` for language templates
+  - `<C-h/j/k/l>` for window navigation
+  - `zz` for fold-search toggle
 
 ### Shell Configuration
 - Vi mode enabled (`set -o vi`)
@@ -37,15 +41,16 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 - Heavy Perl tooling: plenv, perltidy, perlcritic
 
 ### Git Aliases (set by `git-config.sh`)
-Key aliases: `from` (fetch + rebase origin/master), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/master variants), `prom` (pull --rebase origin master)
+Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)
 
 ## File Relationships
 
 - `install.sh` → calls `install/vim.sh` and `install/nvim.sh`
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection, installs vim-plug, symlinks vimrc
+- `install/nvim.sh` → installs neovim nightly via Homebrew, symlinks init.lua, syncs lazy.nvim plugins
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
-- `bashrc` sources `~/.local-bashrc` at end
-- `tmux/tmux.conf` uses TPM plugins and sources `~/.tmux-osx.conf` on macOS
+- `bashrc` sources `~/.local-bashrc` at end (NVM lazy-loaded for fast shell startup)
+- `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)
 - `uninstall.sh` reverts changes made by install.sh
 
 ## Bazzite/Immutable OS Notes
@@ -67,7 +72,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 
 ### What Works Without Changes
 - All shell configs, vim/neovim, tmux, git
-- Homebrew-installed tools (ack, fzf, tmux, neovim, perl)
+- Homebrew-installed tools (ripgrep, fzf, tmux, neovim, bat, eza, fd)
 - Version managers in user space (plenv, pyenv, nvm, cargo)
 
 ## Code Quality

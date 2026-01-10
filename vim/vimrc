@@ -437,5 +437,18 @@ nmap <leader>r :Tags<CR>
 nmap <leader>t :Files<CR>
 nmap <leader>a :Ag<CR>
 
+" Window navigation (match neovim)
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Bash template
+function! BashTemplate()
+  set paste
+  execute "normal! O#!/usr/bin/env bash\<CR>\<CR>set -eu -o pipefail\<CR>\<CR>\<ESC>"
+  set nopaste
+endfunction
+map <leader>bash :call BashTemplate()<CR>
 
 source ~/.local_vimrc
