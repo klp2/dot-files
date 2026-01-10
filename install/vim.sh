@@ -14,11 +14,10 @@ cp $PREFIX/vim/bin/vim_file_template ~/bin/
 if [ $IS_MM = true ]
 then
     ln -sf $PREFIX/vim/maxmind_local_vimrc ~/.local_vimrc
-    cp $PREFIX/bin/mm-git-prompt ~/bin/git-prompt
 else
     ln -sf $PREFIX/vim/vanilla_local_vimrc ~/.local_vimrc
-    cp $PREFIX/bin/git-prompt ~/bin/
 fi
+# Note: git-prompt-fallback is now copied by install.sh (starship is primary)
 
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
