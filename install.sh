@@ -7,6 +7,37 @@ SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 source "$SELF_PATH"/bash_functions.sh
 source "$SELF_PATH"/bash_common.sh
 
+# Parse arguments
+FORCE_MODE=""
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --fresh)
+      FORCE_MODE="fresh"
+      shift
+      ;;
+    --update)
+      FORCE_MODE="update"
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done
+
+# Detect install mode or use forced mode
+if [[ -n "$FORCE_MODE" ]]; then
+  INSTALL_MODE="$FORCE_MODE"
+elif [[ ! -L ~/.bashrc ]] || [[ "$(readlink -f ~/.bashrc 2>/dev/null)" != "$SELF_PATH/bashrc" ]]; then
+  INSTALL_MODE="fresh"
+else
+  INSTALL_MODE="update"
+fi
+
+echo "=== Dotfiles $INSTALL_MODE ==="
+echo ""
+
 mkdir -p ~/.config
 mkdir -p ~/.vimundo
 
@@ -90,4 +121,21 @@ else
   pushd $LOCALCHECKOUT
   git pull origin master
   popd
+fi
+
+# Run cleanup for updates only (interactive)
+if [[ "$INSTALL_MODE" == "update" ]]; then
+  echo ""
+  echo "=== Checking for deprecated tools ==="
+  "$SELF_PATH"/cleanup.sh
+fi
+
+# Show post-install message
+echo ""
+if [[ "$INSTALL_MODE" == "fresh" ]]; then
+  echo "=== Fresh install complete ==="
+  echo "Run 'source ~/.bashrc' to load your new shell config"
+  echo "Run './cleanup.sh' later to remove any old tools"
+else
+  echo "=== Update complete ==="
 fi
