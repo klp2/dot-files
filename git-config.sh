@@ -72,6 +72,12 @@ fi
 git config --global alias.recent "branch --sort=-committerdate --format='%(committerdate:relative)%09%(refname:short)'"
 git config --global alias.uncommit 'reset --soft HEAD~1'
 
+# Structural diff with difftastic (when delta's line-based diff isn't enough)
+if command -v difft &> /dev/null; then
+    git config --global alias.dft 'difftool --tool=difftastic'
+    git config --global difftool.difftastic.cmd 'difft "$LOCAL" "$REMOTE"'
+fi
+
 # takes a commit name as sole arg
 git config --global alias.whatis "show -s --pretty='tformat:%h (%s, %ad)' --date=short"
 
