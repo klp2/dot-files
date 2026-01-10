@@ -217,11 +217,6 @@ fi
 # alias grep='rg'
 # alias g='grep'
 
-# gh = git home
-# brings you to the top level of the git repo you are currently in
-# http://stackoverflow.com/questions/957928/is-there-a-way-to-get-the-git-root-directory-in-one-command
-function gh() { cd "$(git rev-parse --show-toplevel)"; }
-
 function diffcol() {
     awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
     awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $2 $3
