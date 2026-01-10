@@ -204,7 +204,7 @@ command -v bat &>/dev/null && alias cat='bat --paging=never'
 command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias tree='eza --tree'
 command -v fd &>/dev/null && alias find='fd'
 command -v rg &>/dev/null && alias grep='rg'
-command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
+# zoxide init moved to end of file (required by zoxide)
 
 function diffcol() {
     awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
@@ -334,3 +334,6 @@ fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# zoxide - must be at end of bashrc
+command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
