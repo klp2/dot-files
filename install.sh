@@ -9,6 +9,7 @@ source "$SELF_PATH"/bash_common.sh
 
 # Parse arguments
 FORCE_MODE=""
+UPGRADE_BREW=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --fresh)
@@ -17,6 +18,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --update)
       FORCE_MODE="update"
+      shift
+      ;;
+    --upgrade)
+      UPGRADE_BREW="yes"
       shift
       ;;
     *)
@@ -66,11 +71,12 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship 
 fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
+BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust"
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
   # Get installed packages once (much faster than checking each individually)
   BREW_INSTALLED=$(brew list --formula 2>/dev/null)
   TOOLS_TO_INSTALL=""
-  for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep; do
+  for tool in $BREW_TOOLS; do
     if ! echo "$BREW_INSTALLED" | grep -q "^${tool}$"; then
       TOOLS_TO_INSTALL="$TOOLS_TO_INSTALL $tool"
     fi
@@ -78,6 +84,26 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
   if [[ -n "$TOOLS_TO_INSTALL" ]]; then
     echo "Installing modern CLI tools:$TOOLS_TO_INSTALL"
     brew install $TOOLS_TO_INSTALL 2>/dev/null || true
+  fi
+
+  # Check for available upgrades
+  echo "Checking for brew upgrades..."
+  BREW_OUTDATED=$(brew outdated --formula 2>/dev/null)
+  TOOLS_OUTDATED=""
+  for tool in $BREW_TOOLS; do
+    if echo "$BREW_OUTDATED" | grep -q "^${tool}$"; then
+      TOOLS_OUTDATED="$TOOLS_OUTDATED $tool"
+    fi
+  done
+  if [[ -n "$TOOLS_OUTDATED" ]]; then
+    if [[ -n "$UPGRADE_BREW" ]]; then
+      echo "Upgrading:$TOOLS_OUTDATED"
+      brew upgrade $TOOLS_OUTDATED 2>/dev/null || true
+    else
+      echo "Updates available:$TOOLS_OUTDATED"
+      echo "  Run: brew upgrade$TOOLS_OUTDATED"
+      echo "  Or:  ./install.sh --upgrade"
+    fi
   fi
 fi
 
