@@ -39,7 +39,7 @@ fi
 # Install modern CLI tools on desktop/laptop via Homebrew
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &> /dev/null; then
     echo "Installing modern CLI tools..."
-    for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit; do
+    for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint; do
         if ! brew list $tool &> /dev/null; then
             echo "  Installing $tool..."
             brew install $tool 2>/dev/null || true
@@ -48,6 +48,7 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &> /de
 fi
 
 ln -sf $SELF_PATH/ackrc ~/.ackrc
+cp $SELF_PATH/golangci.yml ~/.golangci.yml
 
 ln -sf $SELF_PATH/bashrc ~/.bashrc
 ln -sf $SELF_PATH/bash_profile ~/.bash_profile
