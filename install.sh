@@ -67,13 +67,18 @@ fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
-  echo "Installing modern CLI tools..."
+  # Get installed packages once (much faster than checking each individually)
+  BREW_INSTALLED=$(brew list --formula 2>/dev/null)
+  TOOLS_TO_INSTALL=""
   for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep; do
-    if ! brew list $tool &>/dev/null; then
-      echo "  Installing $tool..."
-      brew install $tool 2>/dev/null || true
+    if ! echo "$BREW_INSTALLED" | grep -q "^${tool}$"; then
+      TOOLS_TO_INSTALL="$TOOLS_TO_INSTALL $tool"
     fi
   done
+  if [[ -n "$TOOLS_TO_INSTALL" ]]; then
+    echo "Installing modern CLI tools:$TOOLS_TO_INSTALL"
+    brew install $TOOLS_TO_INSTALL 2>/dev/null || true
+  fi
 fi
 
 ln -sf "$SELF_PATH"/ackrc ~/.ackrc
