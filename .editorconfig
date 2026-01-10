@@ -1,0 +1,32 @@
+# EditorConfig - https://editorconfig.org
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+# Shell scripts - shfmt reads these settings
+[*.sh]
+indent_style = space
+indent_size = 2
+# shfmt specific: switch_case_indent = true (via -ci flag)
+
+# Sourced bash files (no .sh extension)
+[{bashrc,bash_profile,bash_common,bash_functions}*]
+indent_style = space
+indent_size = 2
+
+# Vim/Neovim
+[*.{vim,lua}]
+indent_style = space
+indent_size = 2
+
+# TOML (starship config)
+[*.toml]
+indent_style = space
+indent_size = 2
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab

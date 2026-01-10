@@ -72,21 +72,28 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 
 ## Code Quality
 
-### Before Committing
-Run shellcheck on modified bash scripts:
+### Git Hooks (Automatic)
+- **pre-commit**: Auto-formats bash files with shfmt (no friction)
+- **pre-push**: Verifies shellcheck passes and formatting is correct
+
+Hooks are installed automatically by `install.sh`.
+
+### Manual Commands
 ```bash
-shellcheck bashrc bash_common.sh install.sh git-config.sh install/*.sh bin/*.sh
+# Lint bash scripts
+shellcheck bashrc bash_common.sh install.sh git-config.sh
+
+# Format bash scripts (2-space indent)
+shfmt -i 2 -ci -w bashrc install.sh
 ```
 
-A pre-push hook enforces this automatically.
-
-### Acceptable Warnings
+### Acceptable shellcheck Warnings
 - SC1090/SC1091 - Can't follow dynamic `source` (unavoidable)
 - SC2155 - Declare/assign separately (style preference)
 - SC2139 - Variable expands at definition (intentional for ls alias)
 
-### Formatting (Optional)
-Check bash formatting with shfmt:
-```bash
-shfmt -d -i 4 bashrc install.sh
-```
+### Formatting Style
+- 2-space indentation
+- Case statements indented
+- No space after redirects (`>file` not `> file`)
+- Binary operators at end of line when wrapping

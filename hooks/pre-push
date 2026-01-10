@@ -1,49 +1,67 @@
 #!/usr/bin/env bash
-# Pre-push hook: runs shellcheck on bash scripts
+# Pre-push hook: runs shellcheck and verifies shfmt formatting
 # Install: ln -sf ../../hooks/pre-push .git/hooks/pre-push
 
 set -eu -o pipefail
 
-# Only run if shellcheck is available
-if ! command -v shellcheck &>/dev/null; then
-    echo "Warning: shellcheck not found, skipping lint check"
-    exit 0
-fi
-
-echo "Running shellcheck..."
-
 # List of bash scripts to check
 SCRIPTS=(
-    bashrc
-    bash_common.sh
-    bash_profile
-    bash_functions.sh
-    install.sh
-    git-config.sh
-    uninstall.sh
-    install/vim.sh
-    install/nvim.sh
-    bin/git-prompt-fallback
-    bin/install-starship.sh
+  bashrc
+  bash_common.sh
+  bash_profile
+  bash_functions.sh
+  install.sh
+  git-config.sh
+  uninstall.sh
+  install/vim.sh
+  install/nvim.sh
+  bin/git-prompt-fallback
+  bin/install-starship.sh
 )
 
 FAILED=0
-for script in "${SCRIPTS[@]}"; do
-    if [[ -f "$script" ]]; then
-        # -S error: only fail on errors, not warnings
-        if ! shellcheck -S error "$script" 2>/dev/null; then
-            echo "  FAIL: $script"
-            FAILED=1
-        fi
-    fi
-done
 
-if [[ $FAILED -eq 1 ]]; then
-    echo ""
-    echo "shellcheck found errors. Fix them before pushing."
-    echo "To bypass: git push --no-verify"
-    exit 1
+# Run shellcheck if available
+if command -v shellcheck &>/dev/null; then
+  echo "Running shellcheck..."
+  for script in "${SCRIPTS[@]}"; do
+    if [[ -f "$script" ]]; then
+      if ! shellcheck -S error "$script" 2>/dev/null; then
+        echo "  FAIL: $script"
+        FAILED=1
+      fi
+    fi
+  done
+  if [[ $FAILED -eq 0 ]]; then
+    echo "  shellcheck passed."
+  fi
+else
+  echo "Warning: shellcheck not found, skipping"
 fi
 
-echo "shellcheck passed."
+# Check shfmt formatting if available
+if command -v shfmt &>/dev/null; then
+  echo "Checking shfmt formatting..."
+  for script in "${SCRIPTS[@]}"; do
+    if [[ -f "$script" ]]; then
+      if ! shfmt -i 2 -ci -d "$script" >/dev/null 2>&1; then
+        echo "  FAIL: $script (run: shfmt -i 2 -ci -w $script)"
+        FAILED=1
+      fi
+    fi
+  done
+  if [[ $FAILED -eq 0 ]]; then
+    echo "  shfmt passed."
+  fi
+else
+  echo "Warning: shfmt not found, skipping"
+fi
+
+if [[ $FAILED -eq 1 ]]; then
+  echo ""
+  echo "Pre-push checks failed. Fix issues before pushing."
+  echo "To bypass: git push --no-verify"
+  exit 1
+fi
+
 exit 0

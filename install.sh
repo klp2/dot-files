@@ -10,14 +10,12 @@ source "$SELF_PATH"/bash_common.sh
 mkdir -p ~/.config
 mkdir -p ~/.vimundo
 
-if ! [ -d ~/bin ]
-then
-    mkdir ~/bin
+if ! [ -d ~/bin ]; then
+  mkdir ~/bin
 fi
 
 # Use shared environment detection
 envtype=$DOTFILES_ENVTYPE
-
 
 "$SELF_PATH"/install/vim.sh
 "$SELF_PATH"/install/nvim.sh
@@ -31,20 +29,20 @@ mkdir -p ~/.config
 ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
 
 # Install starship on desktop/laptop if not already present (not on remote servers)
-if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship &> /dev/null; then
-    echo "Installing starship prompt..."
-    "$SELF_PATH"/bin/install-starship.sh ~/bin
+if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship &>/dev/null; then
+  echo "Installing starship prompt..."
+  "$SELF_PATH"/bin/install-starship.sh ~/bin
 fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
-if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &> /dev/null; then
-    echo "Installing modern CLI tools..."
-    for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep; do
-        if ! brew list $tool &> /dev/null; then
-            echo "  Installing $tool..."
-            brew install $tool 2>/dev/null || true
-        fi
-    done
+if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
+  echo "Installing modern CLI tools..."
+  for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep; do
+    if ! brew list $tool &>/dev/null; then
+      echo "  Installing $tool..."
+      brew install $tool 2>/dev/null || true
+    fi
+  done
 fi
 
 ln -sf "$SELF_PATH"/ackrc ~/.ackrc
@@ -54,7 +52,7 @@ ln -sf "$SELF_PATH"/bashrc ~/.bashrc
 ln -sf "$SELF_PATH"/bash_profile ~/.bash_profile
 ln -sf "$SELF_PATH"/bash_common.sh ~/.bash_common.sh
 
-cp     "$SELF_PATH"/dataprinter ~/.dataprinter
+cp "$SELF_PATH"/dataprinter ~/.dataprinter
 chmod 700 ~/.dataprinter
 
 ln -sf "$SELF_PATH"/perlcriticrc ~/.perlcriticrc
@@ -68,13 +66,12 @@ ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
 if [[ $envtype == 'laptop' ]]; then
-    ln -sf "$SELF_PATH"/i3 ~/.config/i3
-    ln -sf "$SELF_PATH"/i3status ~/.config/i3status
+  ln -sf "$SELF_PATH"/i3 ~/.config/i3
+  ln -sf "$SELF_PATH"/i3status ~/.config/i3status
 fi
 
-if ! [ -d ~/.ssh/keys ]
-then
-    mkdir ~/.ssh/keys
+if ! [ -d ~/.ssh/keys ]; then
+  mkdir ~/.ssh/keys
 fi
 
 git submodule init
@@ -83,16 +80,16 @@ git submodule update
 ./git-config.sh
 
 # Install git hooks for this repo
+ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
 ln -sf ../../hooks/pre-push .git/hooks/pre-push
 
 bash ./install-fpp.sh
 
 LOCALCHECKOUT=~/.tmux/plugins/tpm
-if [ ! -d $LOCALCHECKOUT ]
-then
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+if [ ! -d $LOCALCHECKOUT ]; then
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 else
-    pushd $LOCALCHECKOUT
-    git pull origin master
-    popd
+  pushd $LOCALCHECKOUT
+  git pull origin master
+  popd
 fi

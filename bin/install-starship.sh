@@ -13,24 +13,30 @@ ARCH=$(uname -m)
 OS=$(uname -s)
 
 case "$OS" in
-    Linux)
-        case "$ARCH" in
-            x86_64)  ARCH="x86_64-unknown-linux-gnu" ;;
-            aarch64) ARCH="aarch64-unknown-linux-gnu" ;;
-            *)       echo "Unsupported architecture: $ARCH"; exit 1 ;;
-        esac
-        ;;
-    Darwin)
-        case "$ARCH" in
-            x86_64)  ARCH="x86_64-apple-darwin" ;;
-            arm64)   ARCH="aarch64-apple-darwin" ;;
-            *)       echo "Unsupported architecture: $ARCH"; exit 1 ;;
-        esac
-        ;;
-    *)
-        echo "Unsupported OS: $OS"
+  Linux)
+    case "$ARCH" in
+      x86_64) ARCH="x86_64-unknown-linux-gnu" ;;
+      aarch64) ARCH="aarch64-unknown-linux-gnu" ;;
+      *)
+        echo "Unsupported architecture: $ARCH"
         exit 1
         ;;
+    esac
+    ;;
+  Darwin)
+    case "$ARCH" in
+      x86_64) ARCH="x86_64-apple-darwin" ;;
+      arm64) ARCH="aarch64-apple-darwin" ;;
+      *)
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "Unsupported OS: $OS"
+    exit 1
+    ;;
 esac
 
 echo "Downloading starship for ${OS}/${ARCH}..."

@@ -8,9 +8,9 @@ source "$SELF_PATH/bash_common.sh"
 echo "git config"
 
 if is_maxmind; then
-    git config --global user.email "kphair@maxmind.com"
+  git config --global user.email "kphair@maxmind.com"
 else
-    git config --global user.email "phair.kevin@gmail.com"
+  git config --global user.email "phair.kevin@gmail.com"
 fi
 
 git config --global user.name "Kevin Phair"
@@ -25,7 +25,7 @@ git config --global push.default simple
 git config --global push.autoSetupRemote true
 git config --global rerere.enabled 1
 
-git config --global alias.b  'branch'
+git config --global alias.b 'branch'
 git config --global alias.ba 'branch -a'
 git config --global alias.cam 'commit --amend'
 git config --global alias.changes 'diff --name-status -r'
@@ -58,14 +58,14 @@ git config --global alias.view-stash 'stash show -p stash@{0}'
 git config --global color.ui always
 
 # Use delta for beautiful diffs if available, otherwise fall back to less
-if command -v delta &> /dev/null; then
-    git config --global core.pager 'delta'
-    git config --global interactive.diffFilter 'delta --color-only'
-    git config --global delta.navigate true
-    git config --global delta.line-numbers true
-    git config --global delta.side-by-side false
+if command -v delta &>/dev/null; then
+  git config --global core.pager 'delta'
+  git config --global interactive.diffFilter 'delta --color-only'
+  git config --global delta.navigate true
+  git config --global delta.line-numbers true
+  git config --global delta.side-by-side false
 else
-    git config --global core.pager 'less -r'
+  git config --global core.pager 'less -r'
 fi
 
 # Modern convenience aliases
@@ -73,9 +73,9 @@ git config --global alias.recent "branch --sort=-committerdate --format='%(commi
 git config --global alias.uncommit 'reset --soft HEAD~1'
 
 # Structural diff with difftastic (when delta's line-based diff isn't enough)
-if command -v difft &> /dev/null; then
-    git config --global alias.dft 'difftool --tool=difftastic'
-    git config --global difftool.difftastic.cmd 'difft "$LOCAL" "$REMOTE"'
+if command -v difft &>/dev/null; then
+  git config --global alias.dft 'difftool --tool=difftastic'
+  git config --global difftool.difftastic.cmd 'difft "$LOCAL" "$REMOTE"'
 fi
 
 # takes a commit name as sole arg
@@ -84,17 +84,16 @@ git config --global alias.whatis "show -s --pretty='tformat:%h (%s, %ad)' --date
 # for Facebook Path Picker (fpp)
 git config --global grep.lineNumber true
 
-if [ -d '/Applications/Meld.app' ]
-then
-    echo "Setting Meld as mergetool"
-    git config --global diff.tool 'meld'
-    git config --global difftool.prompt false
-    git config --global difftool.meld.trustExitCode true
-    git config --global difftool.meld.cmd 'open -W -a Meld --args "$LOCAL" "$PWD/$REMOTE"'
-    git config --global merge.tool 'meld'
-    git config --global mergetool.prompt false
-    git config --global mergetool.meld.trustExitCode true
-    git config --global mergetool.meld.cmd 'open -W -a Meld --args --auto-merge "$PWD/$LOCAL" "$PWD/$BASE" "$PWD/$REMOTE" --output="$PWD/$MERGED"'
+if [ -d '/Applications/Meld.app' ]; then
+  echo "Setting Meld as mergetool"
+  git config --global diff.tool 'meld'
+  git config --global difftool.prompt false
+  git config --global difftool.meld.trustExitCode true
+  git config --global difftool.meld.cmd 'open -W -a Meld --args "$LOCAL" "$PWD/$REMOTE"'
+  git config --global merge.tool 'meld'
+  git config --global mergetool.prompt false
+  git config --global mergetool.meld.trustExitCode true
+  git config --global mergetool.meld.cmd 'open -W -a Meld --args --auto-merge "$PWD/$LOCAL" "$PWD/$BASE" "$PWD/$REMOTE" --output="$PWD/$MERGED"'
 fi
 
 # a "git config --unset" on something that isn't set but is a valid key returns with no

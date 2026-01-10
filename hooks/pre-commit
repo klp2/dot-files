@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Pre-commit hook: auto-format bash scripts with shfmt
+# Install: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
+
+set -eu -o pipefail
+
+# Skip if shfmt not available
+if ! command -v shfmt &>/dev/null; then
+  exit 0
+fi
+
+# Get staged bash files
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(sh|bash)$|^(bashrc|bash_profile|bash_common|bash_functions)' || true)
+
+if [[ -z "$STAGED" ]]; then
+  exit 0
+fi
+
+echo "Formatting bash files..."
+
+for file in $STAGED; do
+  if [[ -f "$file" ]]; then
+    # Format in place: 2-space indent, case indent
+    shfmt -i 2 -ci -w "$file"
+    # Re-add the formatted file
+    git add "$file"
+    echo "  formatted: $file"
+  fi
+done
+
+exit 0

@@ -7,39 +7,39 @@ set -eu -o pipefail
 
 DRY_RUN=false
 if [[ "${1:-}" == "--dry-run" ]]; then
-    DRY_RUN=true
-    echo "=== DRY RUN MODE - No changes will be made ==="
-    echo
+  DRY_RUN=true
+  echo "=== DRY RUN MODE - No changes will be made ==="
+  echo
 fi
 
 remove_if_exists() {
-    local target="$1"
-    if [[ -e "$target" || -L "$target" ]]; then
-        if [[ "$DRY_RUN" == true ]]; then
-            echo "[would remove] $target"
-        else
-            rm -rf "$target"
-            echo "[removed] $target"
-        fi
+  local target="$1"
+  if [[ -e "$target" || -L "$target" ]]; then
+    if [[ "$DRY_RUN" == true ]]; then
+      echo "[would remove] $target"
+    else
+      rm -rf "$target"
+      echo "[removed] $target"
     fi
+  fi
 }
 
 remove_symlink_if_points_to_dotfiles() {
-    local target="$1"
-    if [[ -L "$target" ]]; then
-        local link_target
-        link_target=$(readlink "$target")
-        if [[ "$link_target" == *"dot-files"* ]]; then
-            if [[ "$DRY_RUN" == true ]]; then
-                echo "[would remove symlink] $target -> $link_target"
-            else
-                rm "$target"
-                echo "[removed symlink] $target"
-            fi
-        else
-            echo "[skipping] $target (points to $link_target, not dot-files)"
-        fi
+  local target="$1"
+  if [[ -L "$target" ]]; then
+    local link_target
+    link_target=$(readlink "$target")
+    if [[ "$link_target" == *"dot-files"* ]]; then
+      if [[ "$DRY_RUN" == true ]]; then
+        echo "[would remove symlink] $target -> $link_target"
+      else
+        rm "$target"
+        echo "[removed symlink] $target"
+      fi
+    else
+      echo "[skipping] $target (points to $link_target, not dot-files)"
     fi
+  fi
 }
 
 echo "=== Removing shell config symlinks ==="
@@ -89,26 +89,26 @@ echo
 
 # These are more destructive, ask before removing
 confirm_remove() {
-    local target="$1"
-    local description="$2"
+  local target="$1"
+  local description="$2"
 
-    if [[ ! -e "$target" && ! -L "$target" ]]; then
-        return
-    fi
+  if [[ ! -e "$target" && ! -L "$target" ]]; then
+    return
+  fi
 
-    if [[ "$DRY_RUN" == true ]]; then
-        echo "[would ask to remove] $target ($description)"
-        return
-    fi
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "[would ask to remove] $target ($description)"
+    return
+  fi
 
-    read -p "Remove $target ($description)? [y/N] " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -rf "$target"
-        echo "[removed] $target"
-    else
-        echo "[kept] $target"
-    fi
+  read -p "Remove $target ($description)? [y/N] " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    rm -rf "$target"
+    echo "[removed] $target"
+  else
+    echo "[kept] $target"
+  fi
 }
 
 confirm_remove ~/.vim/plugged "vim plugins installed by vim-plug"
