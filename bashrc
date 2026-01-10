@@ -262,6 +262,7 @@ if [[ -d "$HOME/.ssh/keys" ]]; then
     done
 fi
 
+# shellcheck disable=SC1087  # False positive: \[ in PS1 is not array syntax
 function cynprompt {
 
 local GRAY="\[\033[1;30m\]"

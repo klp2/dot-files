@@ -82,6 +82,9 @@ git submodule update
 
 ./git-config.sh
 
+# Install git hooks for this repo
+ln -sf ../../hooks/pre-push .git/hooks/pre-push
+
 bash ./install-fpp.sh
 
 LOCALCHECKOUT=~/.tmux/plugins/tpm

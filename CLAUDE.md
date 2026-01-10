@@ -69,3 +69,24 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 - All shell configs, vim/neovim, tmux, git
 - Homebrew-installed tools (ack, fzf, tmux, neovim, perl)
 - Version managers in user space (plenv, pyenv, nvm, cargo)
+
+## Code Quality
+
+### Before Committing
+Run shellcheck on modified bash scripts:
+```bash
+shellcheck bashrc bash_common.sh install.sh git-config.sh install/*.sh bin/*.sh
+```
+
+A pre-push hook enforces this automatically.
+
+### Acceptable Warnings
+- SC1090/SC1091 - Can't follow dynamic `source` (unavoidable)
+- SC2155 - Declare/assign separately (style preference)
+- SC2139 - Variable expands at definition (intentional for ls alias)
+
+### Formatting (Optional)
+Check bash formatting with shfmt:
+```bash
+shfmt -d -i 4 bashrc install.sh
+```

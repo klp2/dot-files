@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Pre-push hook: runs shellcheck on bash scripts
+# Install: ln -sf ../../hooks/pre-push .git/hooks/pre-push
+
+set -eu -o pipefail
+
+# Only run if shellcheck is available
+if ! command -v shellcheck &>/dev/null; then
+    echo "Warning: shellcheck not found, skipping lint check"
+    exit 0
+fi
+
+echo "Running shellcheck..."
+
+# List of bash scripts to check
+SCRIPTS=(
+    bashrc
+    bash_common.sh
+    bash_profile
+    bash_functions.sh
+    install.sh
+    git-config.sh
+    uninstall.sh
+    install/vim.sh
+    install/nvim.sh
+    bin/git-prompt-fallback
+    bin/install-starship.sh
+)
+
+FAILED=0
+for script in "${SCRIPTS[@]}"; do
+    if [[ -f "$script" ]]; then
+        # -S error: only fail on errors, not warnings
+        if ! shellcheck -S error "$script" 2>/dev/null; then
+            echo "  FAIL: $script"
+            FAILED=1
+        fi
+    fi
+done
+
+if [[ $FAILED -eq 1 ]]; then
+    echo ""
+    echo "shellcheck found errors. Fix them before pushing."
+    echo "To bypass: git push --no-verify"
+    exit 1
+fi
+
+echo "shellcheck passed."
+exit 0
