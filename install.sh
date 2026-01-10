@@ -4,8 +4,8 @@ set -eu -o pipefail
 
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
-source $SELF_PATH/bash_functions.sh
-source $SELF_PATH/bash_common.sh
+source "$SELF_PATH"/bash_functions.sh
+source "$SELF_PATH"/bash_common.sh
 
 mkdir -p ~/.config
 mkdir -p ~/.vimundo
@@ -19,21 +19,21 @@ fi
 envtype=$DOTFILES_ENVTYPE
 
 
-$SELF_PATH/install/vim.sh
-$SELF_PATH/install/nvim.sh
+"$SELF_PATH"/install/vim.sh
+"$SELF_PATH"/install/nvim.sh
 
 # Prompt setup - git-prompt-fallback and starship config
-cp $SELF_PATH/bin/git-prompt-fallback ~/bin/
+cp "$SELF_PATH"/bin/git-prompt-fallback ~/bin/
 chmod +x ~/bin/git-prompt-fallback
-cp $SELF_PATH/bin/install-starship.sh ~/bin/
+cp "$SELF_PATH"/bin/install-starship.sh ~/bin/
 chmod +x ~/bin/install-starship.sh
 mkdir -p ~/.config
-ln -sf $SELF_PATH/starship.toml ~/.config/starship.toml
+ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
 
 # Install starship on desktop/laptop if not already present (not on remote servers)
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship &> /dev/null; then
     echo "Installing starship prompt..."
-    $SELF_PATH/bin/install-starship.sh ~/bin
+    "$SELF_PATH"/bin/install-starship.sh ~/bin
 fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
@@ -47,29 +47,29 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &> /de
     done
 fi
 
-ln -sf $SELF_PATH/ackrc ~/.ackrc
-cp $SELF_PATH/golangci.yml ~/.golangci.yml
+ln -sf "$SELF_PATH"/ackrc ~/.ackrc
+cp "$SELF_PATH"/golangci.yml ~/.golangci.yml
 
-ln -sf $SELF_PATH/bashrc ~/.bashrc
-ln -sf $SELF_PATH/bash_profile ~/.bash_profile
-ln -sf $SELF_PATH/bash_common.sh ~/.bash_common.sh
+ln -sf "$SELF_PATH"/bashrc ~/.bashrc
+ln -sf "$SELF_PATH"/bash_profile ~/.bash_profile
+ln -sf "$SELF_PATH"/bash_common.sh ~/.bash_common.sh
 
-cp     $SELF_PATH/dataprinter ~/.dataprinter
+cp     "$SELF_PATH"/dataprinter ~/.dataprinter
 chmod 700 ~/.dataprinter
 
-ln -sf $SELF_PATH/perlcriticrc ~/.perlcriticrc
-ln -sf $SELF_PATH/perltidyrc ~/.perltidyrc
-ln -sf $SELF_PATH/profile ~/.profile
-ln -sf $SELF_PATH/screenrc ~/.screenrc
-ln -sf $SELF_PATH/tmux/tmux.conf ~/.tmux.conf
-ln -sf $SELF_PATH/tmux/tmux-osx.conf ~/.tmux-osx.conf
-ln -sf $SELF_PATH/tmux/tmux-default-layout ~/.tmux-default-layout
-ln -sf $SELF_PATH/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
-ln -sf $SELF_PATH/psql/psqlrc ~/.psqlrc
+ln -sf "$SELF_PATH"/perlcriticrc ~/.perlcriticrc
+ln -sf "$SELF_PATH"/perltidyrc ~/.perltidyrc
+ln -sf "$SELF_PATH"/profile ~/.profile
+ln -sf "$SELF_PATH"/screenrc ~/.screenrc
+ln -sf "$SELF_PATH"/tmux/tmux.conf ~/.tmux.conf
+ln -sf "$SELF_PATH"/tmux/tmux-osx.conf ~/.tmux-osx.conf
+ln -sf "$SELF_PATH"/tmux/tmux-default-layout ~/.tmux-default-layout
+ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
+ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
 if [[ $envtype == 'laptop' ]]; then
-    ln -sf $SELF_PATH/i3 ~/.config/i3
-    ln -sf $SELF_PATH/i3status ~/.config/i3status
+    ln -sf "$SELF_PATH"/i3 ~/.config/i3
+    ln -sf "$SELF_PATH"/i3status ~/.config/i3status
 fi
 
 if ! [ -d ~/.ssh/keys ]

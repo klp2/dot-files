@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 ## Prompt originally by cynikal at NYI, with some tweaks over the years
 ## The rest of the file influenced heavily by
 ## https://raw.githubusercontent.com/oalders/dot-files/master/bashrc
@@ -72,7 +73,7 @@ log_bash_persistent_history() {
   local command_part="${BASH_REMATCH[2]}"
   if [ "$command_part" != "$PERSISTENT_HISTORY_LAST" ]
   then
-    echo $date_part "|" "$command_part" >> ~/.persistent_history
+    echo "$date_part" "|" "$command_part" >> ~/.persistent_history
     export PERSISTENT_HISTORY_LAST="$command_part"
   fi
 }
@@ -106,17 +107,18 @@ LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
 export GO111MODULE=on
 
 # search history
-alias hist='history | ack $1'
+hist() { history | ack "$1"; }
 
 
 # check tty usage, sorting by tty's
+# shellcheck disable=SC2142  # \$7 is awk field reference, not bash positional param
 alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
 
-alias time='NOWTIME=`date +%s`;/usr/bin/time -v -o time.output.$NOWTIME'
+alias time='NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
 
 # list all processes that are running with the string in it
 # stolen from here: http://www.karl-voit.at/scripts/any
-alias jn='ps auxwwwwwww|ack -i $1'
+jn() { ps auxwwwwwww | ack -i "$1"; }
 
 # run ls with the specified colors
 alias ls="ls $LS_OPTIONS"
@@ -129,19 +131,20 @@ alias mem='ps u|head -1 && ps auxww|ack -v "USER"|sort +3|tail -5'
 alias mem10='ps u|head -1 && ps auxww|ack -v "USER"|sort +3|tail -10'
 
 # checks the count on given process name
-alias pscnt='echo "The current process count is: " `ps ax|wc -l`'
+alias pscnt='echo "The current process count is: $(ps ax|wc -l)"'
 
 # lists all the process sorted by pid/cputime
 alias allps='ps auxww|sort +1 -n|more'
 alias cpups='ps auxw|ack -v "USER"|sort +9'
 
 # lists load averages:
+# shellcheck disable=SC2142  # \$1 \$2 \$3 are awk field references, not bash positional params
 alias load='uptime|cut -dl -f2-|cut -d: -f2-|awk "{print \" 1 min load average: \" \$1 \"\n 5 min load average: \" \$2 \"\n15 min load average: \" \$3 \".\"}"'
 
 # cp with preservation of all inode information
-alias tarcp='tar cvf - . | ( cd \!* ; tar xvf - )'
+tarcp() { tar cvf - . | ( cd "$1" && tar xvf - ); }
 
-alias cdr='cd `git root`'
+alias cdr='cd $(git root)'
 alias delete-merged-branches='show-merged-branches | xargs -n 1 git branch -d'
 alias ll='ls -alhG'
 alias ps='ps auxw'
@@ -207,8 +210,8 @@ command -v rg &>/dev/null && alias grep='rg'
 # zoxide init moved to end of file (required by zoxide)
 
 function diffcol() {
-    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
-    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $2 $3
+    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' "$3" "$2"
+    awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' "$2" "$3"
 }
 
 function testme() {
@@ -226,7 +229,7 @@ function vi() {
         return 1
     fi
 
-    string=$(sed 's/::/\//g;' <<< $1)
+    string=$(sed 's/::/\//g;' <<< "$1")
     string="lib/$string.pm"
     if [[ ! -e $string ]]; then
         string="t/$string"
@@ -236,7 +239,7 @@ function vi() {
 
 # print out all of the ISP and Org names for networks listed in geofeed file
 function geofeednames() {
-    less $1 | cut -f1 -d, | xargs mmdbinspect --db \
+    less "$1" | cut -f1 -d, | xargs mmdbinspect --db \
     /usr/local/share/GeoIP/GeoIP2-ISP.mmdb | \
     jq '.[] | .Records[]? | { Network: .Network, isp: .Record.isp, org: .Record.organization}'
 }
@@ -250,12 +253,14 @@ fi
 
 # clean up PATH
 # http://linuxg.net/oneliners-for-removing-the-duplicates-in-your-path/
-PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '!arr[$0]++'`
+PATH=$(echo -n "$PATH" | awk -v RS=: -v ORS=: '!arr[$0]++')
 
 # lazy add ssh keys
-for key in `ls $HOME/.ssh/keys`; do
-    ssh-add $HOME/.ssh/keys/$key >& /dev/null
-done 
+if [[ -d "$HOME/.ssh/keys" ]]; then
+    for key in "$HOME"/.ssh/keys/*; do
+        [[ -f "$key" ]] && ssh-add "$key" &>/dev/null
+    done
+fi
 
 function cynprompt {
 

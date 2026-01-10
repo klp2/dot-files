@@ -37,7 +37,7 @@ echo "Downloading starship for ${OS}/${ARCH}..."
 
 # Download and extract
 TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
+trap 'rm -rf "$TMPDIR"' EXIT
 
 curl -sL "https://github.com/starship/starship/releases/latest/download/starship-${ARCH}.tar.gz" | tar xz -C "$TMPDIR"
 mv "$TMPDIR/starship" "$INSTALL_DIR/"
