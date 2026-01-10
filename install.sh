@@ -84,13 +84,3 @@ else
     git pull origin master
     popd
 fi
-
-#PACKER_LOCAL_REPO=~/.local/share/nvim/site/pack/packer/start/packer.nvim
-#git -C $PACKER_LOCAL_REPO pull || git clone --depth 1 https://github.com/wbthomason/packer.nvim $PACKER_LOCAL_REPO
-#git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-# git extras
-# echo "installing git-extras"
-
-# cd inc/git-extras
-# make install PREFIX="$HOME/local"
