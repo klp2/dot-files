@@ -83,8 +83,6 @@ git submodule update
 ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
 ln -sf ../../hooks/pre-push .git/hooks/pre-push
 
-bash ./install-fpp.sh
-
 LOCALCHECKOUT=~/.tmux/plugins/tpm
 if [ ! -d $LOCALCHECKOUT ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
