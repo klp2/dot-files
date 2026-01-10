@@ -311,6 +311,13 @@ fi
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 [ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
 
+# Linuxbrew completions (bat, eza, fd, delta, zoxide, lazygit, golangci-lint)
+if [ -d /home/linuxbrew/.linuxbrew/etc/bash_completion.d ]; then
+    for f in /home/linuxbrew/.linuxbrew/etc/bash_completion.d/*; do
+        [ -f "$f" ] && source "$f"
+    done
+fi
+
 # pyenv - only if installed
 if [ -d "$HOME/.pyenv" ]; then
     export PYENV_ROOT="$HOME/.pyenv"
