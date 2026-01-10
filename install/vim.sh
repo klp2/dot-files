@@ -7,9 +7,6 @@ PREFIX=~/dot-files
 source $PREFIX/bash_functions.sh
 
 ln -sf $PREFIX/vim/vimrc ~/.vimrc
-ln -sf $PREFIX/vim/vim_templates ~/.vim_templates
-
-cp $PREFIX/vim/bin/vim_file_template ~/bin/
 
 if [ $IS_MM = true ]; then
   ln -sf $PREFIX/vim/maxmind_local_vimrc ~/.local_vimrc
