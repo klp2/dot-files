@@ -214,8 +214,12 @@ if ! type "ack" > /dev/null  2>&1; then
     fi
 fi
 
-# alias grep='rg'
-# alias g='grep'
+# Modern CLI tool aliases (conditional on availability)
+command -v bat &>/dev/null && alias cat='bat --paging=never'
+command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias tree='eza --tree'
+command -v fd &>/dev/null && alias find='fd'
+command -v rg &>/dev/null && alias grep='rg'
+command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
 
 function diffcol() {
     awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' $3 $2
