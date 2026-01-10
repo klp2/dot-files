@@ -195,6 +195,42 @@ if ! type "ack" >/dev/null 2>&1; then
   fi
 fi
 
+# Modern CLI tool configs
+if [[ -f "$HOME/.config/ripgrep/config" ]]; then
+  export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
+fi
+
+# fzf configuration - use fd for file finding, bat for preview
+if command -v fzf &>/dev/null; then
+  # Use fd if available (respects .gitignore, faster)
+  if command -v fd &>/dev/null; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  fi
+
+  # fzf appearance and behavior
+  export FZF_DEFAULT_OPTS="
+    --height=40%
+    --layout=reverse
+    --border=rounded
+    --info=inline
+    --margin=1
+    --padding=1
+    --bind='ctrl-y:execute-silent(echo {} | wl-copy)'
+    --bind='ctrl-/:toggle-preview'
+    --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
+    --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9
+    --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6
+    --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
+  "
+
+  # Preview with bat if available
+  if command -v bat &>/dev/null; then
+    export FZF_CTRL_T_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
+  fi
+fi
+
 # Modern CLI tool aliases (conditional on availability)
 command -v bat &>/dev/null && alias cat='bat --paging=never'
 command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias tree='eza --tree'

@@ -1,0 +1,14 @@
+# bat configuration
+# See: bat --list-themes and bat --list-languages
+
+# Theme - Dracula for consistency with other tools
+--theme="Dracula"
+
+# Show line numbers and git modifications
+--style="numbers,changes,header"
+
+# Use less as pager with useful defaults
+--pager="less -FR"
+
+# Enable mouse scrolling in pager
+--italic-text=always

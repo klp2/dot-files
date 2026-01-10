@@ -109,6 +109,12 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
   fi
 fi
 
+# Tool configs (bat, ripgrep)
+mkdir -p ~/.config/bat
+mkdir -p ~/.config/ripgrep
+ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
+ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
+
 ln -sf "$SELF_PATH"/ackrc ~/.ackrc
 cp "$SELF_PATH"/golangci.yml ~/.golangci.yml
 

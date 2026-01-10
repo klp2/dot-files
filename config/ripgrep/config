@@ -1,0 +1,25 @@
+# ripgrep configuration
+# Set RIPGREP_CONFIG_PATH to point to this file
+
+# Smart case: case-insensitive unless pattern has uppercase
+--smart-case
+
+# Search hidden files (dotfiles) but still respect .gitignore
+--hidden
+
+# Don't search these directories (in addition to .gitignore)
+--glob=!.git/
+--glob=!node_modules/
+--glob=!vendor/
+--glob=!.cache/
+--glob=!__pycache__/
+--glob=!*.pyc
+
+# Follow symlinks
+--follow
+
+# Show line numbers
+--line-number
+
+# Add blank line between files for readability
+--heading
