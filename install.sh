@@ -40,6 +40,17 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship 
     $SELF_PATH/bin/install-starship.sh ~/bin
 fi
 
+# Install modern CLI tools on desktop/laptop via Homebrew
+if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &> /dev/null; then
+    echo "Installing modern CLI tools..."
+    for tool in ripgrep fd fzf jq bat eza git-delta zoxide lazygit; do
+        if ! brew list $tool &> /dev/null; then
+            echo "  Installing $tool..."
+            brew install $tool 2>/dev/null || true
+        fi
+    done
+fi
+
 ln -sf $SELF_PATH/ackrc ~/.ackrc
 
 ln -sf $SELF_PATH/bashrc ~/.bashrc
