@@ -104,6 +104,8 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
       echo "  Run: brew upgrade$TOOLS_OUTDATED"
       echo "  Or:  ./install.sh --upgrade"
     fi
+  else
+    echo "All brew tools up to date."
   fi
 fi
 
