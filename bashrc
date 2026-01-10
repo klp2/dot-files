@@ -3,30 +3,15 @@
 ## https://raw.githubusercontent.com/oalders/dot-files/master/bashrc
 ## when updating in 2017, as its been a long time since I've used bash
 
-
-# http://stackoverflow.com/questions/394230/detect-the-os-from-a-bash-script
-platform='unknown'
-unamestr=`uname`
-hostname=`hostname`
-if [[ "$unamestr" == 'Linux' ]]; then
-   platform='linux'
-elif [[ "$unamestr" == 'Darwin' ]]; then
-   platform='osx'
+# Source shared environment detection
+if [[ -f ~/.bash_common.sh ]]; then
+    source ~/.bash_common.sh
 fi
 
-
-if [[ $platform == 'linux' ]]; then
-    hostname=`hostname -f`
-else
-    hostname=`hostname`
-fi
-
-envtype='remote'
-if [[ -e "$HOME/.laptop" ]]; then
-   envtype='laptop'
-elif [[ -e "$HOME/.desktop" ]]; then
-   envtype='desktop'
-fi
+# Use exported variables from bash_common.sh (with fallbacks)
+platform=${DOTFILES_PLATFORM:-unknown}
+hostname=${DOTFILES_HOSTNAME:-$(hostname)}
+envtype=${DOTFILES_ENVTYPE:-remote}
 
 if [[ $envtype == 'laptop' ]] && command -v mm-perl &> /dev/null; then
     alias perl=mm-perl

@@ -5,6 +5,7 @@ set -eu -o pipefail
 SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 source $SELF_PATH/bash_functions.sh
+source $SELF_PATH/bash_common.sh
 
 mkdir -p ~/.config
 mkdir -p ~/.vimundo
@@ -14,13 +15,8 @@ then
     mkdir ~/bin
 fi
 
-envtype='remote'
-
-if [[ -e "$HOME/.laptop" ]]; then
-    envtype='laptop'
-elif [[ -e "$HOME/.desktop" ]]; then
-    envtype='desktop'
-fi
+# Use shared environment detection
+envtype=$DOTFILES_ENVTYPE
 
 
 $SELF_PATH/install/vim.sh
@@ -55,6 +51,7 @@ ln -sf $SELF_PATH/ackrc ~/.ackrc
 
 ln -sf $SELF_PATH/bashrc ~/.bashrc
 ln -sf $SELF_PATH/bash_profile ~/.bash_profile
+ln -sf $SELF_PATH/bash_common.sh ~/.bash_common.sh
 
 cp     $SELF_PATH/dataprinter ~/.dataprinter
 chmod 700 ~/.dataprinter

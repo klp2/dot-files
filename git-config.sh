@@ -2,25 +2,12 @@
 
 set -eu -o pipefail
 
+SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+source "$SELF_PATH/bash_common.sh"
+
 echo "git config"
 
-platform='unknown'
-unamestr=`uname`
-hostname=`hostname`
-
-if [[ "$unamestr" == 'Linux' ]]; then
-   platform='linux'
-elif [[ "$unamestr" == 'Darwin' ]]; then
-   platform='osx'
-fi
-
-if [[ $platform == 'linux' ]]; then
-    hostname=`hostname -f`
-else
-    hostname=`hostname`
-fi
-
-if [[ $hostname =~ "maxmind" ]]; then
+if is_maxmind; then
     git config --global user.email "kphair@maxmind.com"
 else
     git config --global user.email "phair.kevin@gmail.com"
