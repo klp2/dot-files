@@ -71,7 +71,7 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship 
 fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
-BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust"
+BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav"
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
   # Get installed packages once (much faster than checking each individually)
   BREW_INSTALLED=$(brew list --formula 2>/dev/null)
@@ -109,11 +109,13 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
   fi
 fi
 
-# Tool configs (bat, ripgrep)
+# Tool configs (bat, ripgrep, lnav)
 mkdir -p ~/.config/bat
 mkdir -p ~/.config/ripgrep
+mkdir -p ~/.config/lnav
 ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
 ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
+ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
 
 ln -sf "$SELF_PATH"/ackrc ~/.ackrc
 cp "$SELF_PATH"/golangci.yml ~/.golangci.yml

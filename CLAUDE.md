@@ -72,7 +72,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 
 ### What Works Without Changes
 - All shell configs, vim/neovim, tmux, git
-- Homebrew-installed tools (ripgrep, fzf, tmux, neovim, bat, eza, fd)
+- Homebrew-installed tools (ripgrep, fzf, tmux, neovim, bat, eza, fd, tailspin, lnav)
 - Version managers in user space (plenv, pyenv, nvm, cargo)
 
 ## Code Quality

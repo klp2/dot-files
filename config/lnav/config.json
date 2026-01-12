@@ -1,0 +1,17 @@
+{
+    "$schema": "https://lnav.org/schemas/config-v1.schema.json",
+    "ui": {
+        "theme": "dracula",
+        "clock-format": "%H:%M:%S",
+        "dim-text": false,
+        "default-colors": false
+    },
+    "log": {
+        "watch-expressions": {
+            "error-alert": {
+                "expr": ":log_level = 'error'",
+                "enabled": true
+            }
+        }
+    }
+}

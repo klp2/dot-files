@@ -193,9 +193,10 @@ fi
 
 # Modern CLI tool aliases (conditional on availability)
 command -v bat &>/dev/null && alias cat='bat --paging=never'
-command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias tree='eza --tree'
+command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias lt='eza -la --git --sort oldest' && alias tree='eza --tree'
 command -v fd &>/dev/null && alias find='fd'
 command -v rg &>/dev/null && alias grep='rg'
+command -v tspin &>/dev/null && alias tf='tspin -f'
 # zoxide init moved to end of file (required by zoxide)
 
 function diffcol() {
@@ -337,3 +338,4 @@ fi
 
 # zoxide - must be at end of bashrc
 command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
+export PATH="$HOME/.local/bin:$PATH"
