@@ -53,6 +53,32 @@ fi
 # Use shared environment detection
 envtype=$DOTFILES_ENVTYPE
 
+# Bootstrap Homebrew if missing (desktop/laptop only)
+if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v brew &>/dev/null; then
+  echo ""
+  echo "=== Homebrew Setup ==="
+  echo "Homebrew not found. Downloading installer for review..."
+  BREW_SCRIPT="/tmp/brew-install-$$.sh"
+  if curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$BREW_SCRIPT"; then
+    echo "Downloaded to: $BREW_SCRIPT"
+    echo "Size: $(wc -c <"$BREW_SCRIPT") bytes, $(wc -l <"$BREW_SCRIPT") lines"
+    echo "SHA256: $(sha256sum "$BREW_SCRIPT" | cut -d' ' -f1)"
+    echo ""
+    echo "Review with: less $BREW_SCRIPT"
+    read -p "Run Homebrew installer? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      bash "$BREW_SCRIPT"
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    else
+      echo "Skipping Homebrew installation. Brew-dependent tools will not be installed."
+    fi
+    rm -f "$BREW_SCRIPT"
+  else
+    echo "Failed to download Homebrew installer."
+  fi
+fi
+
 "$SELF_PATH"/install/vim.sh
 "$SELF_PATH"/install/nvim.sh
 
