@@ -102,3 +102,7 @@ shfmt -i 2 -ci -w bashrc install.sh
 - Case statements indented
 - No space after redirects (`>file` not `> file`)
 - Binary operators at end of line when wrapping
+
+## Maintenance
+
+Run `./install.sh` weekly to pick up dotfile changes and check for brew tool updates. The shell displays a reminder if it's been over a week. Use `./install.sh --upgrade` to auto-upgrade outdated brew packages.

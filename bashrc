@@ -14,6 +14,23 @@ platform=${DOTFILES_PLATFORM:-unknown}
 hostname=${DOTFILES_HOSTNAME:-$(hostname)}
 envtype=${DOTFILES_ENVTYPE:-remote}
 
+# Remind to update dotfiles weekly
+check_dotfiles_update_reminder() {
+  local update_file="$HOME/.dotfiles-last-update"
+  local week_seconds=604800
+
+  [[ -f "$update_file" ]] || return
+
+  local last_update current_time
+  last_update=$(cat "$update_file")
+  current_time=$(date +%s)
+
+  if ((current_time - last_update > week_seconds)); then
+    echo "Reminder: dotfiles haven't been updated in over a week. Run ~/dot-files/install.sh"
+  fi
+}
+check_dotfiles_update_reminder
+
 if [[ $envtype == 'laptop' ]] && command -v mm-perl &>/dev/null; then
   alias perl=mm-perl
 fi

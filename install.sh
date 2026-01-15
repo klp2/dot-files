@@ -143,6 +143,12 @@ ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
 ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
 ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
 
+# Alacritty terminal config (only if alacritty is installed)
+if command -v alacritty &>/dev/null; then
+  mkdir -p ~/.config/alacritty
+  ln -sf "$SELF_PATH"/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
+fi
+
 ln -sf "$SELF_PATH"/ackrc ~/.ackrc
 cp "$SELF_PATH"/golangci.yml ~/.golangci.yml
 
@@ -205,3 +211,6 @@ if [[ "$INSTALL_MODE" == "fresh" ]]; then
 else
   echo "=== Update complete ==="
 fi
+
+# Record timestamp for weekly reminder system
+date +%s >"$HOME/.dotfiles-last-update"
