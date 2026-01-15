@@ -158,6 +158,12 @@ alias gc="git commit -v -e -m"
 alias gp="git push"
 alias t="tmux"
 
+# Wrapper for mssh to set compatible TERM for remote servers
+# Remote GCP hosts often lack alacritty terminfo
+mssh() {
+  TERM=xterm-256color command mssh "$@"
+}
+
 # integer to ip address and back
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
