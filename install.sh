@@ -97,7 +97,7 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship 
 fi
 
 # Install modern CLI tools on desktop/laptop via Homebrew
-BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav"
+BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise"
 if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
   # Get installed packages once (much faster than checking each individually)
   BREW_INSTALLED=$(brew list --formula 2>/dev/null)
