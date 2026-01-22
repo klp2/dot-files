@@ -169,8 +169,8 @@ ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
 if [[ $envtype == 'laptop' ]]; then
-  ln -sf "$SELF_PATH"/i3 ~/.config/i3
-  ln -sf "$SELF_PATH"/i3status ~/.config/i3status
+  ln -sfn "$SELF_PATH"/i3 ~/.config/i3
+  ln -sfn "$SELF_PATH"/i3status ~/.config/i3status
 fi
 
 if ! [ -d ~/.ssh/keys ]; then
