@@ -115,12 +115,16 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
     brew install $TOOLS_TO_INSTALL 2>/dev/null || true
   fi
 
+  # Update brew to discover new versions (especially from taps)
+  echo "Updating brew..."
+  brew update --quiet 2>/dev/null || true
+
   # Check for available upgrades
   echo "Checking for brew upgrades..."
   BREW_OUTDATED=$(brew outdated --formula 2>/dev/null)
   TOOLS_OUTDATED=""
   for tool in $BREW_TOOLS; do
-    if echo "$BREW_OUTDATED" | grep -q "^${tool}$"; then
+    if echo "$BREW_OUTDATED" | grep -qE "(^|/)${tool}$"; then
       TOOLS_OUTDATED="$TOOLS_OUTDATED $tool"
     fi
   done
