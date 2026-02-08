@@ -105,4 +105,4 @@ shfmt -i 2 -ci -w bashrc install.sh
 
 ## Maintenance
 
-Run `./install.sh` weekly to pick up dotfile changes and check for brew tool updates. The shell displays a reminder if it's been over a week. Use `./install.sh --upgrade` to auto-upgrade outdated brew packages.
+Run `./install.sh` weekly to pick up dotfile changes and upgrade brew tools. The shell displays a reminder if it's been over a week. Use `--no-upgrade` to skip brew upgrades.

@@ -9,7 +9,7 @@ source "$SELF_PATH"/bash_common.sh
 
 # Parse arguments
 FORCE_MODE=""
-UPGRADE_BREW=""
+UPGRADE_BREW="yes"
 while [[ $# -gt 0 ]]; do
   case $1 in
     --fresh)
@@ -20,8 +20,8 @@ while [[ $# -gt 0 ]]; do
       FORCE_MODE="update"
       shift
       ;;
-    --upgrade)
-      UPGRADE_BREW="yes"
+    --no-upgrade)
+      UPGRADE_BREW=""
       shift
       ;;
     *)
@@ -129,9 +129,7 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev
       echo "Upgrading:$TOOLS_OUTDATED"
       brew upgrade $TOOLS_OUTDATED 2>/dev/null || true
     else
-      echo "Updates available:$TOOLS_OUTDATED"
-      echo "  Run: brew upgrade$TOOLS_OUTDATED"
-      echo "  Or:  ./install.sh --upgrade"
+      echo "Upgrades available but skipped (--no-upgrade):$TOOLS_OUTDATED"
     fi
   else
     echo "All brew tools up to date."
