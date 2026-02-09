@@ -35,7 +35,8 @@ if [[ $envtype == 'laptop' ]] && command -v mm-perl &>/dev/null; then
   alias perl=mm-perl
 fi
 
-export EDITOR=vim
+alias vi=nvim
+export EDITOR=nvim
 export me=$USER
 
 # use vim mappings to move around the command line
