@@ -213,6 +213,31 @@ if command -v fzf &>/dev/null; then
   if command -v bat &>/dev/null; then
     export FZF_CTRL_T_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
   fi
+
+  # Shell integration (keybindings: Ctrl-R, Ctrl-T, Alt-C + tab completion)
+  eval "$(fzf --bash)"
+
+  # Git helpers powered by fzf
+  # For more comprehensive git+fzf, see: https://github.com/junegunn/fzf-git.sh
+  gsw() {
+    local branch
+    branch=$(git branch --sort=-committerdate --format='%(refname:short)' 2>/dev/null | fzf --header="Switch branch") &&
+      git switch "$branch"
+  }
+
+  glog() {
+    git log --oneline --color=always --decorate |
+      fzf --ansi --no-sort --preview 'git show --color=always {1}' \
+        --bind 'enter:execute(git show --color=always {1} | less -R)'
+  }
+
+  gstash() {
+    local stash
+    stash=$(git stash list --color=always |
+      fzf --ansi --no-sort --preview 'git stash show -p --color=always {1}' |
+      cut -d: -f1) &&
+      git stash pop "$stash"
+  }
 fi
 
 # Modern CLI tool aliases (conditional on availability)
@@ -312,7 +337,6 @@ else
   cynprompt
 fi
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 [ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
 

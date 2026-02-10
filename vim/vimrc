@@ -47,8 +47,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'bling/vim-airline'
 Plug 'embear/vim-foldsearch'
 Plug 'jceb/vim-hier'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() }}
-Plug 'junegunn/fzf.vim', { 'dir': '~/.fzf', 'do': './install -all', 'frozen': 1 }
+Plug '/home/linuxbrew/.linuxbrew/opt/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'klp2/dc_automakedir'
 Plug 'rhysd/accelerated-jk'
