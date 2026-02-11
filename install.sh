@@ -231,6 +231,10 @@ ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 if [[ $envtype == 'local-work' ]]; then
   ln -sfn "$SELF_PATH"/i3 ~/.config/i3
   ln -sfn "$SELF_PATH"/i3status ~/.config/i3status
+
+  # Devcontainer local customizations (symlink so deploy dereferences)
+  mkdir -p ~/.config/devcontainer-local
+  ln -sf "$SELF_PATH"/devcontainer/startup.sh ~/.config/devcontainer-local/startup.sh
 fi
 
 if ! [ -d ~/.ssh/keys ]; then
