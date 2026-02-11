@@ -41,7 +41,9 @@ _detect_envtype_heuristic() {
 }
 
 detect_envtype() {
-  if [[ -e "$HOME/.local-work" ]]; then
+  if [[ -e "$HOME/.devcontainer-work" ]]; then
+    echo 'devcontainer-work'
+  elif [[ -e "$HOME/.local-work" ]]; then
     echo 'local-work'
   elif [[ -e "$HOME/.local-personal" ]]; then
     echo 'local-personal'

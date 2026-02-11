@@ -7,7 +7,7 @@ source "$SELF_PATH/bash_common.sh"
 
 echo "git config"
 
-if is_maxmind; then
+if is_maxmind || [[ ${DOTFILES_ENVTYPE:-} == 'devcontainer-work' ]]; then
   git config --global user.email "kphair@maxmind.com"
 else
   git config --global user.email "phair.kevin@gmail.com"

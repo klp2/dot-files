@@ -10,6 +10,7 @@ source "$SELF_PATH"/bash_common.sh
 # Parse arguments
 FORCE_MODE=""
 UPGRADE_BREW="yes"
+AUTO_YES=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --fresh)
@@ -22,6 +23,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-upgrade)
       UPGRADE_BREW=""
+      shift
+      ;;
+    --yes)
+      AUTO_YES="yes"
       shift
       ;;
     *)
@@ -65,7 +70,7 @@ source "$SELF_PATH"/bash_common.sh
 envtype=$DOTFILES_ENVTYPE
 
 # Create marker file if none exists
-if [[ ! -e "$HOME/.local-work" && ! -e "$HOME/.local-personal" &&
+if [[ ! -e "$HOME/.devcontainer-work" && ! -e "$HOME/.local-work" && ! -e "$HOME/.local-personal" &&
   ! -e "$HOME/.remote-work" && ! -e "$HOME/.remote-personal" ]]; then
   echo ""
   echo "=== Environment Detection ==="
@@ -91,7 +96,7 @@ if [[ ! -e "$HOME/.local-work" && ! -e "$HOME/.local-personal" &&
 fi
 
 # Bootstrap Homebrew if missing (not on remote-work)
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v brew &>/dev/null; then
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && ! command -v brew &>/dev/null; then
   echo ""
   echo "=== Homebrew Setup ==="
   echo "Homebrew not found. Downloading installer for review..."
@@ -102,8 +107,12 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
     echo "SHA256: $(sha256sum "$BREW_SCRIPT" | cut -d' ' -f1)"
     echo ""
     echo "Review with: less $BREW_SCRIPT"
-    read -p "Run Homebrew installer? [y/N] " -n 1 -r
-    echo
+    if [[ -n "$AUTO_YES" ]]; then
+      REPLY="y"
+    else
+      read -p "Run Homebrew installer? [y/N] " -n 1 -r
+      echo
+    fi
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       bash "$BREW_SCRIPT"
       eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -131,14 +140,20 @@ mkdir -p ~/.config
 ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
 
 # Install starship if not already present (not on remote-work)
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v starship &>/dev/null; then
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && ! command -v starship &>/dev/null; then
   echo "Installing starship prompt..."
   "$SELF_PATH"/bin/install-starship.sh ~/bin
 fi
 
 # Install modern CLI tools via Homebrew (not on remote-work)
-BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr"
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && command -v brew &>/dev/null; then
+if [[ $envtype == 'devcontainer-work' ]]; then
+  # Devcontainer provides via mise/apt: ripgrep fd fzf jq bat git-delta gopls
+  #   golangci-lint shellcheck shfmt gh mise
+  BREW_TOOLS="eza zoxide lazygit entr difftastic just glow ast-grep tldr dust tailspin lnav sr"
+else
+  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr"
+fi
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
   # Ensure personal tap is available
   brew tap klp2/sr 2>/dev/null || true
 
@@ -240,8 +255,8 @@ else
   popd
 fi
 
-# Run cleanup for updates only (interactive)
-if [[ "$INSTALL_MODE" == "update" ]]; then
+# Run cleanup for updates only (interactive, skip with --yes)
+if [[ "$INSTALL_MODE" == "update" && -z "$AUTO_YES" ]]; then
   echo ""
   echo "=== Checking for deprecated tools ==="
   "$SELF_PATH"/cleanup.sh
