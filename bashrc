@@ -12,7 +12,7 @@ fi
 # Use exported variables from bash_common.sh (with fallbacks)
 platform=${DOTFILES_PLATFORM:-unknown}
 hostname=${DOTFILES_HOSTNAME:-$(hostname)}
-envtype=${DOTFILES_ENVTYPE:-remote}
+envtype=${DOTFILES_ENVTYPE:-remote-work}
 
 # Remind to update dotfiles weekly
 check_dotfiles_update_reminder() {
@@ -31,7 +31,7 @@ check_dotfiles_update_reminder() {
 }
 check_dotfiles_update_reminder
 
-if [[ $envtype == 'laptop' ]] && command -v mm-perl &>/dev/null; then
+if [[ $envtype == 'local-work' ]] && command -v mm-perl &>/dev/null; then
   alias perl=mm-perl
 fi
 
@@ -49,21 +49,25 @@ pathadd() {
   fi
 }
 
-if [[ $envtype == 'laptop' || $envtype == 'desktop' ]]; then
+# Brew PATH and alias (all envtypes except remote-work)
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
+  if [[ $platform == 'linux' && -d "/home/linuxbrew/" ]]; then
+    pathadd "/home/linuxbrew/.linuxbrew/bin/"
+  fi
+  alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
+fi
+
+# xcape: X11 keyboard remap (local envtypes only)
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
+  if [[ $platform == 'linux' && "$XDG_SESSION_TYPE" == "x11" ]]; then
+    xcape -e 'Control_L=Escape'
+  fi
+fi
+
+# GPG SSH agent (local envtypes only)
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
   if [[ $platform == 'linux' ]]; then
-    # xcape only works on X11, not Wayland
-    if [[ "$XDG_SESSION_TYPE" == "x11" ]]; then
-      xcape -e 'Control_L=Escape'
-    fi
-
-    if [[ -d "/home/linuxbrew/" ]]; then
-      pathadd "/home/linuxbrew/.linuxbrew/bin/"
-    fi
-
     export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-
-    # cleanup homebrew refuse
-    alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
   fi
 fi
 

@@ -19,13 +19,43 @@ detect_hostname() {
   fi
 }
 
-detect_envtype() {
-  if [[ -e "$HOME/.laptop" ]]; then
-    echo 'laptop'
-  elif [[ -e "$HOME/.desktop" ]]; then
-    echo 'desktop'
+_detect_envtype_heuristic() {
+  local graphical=false
+  if [[ "${XDG_SESSION_TYPE:-}" == "x11" || "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
+    graphical=true
+  fi
+
+  if $graphical; then
+    if is_maxmind; then
+      echo 'local-work'
+    else
+      echo 'local-personal'
+    fi
   else
-    echo 'remote'
+    if is_maxmind; then
+      echo 'remote-work'
+    else
+      echo 'remote-personal'
+    fi
+  fi
+}
+
+detect_envtype() {
+  if [[ -e "$HOME/.local-work" ]]; then
+    echo 'local-work'
+  elif [[ -e "$HOME/.local-personal" ]]; then
+    echo 'local-personal'
+  elif [[ -e "$HOME/.remote-work" ]]; then
+    echo 'remote-work'
+  elif [[ -e "$HOME/.remote-personal" ]]; then
+    echo 'remote-personal'
+  # Legacy marker files
+  elif [[ -e "$HOME/.laptop" ]]; then
+    echo 'local-work'
+  elif [[ -e "$HOME/.desktop" ]]; then
+    echo 'local-personal'
+  else
+    _detect_envtype_heuristic
   fi
 }
 

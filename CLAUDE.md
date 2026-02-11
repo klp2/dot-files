@@ -12,16 +12,20 @@ This is a personal dotfiles repository that manages configuration for bash, vim,
 ./install.sh
 ```
 
-This symlinks configs to home directory, runs vim-plug installation, sets up git configuration, and installs TPM for tmux. Creates `~/.laptop` file to enable laptop-specific features (i3, xcape, linuxbrew paths).
+This symlinks configs to home directory, runs vim-plug installation, sets up git configuration, and installs TPM for tmux. Migrates old marker files and creates a new one if needed via heuristic detection.
 
 ## Key Architecture Decisions
 
 ### Environment Detection
+- Two-axis scheme: **local/remote** x **work/personal**
+- Environment types via marker files in `$HOME`:
+  - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), brew, vim
+  - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, brew, xcape, vim
+  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools)
+  - `~/.remote-personal` → personal server, full tooling (brew, neovim, starship) but no vim, xcape, or gpgconf
+- Heuristic detection when no marker exists (graphical session → local, hostname contains "maxmind" → work)
+- `install.sh` auto-creates marker file on first run with diagnostic output
 - Work vs personal distinguished by hostname containing "maxmind"
-- Environment types via marker files:
-  - `~/.laptop` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only)
-  - `~/.desktop` → personal desktop (e.g., Bazzite/KDE), enables SSH agent and brew paths but NOT i3
-  - Neither → remote server, minimal config
 - Wayland detection: `$XDG_SESSION_TYPE` checked before running X11-only tools like xcape
 - Local customizations via `~/.local-bashrc` and `~/.local_vimrc`
 - Work-specific items (gcloud, MaxMind tools) go in `~/.local-bashrc`
@@ -45,9 +49,9 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 
 ## File Relationships
 
-- `install.sh` → calls `install/vim.sh` and `install/nvim.sh`
+- `install.sh` → migrates old markers, auto-creates marker via heuristic, calls `install/vim.sh` (skipped for remote-personal) and `install/nvim.sh`
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection, installs vim-plug, symlinks vimrc
-- `install/nvim.sh` → installs neovim nightly via Homebrew, symlinks init.lua, syncs lazy.nvim plugins
+- `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), symlinks init.lua, syncs lazy.nvim plugins
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
 - `bashrc` sources `~/.local-bashrc` at end (NVM lazy-loaded for fast shell startup)
 - `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)

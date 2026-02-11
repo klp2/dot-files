@@ -50,11 +50,48 @@ if ! [ -d ~/bin ]; then
   mkdir ~/bin
 fi
 
-# Use shared environment detection
+# Migrate old marker files to new naming scheme
+if [[ -e "$HOME/.laptop" && ! -e "$HOME/.local-work" ]]; then
+  echo "Migrating ~/.laptop → ~/.local-work"
+  mv "$HOME/.laptop" "$HOME/.local-work"
+fi
+if [[ -e "$HOME/.desktop" && ! -e "$HOME/.local-personal" ]]; then
+  echo "Migrating ~/.desktop → ~/.local-personal"
+  mv "$HOME/.desktop" "$HOME/.local-personal"
+fi
+
+# Re-source after migration so detect_envtype sees new markers
+source "$SELF_PATH"/bash_common.sh
 envtype=$DOTFILES_ENVTYPE
 
-# Bootstrap Homebrew if missing (desktop/laptop only)
-if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v brew &>/dev/null; then
+# Create marker file if none exists
+if [[ ! -e "$HOME/.local-work" && ! -e "$HOME/.local-personal" &&
+  ! -e "$HOME/.remote-work" && ! -e "$HOME/.remote-personal" ]]; then
+  echo ""
+  echo "=== Environment Detection ==="
+  echo "No marker file found (~/.local-work, ~/.local-personal, etc.)"
+  echo "Running heuristic detection..."
+  local_graphical="no"
+  local_graphical_detail="${XDG_SESSION_TYPE:-tty}"
+  if [[ "${XDG_SESSION_TYPE:-}" == "x11" || "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
+    local_graphical="yes"
+  fi
+  local_mm="no"
+  local_hostname=$(detect_hostname)
+  if is_maxmind; then
+    local_mm="yes"
+  fi
+  echo "  Graphical session: $local_graphical  (XDG_SESSION_TYPE=$local_graphical_detail)"
+  echo "  MaxMind hostname:  $local_mm  (hostname=$local_hostname)"
+  echo "  Result: $envtype"
+  touch "$HOME/.$envtype"
+  echo "Creating ~/.$envtype"
+  echo "To change, delete this file and create the correct one (e.g. ~/.remote-work)"
+  echo ""
+fi
+
+# Bootstrap Homebrew if missing (not on remote-work)
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v brew &>/dev/null; then
   echo ""
   echo "=== Homebrew Setup ==="
   echo "Homebrew not found. Downloading installer for review..."
@@ -79,7 +116,10 @@ if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v brew &>/d
   fi
 fi
 
-"$SELF_PATH"/install/vim.sh
+# Skip vim on remote-personal (neovim only)
+if [[ $envtype != 'remote-personal' ]]; then
+  "$SELF_PATH"/install/vim.sh
+fi
 "$SELF_PATH"/install/nvim.sh
 
 # Prompt setup - git-prompt-fallback and starship config
@@ -90,15 +130,15 @@ chmod +x ~/bin/install-starship.sh
 mkdir -p ~/.config
 ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
 
-# Install starship on desktop/laptop if not already present (not on remote servers)
-if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && ! command -v starship &>/dev/null; then
+# Install starship if not already present (not on remote-work)
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v starship &>/dev/null; then
   echo "Installing starship prompt..."
   "$SELF_PATH"/bin/install-starship.sh ~/bin
 fi
 
-# Install modern CLI tools on desktop/laptop via Homebrew
+# Install modern CLI tools via Homebrew (not on remote-work)
 BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr"
-if [[ $envtype == 'desktop' || $envtype == 'laptop' ]] && command -v brew &>/dev/null; then
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && command -v brew &>/dev/null; then
   # Ensure personal tap is available
   brew tap klp2/sr 2>/dev/null || true
 
@@ -173,7 +213,7 @@ ln -sf "$SELF_PATH"/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
-if [[ $envtype == 'laptop' ]]; then
+if [[ $envtype == 'local-work' ]]; then
   ln -sfn "$SELF_PATH"/i3 ~/.config/i3
   ln -sfn "$SELF_PATH"/i3status ~/.config/i3status
 fi
