@@ -163,6 +163,12 @@ alias gc="git commit -v -e -m"
 alias gp="git push"
 alias t="tmux"
 
+# Sync devcontainer-local config then start devcontainer
+devup() {
+  dev/bin/general/deploy-devcontainer-local
+  devpod up . --open-ide=false "$@"
+}
+
 # Wrapper for mssh to set compatible TERM for remote servers
 # Remote GCP hosts often lack alacritty terminfo
 mssh() {
