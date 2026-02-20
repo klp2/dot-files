@@ -6,8 +6,8 @@ PREFIX=~/dot-files
 
 source "$PREFIX/bash_common.sh"
 
-# Install/update neovim via Homebrew (not on remote-work)
-if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal' || $DOTFILES_ENVTYPE == 'remote-personal' || $DOTFILES_ENVTYPE == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
+# Install/update neovim via Homebrew (not on remote-work or devcontainer-work where mise provides it)
+if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal' || $DOTFILES_ENVTYPE == 'remote-personal' ]] && command -v brew &>/dev/null; then
   if ! command -v nvim &>/dev/null; then
     echo "Installing neovim (nightly)..."
     brew install neovim --HEAD
@@ -24,8 +24,8 @@ fi
 mkdir -p ~/.config/nvim
 ln -sf "$PREFIX/nvim/init.lua" ~/.config/nvim/init.lua
 
-# Run Lazy sync if nvim is available (install/update plugins)
-if command -v nvim &>/dev/null; then
+# Run Lazy sync if nvim is available (skip in devcontainer — slow on first run)
+if [[ $DOTFILES_ENVTYPE != 'devcontainer-work' ]] && command -v nvim &>/dev/null; then
   echo "Syncing neovim plugins..."
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 fi
