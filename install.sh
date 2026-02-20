@@ -125,8 +125,8 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
   fi
 fi
 
-# Skip vim on remote-personal (neovim only)
-if [[ $envtype != 'remote-personal' ]]; then
+# Skip vim on remote-personal and devcontainer-work (neovim only)
+if [[ $envtype != 'remote-personal' && $envtype != 'devcontainer-work' ]]; then
   "$SELF_PATH"/install/vim.sh
 fi
 "$SELF_PATH"/install/nvim.sh

@@ -7,7 +7,7 @@ PREFIX=~/dot-files
 source "$PREFIX/bash_common.sh"
 
 # Install/update neovim via Homebrew (not on remote-work)
-if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal' || $DOTFILES_ENVTYPE == 'remote-personal' ]] && command -v brew &>/dev/null; then
+if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal' || $DOTFILES_ENVTYPE == 'remote-personal' || $DOTFILES_ENVTYPE == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
   if ! command -v nvim &>/dev/null; then
     echo "Installing neovim (nightly)..."
     brew install neovim --HEAD
