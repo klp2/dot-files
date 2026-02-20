@@ -238,7 +238,7 @@ if [[ $envtype == 'local-work' ]]; then
 fi
 
 if ! [ -d ~/.ssh/keys ]; then
-  mkdir ~/.ssh/keys
+  mkdir -p ~/.ssh/keys
 fi
 
 git submodule init
