@@ -14,6 +14,11 @@ platform=${DOTFILES_PLATFORM:-unknown}
 hostname=${DOTFILES_HOSTNAME:-$(hostname)}
 envtype=${DOTFILES_ENVTYPE:-remote-work}
 
+# Fix missing terminfo in containers (e.g. alacritty not in container's terminfo db)
+if [[ $envtype == 'devcontainer-work' ]] && ! infocmp "$TERM" &>/dev/null; then
+  export TERM=xterm-256color
+fi
+
 # Remind to update dotfiles weekly
 check_dotfiles_update_reminder() {
   local update_file="$HOME/.dotfiles-last-update"
