@@ -18,3 +18,12 @@ fi
 # --yes skips install.sh's own interactive prompts
 export NONINTERACTIVE=1
 cd "$DOT_FILES_DIR" && bash install.sh --update --yes
+
+# Install/update Claude Code
+if ! command -v claude &>/dev/null; then
+  echo "Installing Claude Code..."
+  curl -fsSL https://claude.ai/install.sh | bash
+else
+  echo "Updating Claude Code..."
+  claude update 2>/dev/null || true
+fi
