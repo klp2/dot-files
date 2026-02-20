@@ -24,8 +24,8 @@ fi
 mkdir -p ~/.config/nvim
 ln -sf "$PREFIX/nvim/init.lua" ~/.config/nvim/init.lua
 
-# Run Lazy sync if nvim is available (skip in devcontainer — slow on first run)
-if [[ $DOTFILES_ENVTYPE != 'devcontainer-work' ]] && command -v nvim &>/dev/null; then
+# Run Lazy sync if nvim is available (install/update plugins)
+if command -v nvim &>/dev/null; then
   echo "Syncing neovim plugins..."
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 fi
