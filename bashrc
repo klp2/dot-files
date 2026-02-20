@@ -374,11 +374,6 @@ if command -v mise &>/dev/null; then
   eval "$(mise activate bash)"
 fi
 
-# In devcontainer, brew tools (e.g. neovim nightly) should override mise's versions
-if [[ $envtype == 'devcontainer-work' && -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
-  PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-fi
-
 # nvm - lazy load for faster shell startup
 export NVM_DIR="$HOME/.nvm"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
