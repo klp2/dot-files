@@ -213,7 +213,7 @@ fi
 if command -v mise &>/dev/null; then
   echo "Installing mise tools..."
   MISE_LOCKED=0 mise install --quiet
-  mise lock --quiet
+  MISE_LOCKED=0 mise lock --quiet
 fi
 
 # Alacritty terminal config (only if alacritty is installed)
