@@ -206,13 +206,14 @@ ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
 # Mise global config (environment-specific)
 mkdir -p ~/.config/mise
 if [[ $envtype == 'local-work' || $envtype == 'devcontainer-work' ]]; then
-  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/mise.toml
+  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/config.toml
 elif [[ $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
-  ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/mise.toml
+  ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
 fi
 if command -v mise &>/dev/null; then
   echo "Installing mise tools..."
-  mise install --quiet
+  MISE_LOCKED=0 mise install --quiet
+  mise lock --quiet
 fi
 
 # Alacritty terminal config (only if alacritty is installed)
