@@ -203,6 +203,18 @@ ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
 ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
 ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
 
+# Mise global config (environment-specific)
+mkdir -p ~/.config/mise
+if [[ $envtype == 'local-work' || $envtype == 'devcontainer-work' ]]; then
+  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/mise.toml
+elif [[ $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
+  ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/mise.toml
+fi
+if command -v mise &>/dev/null; then
+  echo "Installing mise tools..."
+  mise install --quiet
+fi
+
 # Alacritty terminal config (only if alacritty is installed)
 if command -v alacritty &>/dev/null; then
   mkdir -p ~/.config/alacritty
