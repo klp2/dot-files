@@ -205,7 +205,15 @@ ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
 
 # Mise global config (environment-specific)
 mkdir -p ~/.config/mise
-if [[ $envtype == 'local-work' || $envtype == 'devcontainer-work' ]]; then
+if [[ $envtype == 'devcontainer-work' ]]; then
+  # Use conf.d so personal config coexists with Dockerfile's default config.toml
+  mkdir -p ~/.config/mise/conf.d
+  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/conf.d/50-personal.toml
+  # Clean up old symlink from previous installs (preserve Dockerfile's regular file)
+  if [ -L ~/.config/mise/config.toml ]; then
+    rm ~/.config/mise/config.toml
+  fi
+elif [[ $envtype == 'local-work' ]]; then
   ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/config.toml
 elif [[ $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
   ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
