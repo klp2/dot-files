@@ -1,0 +1,18 @@
+! Regolith 3 user Xresources — tracked portion of the config.
+!
+! Machine-specific values (wallpaper, look theme) live in the
+! un-tracked file Xresources.d/local, included at the bottom.
+! Regolith adds ~/.config/regolith3/Xresources.d to the cpp
+! include path when merging (see regolith-session-common.sh).
+
+wm.gaps.inner.size: 1
+
+! Disable rofication-daemon — using mako for notifications instead.
+wm.program.notifications: /bin/true
+
+! Pin i3status-rust to the user config so regolith package updates
+! don't reintroduce blocks (e.g. rofication) that depend on daemons
+! we don't run.
+wm.bar.status_config: /home/kphair/.config/regolith3/i3status-rust/config.toml
+
+#include "local"

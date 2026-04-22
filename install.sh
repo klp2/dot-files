@@ -258,6 +258,24 @@ if [[ $envtype == 'local-work' ]]; then
   ln -sf "$SELF_PATH"/devcontainer/startup.sh ~/.config/devcontainer-local/startup.sh
 fi
 
+# Regolith 3: tracked Xresources and i3status-rust config.
+# Machine-specific overrides (wallpaper, look theme) go in the un-tracked
+# ~/.config/regolith3/Xresources.d/local, included via cpp by the main file.
+if [[ ($envtype == 'local-work' || $envtype == 'local-personal') && -d /etc/regolith ]]; then
+  mkdir -p ~/.config/regolith3/i3status-rust ~/.config/regolith3/Xresources.d
+  ln -sf "$SELF_PATH"/regolith3/Xresources ~/.config/regolith3/Xresources
+  ln -sf "$SELF_PATH"/regolith3/i3status-rust/config.toml ~/.config/regolith3/i3status-rust/config.toml
+  if [[ ! -e ~/.config/regolith3/Xresources.d/local ]]; then
+    cat >~/.config/regolith3/Xresources.d/local <<'EOF'
+! Machine-specific Regolith 3 overrides — not tracked in dotfiles.
+! Examples:
+!   regolith.wallpaper.file: /path/to/wallpaper.webp
+!   regolith.lockscreen.wallpaper.file: /path/to/wallpaper.webp
+!   regolith.look.path: /usr/share/regolith-look/dracula
+EOF
+  fi
+fi
+
 if ! [ -d ~/.ssh/keys ]; then
   mkdir -p ~/.ssh/keys
 fi
