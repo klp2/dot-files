@@ -21,6 +21,10 @@ fi
 
 # Remind to update dotfiles weekly
 check_dotfiles_update_reminder() {
+  # Skip for non-interactive shells (scp, rsync-over-ssh, ssh <host> <cmd>, …):
+  # any stdout here corrupts scp's protocol stream.
+  [[ $- == *i* ]] || return
+
   local update_file="$HOME/.dotfiles-last-update"
   local week_seconds=604800
 
