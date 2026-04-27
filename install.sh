@@ -149,9 +149,9 @@ fi
 if [[ $envtype == 'devcontainer-work' ]]; then
   # Devcontainer provides via mise/apt: ripgrep fd fzf jq bat git-delta gopls
   #   golangci-lint shellcheck shfmt gh mise
-  BREW_TOOLS="eza zoxide lazygit entr difftastic just glow ast-grep tldr dust tailspin lnav sr"
+  BREW_TOOLS="eza zoxide lazygit entr difftastic just glow ast-grep tldr dust tailspin lnav sr tree-sitter-cli"
 else
-  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr"
+  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr tree-sitter-cli"
 fi
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
   # Ensure personal tap is available

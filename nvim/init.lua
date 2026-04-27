@@ -311,14 +311,41 @@ require('lazy').setup({
     end,
   },
 
-  -- Treesitter (syntax highlighting)
+  -- Treesitter (syntax highlighting). The repo was archived 2026-04-03;
+  -- we track the `main` branch (the rewrite API). Main has no declarative
+  -- `setup({...})` — instead `ts.install({...})` triggers async parser
+  -- installs and a FileType autocmd starts highlighting per-buffer. Parser
+  -- compilation needs the `tree-sitter` CLI on PATH (brew formula
+  -- tree-sitter-cli, installed by install.sh).
+  -- Pattern borrowed from https://github.com/WhoIsSethDaniel/dotfiles
   {
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter').setup({
-        ensure_installed = { 'go', 'perl', 'python', 'typescript', 'javascript', 'c', 'cpp', 'bash', 'lua', 'vim', 'vimdoc', 'json', 'yaml', 'markdown' },
-        auto_install = true,
+      local ts = require('nvim-treesitter')
+
+      -- Pre-install our priority set (async; idempotent if already installed)
+      ts.install({
+        'bash', 'c', 'cpp', 'go', 'javascript', 'json', 'lua', 'markdown',
+        'markdown_inline', 'perl', 'python', 'typescript', 'vim', 'vimdoc',
+        'yaml',
+      })
+
+      -- Auto-install missing parsers + start highlighting/indent on FileType
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('TreesitterSetup', { clear = true }),
+        callback = function(event)
+          local lang = vim.treesitter.language.get_lang(event.match) or event.match
+          local buf = event.buf
+          ts.install(lang):await(function()
+            if vim.treesitter.language.add(lang) then
+              vim.treesitter.start(buf, lang)
+              vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end
+          end)
+        end,
       })
     end,
   },
