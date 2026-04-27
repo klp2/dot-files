@@ -311,18 +311,6 @@ require('lazy').setup({
     end,
   },
 
-  -- Treesitter (syntax highlighting)
-  {
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    config = function()
-      require('nvim-treesitter').setup({
-        ensure_installed = { 'go', 'perl', 'python', 'typescript', 'javascript', 'c', 'cpp', 'bash', 'lua', 'vim', 'vimdoc', 'json', 'yaml', 'markdown' },
-        auto_install = true,
-      })
-    end,
-  },
-
   -- Copilot
   'github/copilot.vim',
 
@@ -376,6 +364,23 @@ require('lazy').setup({
       require = '🌙', source = '📄', start = '🚀', task = '📌', lazy = '💤',
     },
   },
+})
+
+-- Treesitter highlighting (nvim built-in; parsers in ~/.local/share/nvim/site/parser/
+-- managed by dot-files/install/nvim-parsers.sh). Silently falls back to regex
+-- syntax when no parser is available for the filetype.
+--
+-- Filetype → parser aliases (filetypes whose name differs from the parser name):
+vim.treesitter.language.register('bash', { 'sh', 'bash' })
+vim.treesitter.language.register('javascript', { 'javascriptreact', 'jsx' })
+
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    if pcall(vim.treesitter.start, args.buf) then
+      vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+      vim.wo.foldmethod = 'expr'
+    end
+  end,
 })
 
 -- Go-specific settings

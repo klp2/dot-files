@@ -30,4 +30,11 @@ if command -v nvim &>/dev/null; then
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 fi
 
+# Build tree-sitter parsers (replaces the archived nvim-treesitter plugin).
+# Default mode: build pinned SHAs from nvim/parsers.lock — reproducible, no
+# silent upgrades. Run `./install/nvim-parsers.sh --update` to refresh pins.
+if command -v nvim &>/dev/null && command -v cc &>/dev/null; then
+  "$PREFIX/install/nvim-parsers.sh"
+fi
+
 exit 0

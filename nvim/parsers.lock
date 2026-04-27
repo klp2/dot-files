@@ -1,0 +1,37 @@
+# nvim tree-sitter parser commit pins (see parsers.conf for sources).
+# Regenerate with: ./install/nvim-parsers.sh --update
+#
+# Initial pins are the grammar SHAs from nvim-treesitter's lockfile.json
+# (archived commit cf12346a) — the versions its bundled queries are known
+# to match. Drifting past these risks "Impossible pattern" query errors as
+# grammar AST shapes evolve away from what the queries expect.
+bash=0c46d792d54c536be5ff7eb18eb95c70fccdb232
+c=2a265d69a4caf57108a73ad2ed1e6922dd2f998c
+comment=3555706cef8b98d3e4c7379d7260548ff03ad363
+cpp=e5cea0ec884c5c3d2d1e41a741a66ce13da4d945
+csv=7eb7297823605392d2bbcc4c09b1cd18d6fa9529
+diff=e42b8def4f75633568f1aecfe01817bf15164928
+dockerfile=971acdd908568b4531b0ba28a445bf0bb720aba5
+gitcommit=a716678c0f00645fed1e6f1d0eb221481dbd6f6d
+git_config=9c2a1b7894e6d9eedfe99805b829b4ecd871375e
+gitignore=f4685bf11ac466dd278449bcfe5fd014e94aa504
+git_rebase=bff4b66b44b020d918d67e2828eada1974a966aa
+go=5e73f476efafe5c768eda19bbe877f188ded6144
+html=cbb91a0ff3621245e890d1c50cc811bffb77a26b
+jq=13990f530e8e6709b7978503da9bc8701d366791
+json=46aa487b3ade14b7b05ef92507fdaa3915a662a3
+lua=db16e76558122e834ee214c8dc755b4a3edc82a9
+luadoc=873612aadd3f684dd4e631bdf42ea8990c57634e
+markdown=413285231ce8fa8b11e7074bbe265b48aa7277f9
+markdown_inline=413285231ce8fa8b11e7074bbe265b48aa7277f9
+perl=ecd90bd8b381bcc7219fed4fe351903630e761c6
+python=710796b8b877a970297106e5bbc8e2afa47f86ec
+query=930202c2a80965a7a9ca018b5b2a08b25dfa7f12
+sql=b9d109588d5b5ed986c857464830c2f0bef53f18
+ssh_config=0dd3c7e9f301758f6c69a6efde43d3048deb4d8a
+terraform=de10d494dbd6b71cdf07a678fecbf404dbfe4398
+toml=64b56832c2cffe41758f28e05c756a3a98d16f41
+typescript=75b3874edb2dc714fb1fd77a32013d0f8699989f
+vim=11b688a1f0e97c0c4e3dbabf4a38016335f4d237
+vimdoc=2694c3d27e2ca98a0ccde72f33887394300d524e
+yaml=1805917414a9a8ba2473717fd69447277a175fae

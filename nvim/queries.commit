@@ -1,0 +1,11 @@
+# Pinned commit of the (archived) nvim-treesitter repo whose queries/ dir
+# we copy into ~/.local/share/nvim/site/queries/. The repo provides highlight,
+# fold, indent, and injection queries for 300+ languages that nvim's built-in
+# runtime does not ship. Archived on 2026-04-03.
+#
+# markdown and markdown_inline queries are EXCLUDED from the copy so nvim's
+# own (working) built-in queries take precedence — that mismatch was the
+# original source of the :range() crash that motivated this whole setup.
+#
+# To re-pin: edit this file, commit, run ./install/nvim-parsers.sh.
+cf12346a3414fa1b06af75c79faebe7f76df080a
