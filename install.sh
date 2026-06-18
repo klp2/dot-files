@@ -131,6 +131,12 @@ if [[ $envtype != 'remote-personal' && $envtype != 'devcontainer-work' ]]; then
 fi
 "$SELF_PATH"/install/nvim.sh
 
+# Local KDE/Wayland personal desktop extras (each self-gates; no-op elsewhere):
+# keyd Caps remap, Zellij multiplexer, and Krohnkite i3-style tiling.
+"$SELF_PATH"/install/keyd.sh
+"$SELF_PATH"/install/zellij.sh
+"$SELF_PATH"/install/kde-tiling.sh
+
 # Prompt setup - git-prompt-fallback and starship config
 cp "$SELF_PATH"/bin/git-prompt-fallback ~/bin/
 chmod +x ~/bin/git-prompt-fallback

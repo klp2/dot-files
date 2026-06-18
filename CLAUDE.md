@@ -71,8 +71,15 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Wayland Considerations
 - Bazzite with KDE uses Wayland by default
 - `xcape` does not work on Wayland (bashrc checks `$XDG_SESSION_TYPE`)
-- For Ctrl→Escape keyboard remap, use `keyd` (needs `rpm-ostree install keyd`)
+- For Caps→Esc(tap)/Ctrl(hold) remap, use `keyd` (config in `keyd/`, applied by `install/keyd.sh`; needs `rpm-ostree install keyd` + reboot first)
 - Clipboard tools: use `wl-copy`/`wl-paste` instead of `xclip`
+
+### Tiling on KDE/Wayland (personal desktop)
+- i3-style tiling via Krohnkite (vendored + pinned in `kwin/`, installed by `install/kde-tiling.sh`)
+- Keybindings are a clean personal port of `i3/config`, written to `kglobalshortcutsrc` via `kwriteconfig6` (KDE has no hand-editable rc); edits must be made with the kglobalaccel daemon quiescent, and a re-login activates them
+- All KDE/keyd/Zellij installers self-gate on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland
+- Local multiplexer is Zellij (`install/zellij.sh`, pure defaults); tmux stays the remote/SSH multiplexer
+- Design/plan: `docs/superpowers/specs/` and `docs/superpowers/plans/`
 
 ### What Works Without Changes
 - All shell configs, vim/neovim, tmux, git
