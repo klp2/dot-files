@@ -71,7 +71,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Wayland Considerations
 - Bazzite with KDE uses Wayland by default
 - `xcape` does not work on Wayland (bashrc checks `$XDG_SESSION_TYPE`)
-- For Caps→Esc(tap)/Ctrl(hold) remap, use `keyd` (config in `keyd/`, applied by `install/keyd.sh`; needs `rpm-ostree install keyd` + reboot first)
+- For Caps→Esc(tap)/Ctrl(hold) remap, use `keyd` (config in `keyd/`, applied by `install/keyd.sh`). keyd is NOT in Fedora base repos — enable the `alternateved/keyd` COPR (`.repo` into `/etc/yum.repos.d/`) then `rpm-ostree install keyd` + reboot. `install/keyd.sh` prints the exact commands.
 - Clipboard tools: use `wl-copy`/`wl-paste` instead of `xclip`
 
 ### Tiling on KDE/Wayland (personal desktop)

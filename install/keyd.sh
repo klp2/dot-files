@@ -16,9 +16,13 @@ SRC="$REPO_DIR/keyd/default.conf"
 DEST="/etc/keyd/default.conf"
 
 if ! command -v keyd >/dev/null 2>&1; then
-  cat <<'EOF'
-keyd: not installed. On Bazzite this is a system package and needs a reboot:
-    rpm-ostree install keyd
+  fver="$(rpm -E %fedora 2>/dev/null || echo 44)"
+  repo="https://copr.fedorainfracloud.org/coprs/alternateved/keyd/repo/fedora-${fver}/alternateved-keyd-fedora-${fver}.repo"
+  cat <<EOF
+keyd: not installed. It is NOT in Fedora's base repos; enable the COPR, then
+layer it (needs a reboot to apply). alacritty IS in the base repos:
+    sudo curl -fsSL -o /etc/yum.repos.d/_copr_alternateved-keyd.repo "$repo"
+    sudo rpm-ostree install keyd alacritty
     systemctl reboot
 Then re-run ./install.sh to apply the config.
 EOF
