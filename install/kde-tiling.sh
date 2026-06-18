@@ -66,6 +66,9 @@ fi
 kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true
 kwriteconfig6 --file kwinrc --group Desktops --key Number 10
 
+# Instant desktop switching (disable the slide animation) -- i3-like feel.
+kwriteconfig6 --file kwinrc --group Plugins --key slideEnabled false
+
 # Register Krohnkite's actions (and start tiling live) BEFORE editing shortcuts.
 kwin_reconfigure
 
@@ -87,6 +90,7 @@ set_launch_shortcut "Alacritty" "Meta+Return" "Alacritty"
 # (Meta tap / Meta+Space) if this id is not wired on this system.
 set_launch_shortcut "org.kde.krunner" "Meta+D" "KRunner"
 
+clear_kde_conflicts
 apply_krohnkite_overrides
 
 # Reload the shortcuts daemon (re-login/reboot guarantees full activation).

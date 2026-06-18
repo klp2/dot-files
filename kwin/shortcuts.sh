@@ -48,12 +48,13 @@ override_kwin_active() {
 # set_launch_shortcut DESKTOP_ID KEYS DISPLAY
 # Binds an application's .desktop _launch action to a global shortcut. DESKTOP_ID
 # is the desktop file id WITHOUT the .desktop suffix (e.g. Alacritty,
-# org.kde.krunner). This is how Plasma 6 stores app-launch global shortcuts.
+# org.kde.krunner). Plasma 6 stores these under the NESTED [services][<id>.desktop]
+# group -- a top-level [<id>.desktop] group is pruned by kglobalacceld on login.
 set_launch_shortcut() {
   local id="$1" keys="$2" display="$3"
-  kwriteconfig6 --file kglobalshortcutsrc --group "${id}.desktop" \
+  kwriteconfig6 --file kglobalshortcutsrc --group services --group "${id}.desktop" \
     --key "_launch" "$keys,$keys,$display"
-  kwriteconfig6 --file kglobalshortcutsrc --group "${id}.desktop" \
+  kwriteconfig6 --file kglobalshortcutsrc --group services --group "${id}.desktop" \
     --key "_k_friendly_name" "$display"
 }
 
@@ -70,12 +71,31 @@ apply_native_shortcuts() {
   set_kwin_shortcut "Window Fullscreen" "Meta+F" "Toggle Fullscreen"
 }
 
-# Resolve the two Krohnkite defaults that collide with the i3/spec bindings:
-#   - Toggle Float defaults to Meta+F (we want fullscreen there) -> Meta+Shift+Space
-#     (matches the i3 floating-toggle bind).
+# Free KDE default shortcuts that collide with the i3/Krohnkite bindings. KDE
+# wins these at registration otherwise, silently leaving the Krohnkite action
+# unbound. We blank the active field but keep KDE's default as the 2nd field.
+clear_kde_conflicts() {
+  # Lock Session owns Meta+L (we want Focus Right). Move lock to the i3 bind
+  # (Meta+Ctrl+Shift+L) so locking still works and Meta+L is freed.
+  kwriteconfig6 --file kglobalshortcutsrc --group ksmserver \
+    --key "Lock Session" "Meta+Ctrl+Shift+L,Meta+L,Lock Session"
+  # KDE's built-in tile editor owns Meta+T (we want Krohnkite Tile Layout).
+  kwriteconfig6 --file kglobalshortcutsrc --group kwin \
+    --key "Edit Tiles" "none,Meta+T,Toggle Tiles Editor"
+  # Peek at Desktop owns Meta+D (we want KRunner).
+  kwriteconfig6 --file kglobalshortcutsrc --group kwin \
+    --key "Show Desktop" "none,Meta+D,Peek at Desktop"
+}
+
+# Resolve the Krohnkite defaults that collide with the i3/spec bindings, and
+# explicitly (re)set the binds KDE defaults had stolen at registration:
+#   - Toggle Float defaults to Meta+F (we want fullscreen there) -> Meta+Shift+Space.
 #   - Set master defaults to Meta+Return (we want the terminal there) -> Meta+Shift+Return.
-# Run AFTER Krohnkite has registered its actions so default/display are preserved.
+#   - Focus Right (Meta+L) and Tile Layout (Meta+T) lost to KDE defaults -> reclaim.
+# Run AFTER Krohnkite has registered its actions and clear_kde_conflicts has run.
 apply_krohnkite_overrides() {
   override_kwin_active "KrohnkiteToggleFloat" "Meta+Shift+Space"
   override_kwin_active "KrohnkiteSetMaster" "Meta+Shift+Return"
+  override_kwin_active "KrohnkiteFocusRight" "Meta+L"
+  override_kwin_active "KrohnkiteTileLayout" "Meta+T"
 }
