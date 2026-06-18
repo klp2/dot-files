@@ -72,6 +72,16 @@ kwriteconfig6 --file kwinrc --group Plugins --key slideEnabled false
 # Register Krohnkite's actions (and start tiling live) BEFORE editing shortcuts.
 kwin_reconfigure
 
+# slideEnabled=false stops the slide on next login, but a reconfigure won't
+# unload an already-running effect -- do that live so the instant switch applies
+# now too. Harmless if slide is already unloaded.
+for b in qdbus6 qdbus-qt6 qdbus; do
+  if command -v "$b" >/dev/null 2>&1; then
+    "$b" org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect slide 2>/dev/null || true
+    break
+  fi
+done
+
 # --- Keybindings (written last so nothing re-registers over them) ----------
 backup_kglobalshortcutsrc
 
