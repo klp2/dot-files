@@ -51,6 +51,28 @@ kglobalaccel_reload() {
   kquitapp6 kglobalaccel6 2>/dev/null || true
 }
 
+# Force "No titlebar and frame" on all windows (i3 default_border none). Writes a
+# single stable rule to kwinrulesrc, merging into any existing rules list.
+apply_borderless_rule() {
+  local id="dotfiles-borderless" rules
+  rules="$(kreadconfig6 --file kwinrulesrc --group General --key rules 2>/dev/null || true)"
+  case ",$rules," in
+    *",$id,"*) ;; # already listed
+    *)
+      if [ -z "$rules" ]; then rules="$id"; else rules="$rules,$id"; fi
+      kwriteconfig6 --file kwinrulesrc --group General --key rules "$rules"
+      kwriteconfig6 --file kwinrulesrc --group General --key count \
+        "$(printf '%s' "$rules" | awk -F, '{print NF}')"
+      ;;
+  esac
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key Description "Borderless all windows (dotfiles)"
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key wmclass ".*"
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key wmclassmatch 3
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key wmclasscomplete false
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key noborder true
+  kwriteconfig6 --file kwinrulesrc --group "$id" --key noborderrule 2
+}
+
 PKG="$REPO_DIR/kwin/krohnkite.kwinscript"
 
 # Install or upgrade Krohnkite (install fails if already present -> upgrade).
@@ -103,12 +125,18 @@ set_launch_shortcut "org.kde.krunner" "Meta+D" "KRunner"
 clear_kde_conflicts
 apply_krohnkite_overrides
 
-# Reload the shortcuts daemon (re-login/reboot guarantees full activation).
+# Borderless windows (i3-style), applied via a forced KWin window rule.
+apply_borderless_rule
+
+# Reload KWin so the window rule + kwinrc settings apply, then the shortcuts
+# daemon (re-login/reboot guarantees full shortcut activation).
+kwin_reconfigure
 kglobalaccel_reload
 
 cat <<'EOF'
 kde-tiling: done.
   - Krohnkite installed + enabled (tiling is active now).
+  - Borderless window rule applied (already-open windows may need reopening).
   - Keybindings written to kglobalshortcutsrc (original backed up at *.dotfiles.bak).
   - Log out/in (or reboot) to guarantee all shortcuts are live.
   - Terminal bind (Meta+Return -> Alacritty) needs Alacritty installed.

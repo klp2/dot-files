@@ -76,6 +76,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 
 ### Tiling on KDE/Wayland (personal desktop)
 - i3-style tiling via Krohnkite (vendored + pinned in `kwin/`, installed by `install/kde-tiling.sh`)
+- Borderless windows (i3 `default_border none`) via a forced `kwinrulesrc` rule; instant desktop switch by disabling the slide effect
 - Keybindings are a clean personal port of `i3/config`, written to `kglobalshortcutsrc` via `kwriteconfig6` (KDE has no hand-editable rc); edits must be made with the kglobalaccel daemon quiescent, and a re-login activates them
 - All KDE/keyd/Zellij installers self-gate on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland
 - Local multiplexer is Zellij (`install/zellij.sh`, pure defaults); tmux stays the remote/SSH multiplexer
