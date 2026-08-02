@@ -66,17 +66,78 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
   alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
 fi
 
-# xcape: X11 keyboard remap (local envtypes only)
+# Keyboard remaps: X11 sessions only (local envtypes).
+# keyd works at the kernel layer and covers Wayland too, so wherever it is
+# running it owns the Caps remap and xcape must stay out of the way, or Caps
+# ends up double-bound. Session type is checked at runtime rather than by
+# envtype because this laptop alternates between GNOME/Wayland and i3/X11.
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
   if [[ $platform == 'linux' && "$XDG_SESSION_TYPE" == "x11" ]]; then
-    xcape -e 'Control_L=Escape'
+    # Caps is remapped away, so recover capslock via both shift keys together
+    if command -v setxkbmap &>/dev/null; then
+      setxkbmap -option shift:both_capslock
+    fi
+    if ! systemctl is-active --quiet keyd 2>/dev/null && command -v xcape &>/dev/null; then
+      xcape -e 'Control_L=Escape'
+    fi
   fi
 fi
 
-# GPG SSH agent (local envtypes only)
+# Default browser (local envtypes only; meaningless over SSH)
+if [[ $envtype == 'local-personal' ]]; then
+  export BROWSER=firefox
+elif [[ $envtype == 'local-work' ]]; then
+  export BROWSER=google-chrome
+fi
+
+# 1Password-backed secrets.
+# Nothing resolves at startup on purpose: `op read` talks to the desktop app and
+# can raise a biometric prompt, so a secret is only fetched when asked for.
+# ~/.config/op/env maps NAME=op://Vault/Item/field and is untracked; it holds
+# references, never values. Secrets belong here or in ~/.local-bashrc, never in
+# a tracked file.
+if command -v op &>/dev/null; then
+  export OP_ENV_FILE="${OP_ENV_FILE:-$HOME/.config/op/env}"
+
+  # opload -- export every reference in $OP_ENV_FILE into the current shell
+  opload() {
+    if [[ ! -f "$OP_ENV_FILE" ]]; then
+      echo "opload: no $OP_ENV_FILE (run install/1password.sh)" >&2
+      return 1
+    fi
+    local name ref value
+    while IFS='=' read -r name ref; do
+      [[ -z "$name" || "$name" == \#* ]] && continue
+      [[ "$ref" != op://* ]] && continue
+      if ! value=$(op read "$ref" 2>/dev/null); then
+        echo "opload: could not read $name from $ref" >&2
+        continue
+      fi
+      export "$name=$value"
+      echo "opload: exported $name"
+    done <"$OP_ENV_FILE"
+  }
+
+  # oprun -- run a command with the secrets injected, leaving this shell clean
+  oprun() {
+    op run --env-file="$OP_ENV_FILE" -- "$@"
+  }
+fi
+
+# SSH agent (local envtypes only).
+# Prefer 1Password where it is running: ssh already routes to it via
+# IdentityAgent in ~/.ssh/config.d/1password.conf, so pointing SSH_AUTH_SOCK at
+# the same socket keeps ssh-add and other agent-aware tools consistent with what
+# ssh actually uses instead of reporting a different agent's keys.
+# gpg-agent stays the fallback for boxes without 1Password (and the guard means
+# no error on hosts with no gpgconf at all).
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
   if [[ $platform == 'linux' ]]; then
-    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    if [[ -S "$HOME/.1password/agent.sock" ]]; then
+      export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+    elif command -v gpgconf &>/dev/null; then
+      export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    fi
   fi
 fi
 
