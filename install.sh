@@ -134,6 +134,7 @@ fi
 # Local KDE/Wayland personal desktop extras (each self-gates; no-op elsewhere):
 # keyd Caps remap, Zellij multiplexer, and Krohnkite i3-style tiling.
 "$SELF_PATH"/install/keyd.sh
+"$SELF_PATH"/install/1password.sh
 "$SELF_PATH"/install/zellij.sh
 "$SELF_PATH"/install/kde-tiling.sh
 
@@ -153,15 +154,32 @@ fi
 
 # Install modern CLI tools via Homebrew (not on remote-work)
 if [[ $envtype == 'devcontainer-work' ]]; then
-  # Devcontainer provides via mise/apt: ripgrep fd fzf jq bat git-delta gopls
+  # Devcontainer provides via mise/apt: ripgrep fd jq bat git-delta gopls
   #   golangci-lint shellcheck shfmt gh mise
-  BREW_TOOLS="eza zoxide lazygit entr difftastic just glow ast-grep tldr dust tailspin lnav sr tree-sitter-cli"
+  # fzf is NOT taken from the devcontainer: bashrc needs >= 0.48 (see the check
+  # at the end of this block) and distro packages are routinely older, so it is
+  # listed here and comes from brew like everywhere else.
+  BREW_TOOLS="fzf eza zoxide lazygit entr difftastic just glow ast-grep tlrc dust tailspin lnav sr tree-sitter-cli"
 else
-  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tldr dust tailspin lnav mise gopls sr tree-sitter-cli"
+  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tlrc dust tailspin lnav mise gopls sr tree-sitter-cli"
 fi
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
   # Ensure personal tap is available
   brew tap klp2/sr 2>/dev/null || true
+
+  # Refresh formula metadata before working out what to install or upgrade.
+  echo "Updating brew..."
+  brew update --quiet
+
+  # tldr was abandoned upstream and Homebrew disabled the formula on 2025-10-24.
+  # tlrc is the official Rust client and the documented replacement, but the two
+  # conflict (both install a `tldr` binary), so the old one must go first. This
+  # runs before the installed-packages snapshot below so tlrc is then seen as
+  # missing and picked up by the normal install path.
+  if brew list --formula tldr &>/dev/null; then
+    echo "Migrating deprecated tldr -> tlrc..."
+    brew uninstall --ignore-dependencies tldr || true
+  fi
 
   # Get installed packages once (much faster than checking each individually)
   BREW_INSTALLED=$(brew list --formula 2>/dev/null)
@@ -173,12 +191,24 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
   done
   if [[ -n "$TOOLS_TO_INSTALL" ]]; then
     echo "Installing modern CLI tools:$TOOLS_TO_INSTALL"
-    brew install $TOOLS_TO_INSTALL 2>/dev/null || true
+    # `brew install a b c` aborts the whole batch if any single formula fails,
+    # and errors were previously sent to /dev/null -- which is how shellcheck
+    # and shfmt silently went missing here despite being listed for months.
+    # Keep the fast batch path, but fall back to per-tool installs so one bad
+    # formula cannot take the rest down, and say plainly what failed.
+    # shellcheck disable=SC2086  # intentional word splitting
+    if ! brew install $TOOLS_TO_INSTALL; then
+      echo "Batch install failed; retrying tools individually..."
+      BREW_FAILED=""
+      for tool in $TOOLS_TO_INSTALL; do
+        brew install "$tool" || BREW_FAILED="$BREW_FAILED $tool"
+      done
+      if [[ -n "$BREW_FAILED" ]]; then
+        echo "WARNING: these brew tools failed to install:$BREW_FAILED"
+        echo "WARNING: re-run ./install.sh or install them by hand."
+      fi
+    fi
   fi
-
-  # Update brew to discover new versions (especially from taps)
-  echo "Updating brew..."
-  brew update --quiet 2>/dev/null || true
 
   # Check for available upgrades
   echo "Checking for brew upgrades..."
@@ -198,6 +228,21 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
     fi
   else
     echo "All brew tools up to date."
+  fi
+
+  # fzf rides the normal install/upgrade path above like every other tool, but
+  # it is the one hard dependency of the interactive shell: bashrc runs
+  # `eval "$(fzf --bash)"`, which needs >= 0.48, and it guards its whole fzf
+  # section on `command -v fzf` -- so a missing or stale fzf degrades the shell
+  # silently. Check explicitly instead of letting that happen.
+  if command -v fzf &>/dev/null; then
+    FZF_VER=$(fzf --version 2>/dev/null | awk '{print $1}')
+    if ! printf '0.48.0\n%s\n' "$FZF_VER" | sort -V -C; then
+      echo "WARNING: fzf $FZF_VER is older than 0.48; bashrc's 'fzf --bash' needs >= 0.48."
+      echo "WARNING: an old distro fzf may be shadowing the brew one on PATH."
+    fi
+  else
+    echo "WARNING: fzf is not installed; bashrc will skip its fzf integration entirely."
   fi
 fi
 
@@ -255,10 +300,16 @@ ln -sf "$SELF_PATH"/tmux/tmux-default-layout ~/.tmux-default-layout
 ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
 ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
-if [[ $envtype == 'local-work' ]]; then
+# i3 configs: always on the work laptop (Regolith), and on a personal box only
+# when i3 is actually installed. has_i3 rather than a session check, because the
+# personal laptop may be installed from its GNOME session but still needs these
+# in place for the next i3 login; the check keeps ~/.config/i3 off the KDE box.
+if [[ $envtype == 'local-work' ]] || { [[ $envtype == 'local-personal' ]] && has_i3; }; then
   ln -sfn "$SELF_PATH"/i3 ~/.config/i3
   ln -sfn "$SELF_PATH"/i3status ~/.config/i3status
+fi
 
+if [[ $envtype == 'local-work' ]]; then
   # Devcontainer local customizations (symlink so deploy dereferences)
   mkdir -p ~/.config/devcontainer-local
   ln -sf "$SELF_PATH"/devcontainer/startup.sh ~/.config/devcontainer-local/startup.sh
@@ -284,6 +335,27 @@ fi
 
 if ! [ -d ~/.ssh/keys ]; then
   mkdir -p ~/.ssh/keys
+fi
+
+# SSH: manage a fragment, never the whole config. ~/.ssh/config holds
+# machine-specific host entries and absolute key paths, and both Trellis and the
+# 1Password app rewrite it unprompted -- symlinking it would drop their edits
+# into this git tree. Only local desktops get the 1Password agent.
+if is_local_desktop; then
+  mkdir -p ~/.ssh/config.d
+  chmod 700 ~/.ssh ~/.ssh/config.d
+  ln -sf "$SELF_PATH"/ssh/1password.conf ~/.ssh/config.d/1password.conf
+  touch ~/.ssh/config
+  chmod 600 ~/.ssh/config
+  SSH_INCLUDE='Include ~/.ssh/config.d/*.conf'
+  if ! grep -qF "$SSH_INCLUDE" ~/.ssh/config; then
+    # Must precede every Host block: ssh scopes a bare Include to whichever Host
+    # section encloses it, so appending would bind the fragment to the last host.
+    echo "Adding '$SSH_INCLUDE' to ~/.ssh/config"
+    printf '%s\n\n' "$SSH_INCLUDE" | cat - ~/.ssh/config >~/.ssh/config.dotfiles-tmp
+    mv ~/.ssh/config.dotfiles-tmp ~/.ssh/config
+    chmod 600 ~/.ssh/config
+  fi
 fi
 
 git submodule init
