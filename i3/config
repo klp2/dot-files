@@ -11,6 +11,11 @@
 
 set $mod Mod4
 
+# Browser launched by $mod+c. This file is shared by the work and personal
+# laptops; i3 cannot branch on hostname, so flip this one line if a box needs
+# something else.
+set $browser firefox
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:monospace 10
@@ -218,8 +223,8 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 # bindsym XF86AudioLowerVolume exec "amixer -q sset Master,0 1- unmute"
 # bindsym XF86AudioMute exec "amixer -q sset Master,0 toggle"
 
-# google chrome
-bindsym $mod+c exec google-chrome
+# web browser
+bindsym $mod+c exec $browser
 
 # slack
 bindsym $mod+t exec --no-startup-id slack
