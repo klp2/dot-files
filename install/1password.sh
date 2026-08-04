@@ -21,6 +21,7 @@ if ! is_local_desktop; then
 fi
 
 OP_ENV_FILE="$HOME/.config/op/env"
+OP_AUTOLOAD_FILE="$HOME/.config/op/autoload"
 
 seed_env_file() {
   if [ -e "$OP_ENV_FILE" ]; then
@@ -34,6 +35,10 @@ seed_env_file() {
 # references, resolved at runtime by `opload` (exports into the current shell)
 # or `oprun` (injects into one command without touching the environment).
 #
+# Keep this file in op's dotenv syntax -- `op run` parses it directly, so a
+# comment or NAME=op://... line is all it tolerates. To have a name exported
+# automatically at login instead of on demand, list it in ./autoload.
+#
 # Discover the reference for an item with:
 #     op item get "GitHub PAT" --format json | jq -r '.fields[].reference'
 #
@@ -44,6 +49,29 @@ seed_env_file() {
 EOF
   chmod 600 "$OP_ENV_FILE"
   echo "1password: seeded $OP_ENV_FILE"
+}
+
+seed_autoload_file() {
+  if [ -e "$OP_AUTOLOAD_FILE" ]; then
+    echo "1password: $OP_AUTOLOAD_FILE already exists, leaving it alone"
+    return 0
+  fi
+  mkdir -p "$(dirname "$OP_AUTOLOAD_FILE")"
+  cat >"$OP_AUTOLOAD_FILE" <<'EOF'
+# Names from ./env to resolve at login rather than on demand, one per line.
+# Reserve this for secrets that tools expect to find already in the environment
+# (linearis, gh); anything else is better left to `opload` / `oprun`.
+#
+# The first shell of a session resolves these and may raise a biometric prompt;
+# the values are then cached in $XDG_RUNTIME_DIR until logout. Editing this file
+# or ./env invalidates that cache.
+#
+# Examples -- the name must also have a reference in ./env:
+#LINEAR_API_TOKEN
+#GH_ENTERPRISE_TOKEN
+EOF
+  chmod 600 "$OP_AUTOLOAD_FILE"
+  echo "1password: seeded $OP_AUTOLOAD_FILE"
 }
 
 install_op_apt() {
@@ -104,6 +132,7 @@ if ! command -v op >/dev/null 2>&1; then
 fi
 
 seed_env_file
+seed_autoload_file
 
 cat <<'EOF'
 1password: done. To finish, in the 1Password desktop app:

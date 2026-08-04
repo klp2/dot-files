@@ -91,13 +91,21 @@ elif [[ $envtype == 'local-work' ]]; then
 fi
 
 # 1Password-backed secrets.
-# Nothing resolves at startup on purpose: `op read` talks to the desktop app and
-# can raise a biometric prompt, so a secret is only fetched when asked for.
 # ~/.config/op/env maps NAME=op://Vault/Item/field and is untracked; it holds
 # references, never values. Secrets belong here or in ~/.local-bashrc, never in
 # a tracked file.
+#
+# References resolve on demand by default: `op read` talks to the desktop app and
+# can raise a biometric prompt, so opload/oprun fetch only when asked. Names
+# listed in ~/.config/op/autoload are the exception -- tools like linearis and gh
+# expect them already exported -- and are resolved once per session by
+# __op_autoload below.
+#
+# The autoload selection is a separate file rather than an inline marker because
+# $OP_ENV_FILE has to stay valid op dotenv syntax for `op run` to parse it.
 if command -v op &>/dev/null; then
   export OP_ENV_FILE="${OP_ENV_FILE:-$HOME/.config/op/env}"
+  export OP_AUTOLOAD_FILE="${OP_AUTOLOAD_FILE:-$HOME/.config/op/autoload}"
 
   # opload -- export every reference in $OP_ENV_FILE into the current shell
   opload() {
@@ -122,6 +130,58 @@ if command -v op &>/dev/null; then
   oprun() {
     op run --env-file="$OP_ENV_FILE" -- "$@"
   }
+
+  # __op_autoload -- export the names in $OP_AUTOLOAD_FILE, once per session.
+  # The resolved values are cached in $XDG_RUNTIME_DIR (tmpfs, 0600, cleared at
+  # logout), so only the first shell of a session pays the op call and any
+  # biometric prompt; later shells read the cache. The cache is rebuilt when
+  # either source file changes.
+  # A failed read exports nothing rather than an empty string, so a locked or
+  # offline 1Password leaves an existing value in the environment intact.
+  __op_autoload() {
+    local cache="${XDG_RUNTIME_DIR:-/tmp}/op-autoload.env"
+    local name ref value tmp
+    local -A want=() seen=()
+
+    if [[ -s $cache && ! $OP_ENV_FILE -nt $cache && ! $OP_AUTOLOAD_FILE -nt $cache ]]; then
+      while IFS='=' read -r name value || [[ -n $name ]]; do
+        [[ -n $name ]] && export "$name=$value"
+      done <"$cache"
+      return 0
+    fi
+
+    [[ -f $OP_ENV_FILE && -f $OP_AUTOLOAD_FILE ]] || return 0
+
+    while read -r name || [[ -n $name ]]; do
+      name="${name%%#*}"
+      name="${name//[[:space:]]/}"
+      [[ -n $name ]] && want[$name]=1
+    done <"$OP_AUTOLOAD_FILE"
+    ((${#want[@]})) || return 0
+
+    tmp="$(mktemp "$cache.XXXXXX")" || return 0
+    while IFS='=' read -r name ref || [[ -n $name ]]; do
+      [[ -z $name || $name == \#* || $ref != op://* ]] && continue
+      [[ -n ${want[$name]:-} ]] || continue
+      # One op call per distinct reference: several names may share a secret
+      if [[ -n ${seen[$ref]+set} ]]; then
+        value="${seen[$ref]}"
+      else
+        value="$(op read "$ref" 2>/dev/null)" || value=''
+        seen[$ref]="$value"
+      fi
+      [[ -n $value ]] || continue
+      export "$name=$value"
+      printf '%s=%s\n' "$name" "$value" >>"$tmp"
+    done <"$OP_ENV_FILE"
+
+    if [[ -s $tmp ]]; then
+      chmod 600 "$tmp" && mv -f "$tmp" "$cache"
+    else
+      rm -f "$tmp"
+    fi
+  }
+  __op_autoload
 fi
 
 # SSH agent (local envtypes only).
