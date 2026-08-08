@@ -380,12 +380,21 @@ if command -v fzf &>/dev/null; then
   }
 fi
 
-# Modern CLI tool aliases (conditional on availability)
+# Modern CLI tool aliases (conditional on availability).
+# These are display-level replacements and are safe everywhere: bat emits plain
+# text when piped, and eza only changes how columns are rendered. Never parse
+# those columns in a script - use stat/find -printf for machine-readable output.
 command -v bat &>/dev/null && alias cat='bat --paging=never'
 command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias lt='eza -la --git --sort oldest' && alias tree='eza --tree'
-command -v fd &>/dev/null && alias find='fd'
-command -v rg &>/dev/null && alias grep='rg'
 command -v tspin &>/dev/null && alias tf='tspin -f'
+
+# rg and fd are NOT drop-in replacements - they reject standard syntax outright
+# (`grep -E 'a|b'` and `find . -name '*.md'` both exit 2), which silently breaks
+# any non-interactive consumer of this file. Invoke rg/fd by name when wanted.
+if [[ $- == *i* ]]; then
+  command -v fd &>/dev/null && alias find='fd'
+  command -v rg &>/dev/null && alias grep='rg'
+fi
 # zoxide init moved to end of file (required by zoxide)
 
 function diffcol() {
@@ -532,3 +541,6 @@ fi
 # zoxide - must be at end of bashrc
 command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
 export PATH="$HOME/.local/bin:$PATH"
+
+# opencode (only where installed)
+[[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
