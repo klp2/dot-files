@@ -27,7 +27,7 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 - `install.sh` auto-creates marker file on first run with diagnostic output
 - Work vs personal distinguished by hostname containing "maxmind"
 - Wayland detection: `$XDG_SESSION_TYPE` checked before running X11-only tools like xcape
-- Local customizations via `~/.local-bashrc` and `~/.local_vimrc`
+- Local customizations via `~/.local-bashrc` and `~/.local_vimrc`. Some `~/.local-bashrc` exports pin absolute paths to versioned tools (e.g. `LOCAL_REVIEW_LLAMA` → a llama.cpp build dir, `LOCAL_REVIEW_MODEL` → a model snapshot); `install.sh` warns when a pinned path no longer exists, and upgrading the pinned tool means updating the pin
 - Work-specific items (gcloud, MaxMind tools) go in `~/.local-bashrc`
 
 ### Editor Configuration

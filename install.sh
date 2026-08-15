@@ -383,6 +383,23 @@ if [[ "$INSTALL_MODE" == "update" && -z "$AUTO_YES" ]]; then
   "$SELF_PATH"/cleanup.sh
 fi
 
+# Warn about machine-local path pins in ~/.local-bashrc that no longer
+# resolve — e.g. LOCAL_REVIEW_LLAMA pinning a versioned llama.cpp build dir,
+# or a model snapshot path, after an upgrade replaced it. Checks every
+# exported variable whose value is an absolute path.
+if [ -f "$HOME/.local-bashrc" ]; then
+  while IFS= read -r pinvar; do
+    pinval="$(bash -c ". \"\$HOME/.local-bashrc\" >/dev/null 2>&1; printf '%s' \"\${$pinvar-}\"")"
+    case "$pinval" in
+      /*)
+        if [ ! -e "$pinval" ]; then
+          echo "WARNING: ~/.local-bashrc pins $pinvar=$pinval, which does not exist — update the pin"
+        fi
+        ;;
+    esac
+  done < <(grep -oE '^export [A-Za-z_][A-Za-z0-9_]*' "$HOME/.local-bashrc" | cut -d' ' -f2)
+fi
+
 # Show post-install message
 echo ""
 if [[ "$INSTALL_MODE" == "fresh" ]]; then
