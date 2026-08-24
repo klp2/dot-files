@@ -513,6 +513,12 @@ fi
 # mise - polyglot runtime manager (replacement for asdf)
 if command -v mise &>/dev/null; then
   eval "$(mise activate bash)"
+  # activate works through a prompt hook, so it reaches interactive shells
+  # only. The shims are plain files and need no hook, so any shell that
+  # sources this file gets the pinned tools. A git hook does not source it; it
+  # inherits PATH from whatever shell ran git. Needed by gaem, whose mise.toml
+  # pins gh and jq for scripts that run non-interactively.
+  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
 fi
 
 # nvm - lazy load for faster shell startup
