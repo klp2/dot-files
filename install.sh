@@ -272,7 +272,13 @@ fi
 if command -v mise &>/dev/null; then
   echo "Installing mise tools..."
   MISE_LOCKED=0 mise install --quiet
-  MISE_LOCKED=0 mise lock --quiet
+  # The lockfile pins "latest" tools (e.g. npm:linearis) to whatever resolved
+  # at first install, so `mise install` alone never moves them forward.
+  if [[ -n "$UPGRADE_BREW" ]]; then
+    echo "Upgrading mise tools..."
+    MISE_LOCKED=0 mise upgrade --quiet
+  fi
+  MISE_LOCKED=0 mise lock --global --quiet
 fi
 
 # Alacritty terminal config (only if alacritty is installed)
