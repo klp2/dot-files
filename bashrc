@@ -18,6 +18,8 @@ envtype=${DOTFILES_ENVTYPE:-remote-work}
 if [[ $envtype == 'devcontainer-work' ]] && ! infocmp "$TERM" &>/dev/null; then
   export TERM=xterm-256color
 fi
+# COLORTERM is not forwarded over the devpod ssh hop
+: "${COLORTERM:=truecolor}"
 
 # Remind to update dotfiles weekly
 check_dotfiles_update_reminder() {
