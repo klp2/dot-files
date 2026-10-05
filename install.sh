@@ -135,6 +135,7 @@ fi
 # keyd Caps remap, Zellij multiplexer, and Krohnkite i3-style tiling.
 "$SELF_PATH"/install/keyd.sh
 "$SELF_PATH"/install/1password.sh
+UPGRADE="$UPGRADE_BREW" "$SELF_PATH"/install/libreoffice.sh
 "$SELF_PATH"/install/zellij.sh
 "$SELF_PATH"/install/kde-tiling.sh
 
