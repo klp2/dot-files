@@ -10,8 +10,24 @@ zellij = "latest"
 "github:rojo-rbx/rojo" = "latest"
 "npm:@google/gemini-cli" = "latest"
 
-[bootstrap.packages]
-# MaxMind's GitHub org enforces SAML, which rejects the token mise sends for
-# release lookups, so these come from brew rather than github: tools
-"brew:geoipupdate" = "latest"
-"brew:mmdbinspect" = "latest"
+# MaxMind's GitHub org enforces SAML, which rejects the token mise sends to the
+# GitHub API, so these use the http backend instead: versions come from the
+# public releases feed and checksums from each release's checksums.txt, with no
+# API call or token. The feed lists newest first, hence version_order.
+[tools."http:geoipupdate"]
+version = "latest"
+version_order = "semver"
+strip_components = 1
+version_list_url = "https://github.com/maxmind/geoipupdate/releases.atom"
+version_regex = 'releases/tag/v(\d+\.\d+\.\d+)"'
+url = "https://github.com/maxmind/geoipupdate/releases/download/v{{ version }}/geoipupdate_{{ version }}_{{ os() }}_{{ arch(x64=\"amd64\") }}.tar.gz"
+checksum_url = "https://github.com/maxmind/geoipupdate/releases/download/v{{ version }}/checksums.txt"
+
+[tools."http:mmdbinspect"]
+version = "latest"
+version_order = "semver"
+strip_components = 1
+version_list_url = "https://github.com/maxmind/mmdbinspect/releases.atom"
+version_regex = 'releases/tag/v(\d+\.\d+\.\d+)"'
+url = "https://github.com/maxmind/mmdbinspect/releases/download/v{{ version }}/mmdbinspect_{{ version }}_{{ os() }}_{{ arch(x64=\"amd64\") }}.tar.gz"
+checksum_url = "https://github.com/maxmind/mmdbinspect/releases/download/v{{ version }}/checksums.txt"
