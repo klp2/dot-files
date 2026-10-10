@@ -381,6 +381,17 @@ if [ -f "$HOME/.local-bashrc" ]; then
   done < <(grep -oE '^export [A-Za-z_][A-Za-z0-9_]*' "$HOME/.local-bashrc" | cut -d' ' -f2)
 fi
 
+# One-time nudge: the gcloud ssh speed-up from the deleted master branch was
+# never carried over, and it belongs in the work laptop's ~/.local-bashrc. Goes
+# quiet once CLOUDSDK_PYTHON appears there; remove this block after that.
+if [[ $envtype == 'local-work' ]] && ! grep -qs 'CLOUDSDK_PYTHON' "$HOME/.local-bashrc"; then
+  echo ""
+  echo "NOTE: if you still use 'gcloud ssh', this speeds it up (add to ~/.local-bashrc):"
+  # shellcheck disable=SC2016  # printed for the user to copy, not expanded here
+  echo '  export CLOUDSDK_PYTHON=$(which python3) CLOUDSDK_PYTHON_SITEPACKAGES=1'
+  echo "  Not wanted? Add a '# CLOUDSDK_PYTHON: skip' comment there to silence this."
+fi
+
 # Show post-install message
 echo ""
 if [[ "$INSTALL_MODE" == "fresh" ]]; then
