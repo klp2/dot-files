@@ -1,0 +1,41 @@
+# CLI tools shared by every environment except remote-work. install.sh links
+# this into ~/.config/mise/conf.d/, so the per-environment config.toml layers
+# on top and wins wherever both name the same tool.
+
+[settings]
+# Disable backends that use community-maintained bash scripts (supply chain risk)
+# See: https://github.com/jdx/mise/discussions/4054
+disable_backends = ["asdf", "vfox"]
+
+[tools]
+ast-grep = "latest"
+bat = "latest"
+delta = "latest"
+dust = "latest"
+eza = "latest"
+fd = "latest"
+# bashrc runs `fzf --bash`, which needs >= 0.48
+fzf = "latest"
+gh = "latest"
+glow = "latest"
+go = "latest"
+golangci-lint = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+jq = "latest"
+just = "latest"
+lazygit = "latest"
+lnav = "latest"
+node = "lts"
+ripgrep = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+starship = "latest"
+tlrc = "latest"
+tree-sitter = "latest"
+# Lets `mise completion bash` generate completions
+usage = "latest"
+zoxide = "latest"
+# aqua's difftastic entry predates the versioned release asset names
+"github:Wilfred/difftastic" = "latest"
+"github:bensadeh/tailspin" = "latest"
+"github:klp2/sr" = "latest"

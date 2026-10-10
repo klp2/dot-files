@@ -9,7 +9,7 @@ source "$SELF_PATH"/bash_common.sh
 
 # Parse arguments
 FORCE_MODE=""
-UPGRADE_BREW="yes"
+UPGRADE="yes"
 AUTO_YES=""
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -22,7 +22,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --no-upgrade)
-      UPGRADE_BREW=""
+      UPGRADE=""
       shift
       ;;
     --yes)
@@ -35,6 +35,8 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+# install/libreoffice.sh reads it too
+export UPGRADE
 
 # Detect install mode or use forced mode
 if [[ -n "$FORCE_MODE" ]]; then
@@ -95,33 +97,136 @@ if [[ ! -e "$HOME/.devcontainer-work" && ! -e "$HOME/.local-work" && ! -e "$HOME
   echo ""
 fi
 
-# Bootstrap Homebrew if missing (not on remote-work)
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && ! command -v brew &>/dev/null; then
+# Download an installer script, show its size and hash, and run it only once
+# confirmed (or with --yes). Fails if the download fails or the user declines.
+run_reviewed_installer() {
+  local name="$1" url="$2" script rc
+  script=$(mktemp "/tmp/$name-install.XXXXXX")
+  if ! curl -fsSL "$url" -o "$script"; then
+    echo "Failed to download the $name installer."
+    rm -f "$script"
+    return 1
+  fi
+  echo "Downloaded to: $script"
+  echo "Size: $(wc -c <"$script") bytes, $(wc -l <"$script") lines"
+  echo "SHA256: $(sha256sum "$script" | cut -d' ' -f1)"
   echo ""
-  echo "=== Homebrew Setup ==="
-  echo "Homebrew not found. Downloading installer for review..."
-  BREW_SCRIPT="/tmp/brew-install-$$.sh"
-  if curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$BREW_SCRIPT"; then
-    echo "Downloaded to: $BREW_SCRIPT"
-    echo "Size: $(wc -c <"$BREW_SCRIPT") bytes, $(wc -l <"$BREW_SCRIPT") lines"
-    echo "SHA256: $(sha256sum "$BREW_SCRIPT" | cut -d' ' -f1)"
+  echo "Review with: less $script"
+  if [[ -z "$AUTO_YES" ]]; then
+    read -p "Run $name installer? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Skipping $name installation."
+      rm -f "$script"
+      return 1
+    fi
+  fi
+  rc=0
+  bash "$script" || rc=$?
+  rm -f "$script"
+  return $rc
+}
+
+# mise: CLI tools and runtimes (not on remote-work, which stays minimal)
+if [[ $envtype != 'remote-work' ]]; then
+  # Use the standalone mise in ~/.local/bin, which self-updates without brew,
+  # unless a non-brew mise is already provided (e.g. the devcontainer image).
+  brew_mise=""
+  if command -v brew &>/dev/null && brew list --formula mise &>/dev/null; then
+    brew_mise="yes"
+  fi
+  if [[ ! -x ~/.local/bin/mise ]] && { [[ -n "$brew_mise" ]] || ! command -v mise &>/dev/null; }; then
     echo ""
-    echo "Review with: less $BREW_SCRIPT"
-    if [[ -n "$AUTO_YES" ]]; then
-      REPLY="y"
-    else
-      read -p "Run Homebrew installer? [y/N] " -n 1 -r
-      echo
+    echo "=== mise Setup ==="
+    run_reviewed_installer mise https://mise.run || true
+  fi
+  export PATH="$HOME/.local/bin:$PATH"
+  if [[ -n "$brew_mise" && -x ~/.local/bin/mise ]]; then
+    echo "Removing Homebrew's mise (replaced by ~/.local/bin/mise)..."
+    brew uninstall mise || echo "WARNING: could not uninstall Homebrew's mise; ~/.local/bin/mise still takes precedence."
+  fi
+
+  # common.toml goes in conf.d so the per-environment config.toml wins on overlap
+  mkdir -p ~/.config/mise/conf.d
+  ln -sf "$SELF_PATH"/config/mise/common.toml ~/.config/mise/conf.d/10-dotfiles.toml
+  if [[ $envtype == 'devcontainer-work' ]]; then
+    # Also conf.d, so it coexists with the Dockerfile's default config.toml
+    ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/conf.d/50-personal.toml
+    # Clean up old symlink from previous installs (preserve Dockerfile's regular file)
+    if [ -L ~/.config/mise/config.toml ]; then
+      rm ~/.config/mise/config.toml
     fi
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      bash "$BREW_SCRIPT"
-      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    else
-      echo "Skipping Homebrew installation. Brew-dependent tools will not be installed."
-    fi
-    rm -f "$BREW_SCRIPT"
+  elif [[ $envtype == 'local-work' ]]; then
+    ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/config.toml
   else
-    echo "Failed to download Homebrew installer."
+    ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
+  fi
+
+  if command -v mise &>/dev/null; then
+    if [[ -n "$UPGRADE" && -x ~/.local/bin/mise ]]; then
+      mise self-update --yes || true
+    fi
+    # A tool that fails to install is reported, not fatal: mise still installs
+    # the rest, and the next run retries it.
+    echo "Installing mise tools..."
+    MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+    # The lockfile pins "latest" tools to whatever resolved at first install,
+    # so `mise install` alone never moves them forward.
+    if [[ -n "$UPGRADE" ]]; then
+      echo "Upgrading mise tools..."
+      MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
+    fi
+    MISE_LOCKED=0 mise lock --global --quiet
+    # Shims are symlinks to the mise binary, so repoint them if it moved
+    mise reshim
+    export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
+
+    # Bash completions, loaded on demand by bash-completion (see bashrc)
+    comp_dir="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions"
+    mkdir -p "$comp_dir"
+    while read -r cmd gen; do
+      command -v "$cmd" &>/dev/null || continue
+      # shellcheck disable=SC2086  # $gen is a command line, split on purpose
+      if $gen >"$comp_dir/$cmd.tmp" 2>/dev/null; then
+        mv "$comp_dir/$cmd.tmp" "$comp_dir/$cmd"
+      else
+        rm -f "$comp_dir/$cmd.tmp"
+      fi
+    done <<'EOF'
+ast-grep ast-grep completions bash
+bat bat --completion bash
+delta delta --generate-completion bash
+fd fd --gen-completions bash
+gh gh completion -s bash
+glow glow completion bash
+golangci-lint golangci-lint completion bash
+goreleaser goreleaser completion bash
+just just --completions bash
+mise mise completion bash
+rg rg --generate complete-bash
+sqlc sqlc completion bash
+starship starship completions bash
+zellij zellij setup --generate-completion bash
+EOF
+  fi
+fi
+
+# Homebrew covers only what mise can't: neovim nightly (install/nvim.sh) and
+# entr, which publishes no release binaries.
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
+  if ! command -v brew &>/dev/null; then
+    echo ""
+    echo "=== Homebrew Setup ==="
+    if run_reviewed_installer Homebrew https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh; then
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+  fi
+  if command -v brew &>/dev/null; then
+    if ! brew list --formula entr &>/dev/null; then
+      brew install entr
+    elif [[ -n "$UPGRADE" ]]; then
+      brew upgrade entr || true
+    fi
   fi
 fi
 
@@ -132,120 +237,17 @@ fi
 "$SELF_PATH"/install/nvim.sh
 
 # Local KDE/Wayland personal desktop extras (each self-gates; no-op elsewhere):
-# keyd Caps remap, Zellij multiplexer, and Krohnkite i3-style tiling.
+# keyd Caps remap, 1Password, LibreOffice, and Krohnkite i3-style tiling.
 "$SELF_PATH"/install/keyd.sh
 "$SELF_PATH"/install/1password.sh
-UPGRADE="$UPGRADE_BREW" "$SELF_PATH"/install/libreoffice.sh
-"$SELF_PATH"/install/zellij.sh
+"$SELF_PATH"/install/libreoffice.sh
 "$SELF_PATH"/install/kde-tiling.sh
 
 # Prompt setup - git-prompt-fallback and starship config
 cp "$SELF_PATH"/bin/git-prompt-fallback ~/bin/
 chmod +x ~/bin/git-prompt-fallback
-cp "$SELF_PATH"/bin/install-starship.sh ~/bin/
-chmod +x ~/bin/install-starship.sh
 mkdir -p ~/.config
 ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
-
-# Install starship if not already present (not on remote-work)
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && ! command -v starship &>/dev/null; then
-  echo "Installing starship prompt..."
-  "$SELF_PATH"/bin/install-starship.sh ~/bin
-fi
-
-# Install modern CLI tools via Homebrew (not on remote-work)
-if [[ $envtype == 'devcontainer-work' ]]; then
-  # Devcontainer provides via mise/apt: ripgrep fd jq bat git-delta gopls
-  #   golangci-lint shellcheck shfmt gh mise
-  # fzf is NOT taken from the devcontainer: bashrc needs >= 0.48 (see the check
-  # at the end of this block) and distro packages are routinely older, so it is
-  # listed here and comes from brew like everywhere else.
-  BREW_TOOLS="fzf eza zoxide lazygit entr difftastic just glow ast-grep tlrc dust tailspin lnav sr tree-sitter-cli"
-else
-  BREW_TOOLS="ripgrep fd fzf jq bat eza git-delta zoxide lazygit golangci-lint shellcheck shfmt entr difftastic just glow ast-grep gh tlrc dust tailspin lnav mise gopls sr tree-sitter-cli"
-fi
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]] && command -v brew &>/dev/null; then
-  # Ensure personal tap is available
-  brew tap klp2/sr 2>/dev/null || true
-
-  # Refresh formula metadata before working out what to install or upgrade.
-  echo "Updating brew..."
-  brew update --quiet
-
-  # tldr was abandoned upstream and Homebrew disabled the formula on 2025-10-24.
-  # tlrc is the official Rust client and the documented replacement, but the two
-  # conflict (both install a `tldr` binary), so the old one must go first. This
-  # runs before the installed-packages snapshot below so tlrc is then seen as
-  # missing and picked up by the normal install path.
-  if brew list --formula tldr &>/dev/null; then
-    echo "Migrating deprecated tldr -> tlrc..."
-    brew uninstall --ignore-dependencies tldr || true
-  fi
-
-  # Get installed packages once (much faster than checking each individually)
-  BREW_INSTALLED=$(brew list --formula 2>/dev/null)
-  TOOLS_TO_INSTALL=""
-  for tool in $BREW_TOOLS; do
-    if ! echo "$BREW_INSTALLED" | grep -q "^${tool}$"; then
-      TOOLS_TO_INSTALL="$TOOLS_TO_INSTALL $tool"
-    fi
-  done
-  if [[ -n "$TOOLS_TO_INSTALL" ]]; then
-    echo "Installing modern CLI tools:$TOOLS_TO_INSTALL"
-    # `brew install a b c` aborts the whole batch if any single formula fails,
-    # and errors were previously sent to /dev/null -- which is how shellcheck
-    # and shfmt silently went missing here despite being listed for months.
-    # Keep the fast batch path, but fall back to per-tool installs so one bad
-    # formula cannot take the rest down, and say plainly what failed.
-    # shellcheck disable=SC2086  # intentional word splitting
-    if ! brew install $TOOLS_TO_INSTALL; then
-      echo "Batch install failed; retrying tools individually..."
-      BREW_FAILED=""
-      for tool in $TOOLS_TO_INSTALL; do
-        brew install "$tool" || BREW_FAILED="$BREW_FAILED $tool"
-      done
-      if [[ -n "$BREW_FAILED" ]]; then
-        echo "WARNING: these brew tools failed to install:$BREW_FAILED"
-        echo "WARNING: re-run ./install.sh or install them by hand."
-      fi
-    fi
-  fi
-
-  # Check for available upgrades
-  echo "Checking for brew upgrades..."
-  BREW_OUTDATED=$(brew outdated --formula 2>/dev/null)
-  TOOLS_OUTDATED=""
-  for tool in $BREW_TOOLS; do
-    if echo "$BREW_OUTDATED" | grep -qE "(^|/)${tool}$"; then
-      TOOLS_OUTDATED="$TOOLS_OUTDATED $tool"
-    fi
-  done
-  if [[ -n "$TOOLS_OUTDATED" ]]; then
-    if [[ -n "$UPGRADE_BREW" ]]; then
-      echo "Upgrading:$TOOLS_OUTDATED"
-      brew upgrade $TOOLS_OUTDATED 2>/dev/null || true
-    else
-      echo "Upgrades available but skipped (--no-upgrade):$TOOLS_OUTDATED"
-    fi
-  else
-    echo "All brew tools up to date."
-  fi
-
-  # fzf rides the normal install/upgrade path above like every other tool, but
-  # it is the one hard dependency of the interactive shell: bashrc runs
-  # `eval "$(fzf --bash)"`, which needs >= 0.48, and it guards its whole fzf
-  # section on `command -v fzf` -- so a missing or stale fzf degrades the shell
-  # silently. Check explicitly instead of letting that happen.
-  if command -v fzf &>/dev/null; then
-    FZF_VER=$(fzf --version 2>/dev/null | awk '{print $1}')
-    if ! printf '0.48.0\n%s\n' "$FZF_VER" | sort -V -C; then
-      echo "WARNING: fzf $FZF_VER is older than 0.48; bashrc's 'fzf --bash' needs >= 0.48."
-      echo "WARNING: an old distro fzf may be shadowing the brew one on PATH."
-    fi
-  else
-    echo "WARNING: fzf is not installed; bashrc will skip its fzf integration entirely."
-  fi
-fi
 
 # Tool configs (bat, ripgrep, lnav)
 mkdir -p ~/.config/bat
@@ -254,33 +256,6 @@ mkdir -p ~/.config/lnav
 ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
 ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
 ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
-
-# Mise global config (environment-specific)
-mkdir -p ~/.config/mise
-if [[ $envtype == 'devcontainer-work' ]]; then
-  # Use conf.d so personal config coexists with Dockerfile's default config.toml
-  mkdir -p ~/.config/mise/conf.d
-  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/conf.d/50-personal.toml
-  # Clean up old symlink from previous installs (preserve Dockerfile's regular file)
-  if [ -L ~/.config/mise/config.toml ]; then
-    rm ~/.config/mise/config.toml
-  fi
-elif [[ $envtype == 'local-work' ]]; then
-  ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/config.toml
-elif [[ $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
-  ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
-fi
-if command -v mise &>/dev/null; then
-  echo "Installing mise tools..."
-  MISE_LOCKED=0 mise install --quiet
-  # The lockfile pins "latest" tools (e.g. npm:linearis) to whatever resolved
-  # at first install, so `mise install` alone never moves them forward.
-  if [[ -n "$UPGRADE_BREW" ]]; then
-    echo "Upgrading mise tools..."
-    MISE_LOCKED=0 mise upgrade --quiet
-  fi
-  MISE_LOCKED=0 mise lock --global --quiet
-fi
 
 # Alacritty terminal config (only if alacritty is installed)
 if command -v alacritty &>/dev/null; then

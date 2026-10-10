@@ -1,4 +1,11 @@
-[settings]
-# Disable backends that use community-maintained bash scripts (supply chain risk)
-# See: https://github.com/jdx/mise/discussions/4054
-disable_backends = ["asdf", "vfox"]
+# Personal machines (local-personal, remote-personal), on top of common.toml.
+
+[tools]
+cmake = "latest"
+docker-compose = "latest"
+goreleaser = "latest"
+rust = "latest"
+sqlc = "latest"
+zellij = "latest"
+"github:rojo-rbx/rojo" = "latest"
+"npm:@google/gemini-cli" = "latest"

@@ -19,10 +19,10 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 ### Environment Detection
 - Two-axis scheme: **local/remote** x **work/personal**
 - Environment types via marker files in `$HOME`:
-  - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), brew, vim
-  - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, brew, xcape, vim
+  - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), mise, vim
+  - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, mise, xcape, vim
   - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools)
-  - `~/.remote-personal` → personal server, full tooling (brew, neovim, starship) but no vim, xcape, or gpgconf
+  - `~/.remote-personal` → personal server, full tooling (mise, neovim, starship) but no vim, xcape, or gpgconf
 - Heuristic detection when no marker exists (graphical session → local, hostname contains "maxmind" → work)
 - `install.sh` auto-creates marker file on first run with diagnostic output
 - Work vs personal distinguished by hostname containing "maxmind"
@@ -47,6 +47,13 @@ This symlinks configs to home directory, runs vim-plug installation, sets up git
 ### Git Aliases (set by `git-config.sh`)
 Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)
 
+### Tool Management
+- **mise** installs CLI tools and runtimes everywhere except remote-work, which stays minimal. Personal and local-work machines use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
+- `config/mise/common.toml` → `~/.config/mise/conf.d/10-dotfiles.toml` (shared tool list); per-environment `mise.personal.toml` / `mise.work.toml` → `~/.config/mise/config.toml`, which wins on overlap (devcontainer links the work file into conf.d instead, beside the image's own config.toml)
+- Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; asdf/vfox backends are disabled
+- Homebrew remains only for neovim nightly (`install/nvim.sh`) and entr (no release binaries); `cleanup.sh` offers to uninstall brew formulae mise replaced
+- `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
+
 ## File Relationships
 
 - `install.sh` → migrates old markers, auto-creates marker via heuristic, calls `install/vim.sh` (skipped for remote-personal) and `install/nvim.sh`
@@ -64,7 +71,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Package Management
 - **DO NOT use `dnf install`** - the base system is read-only
 - **System packages**: Use `rpm-ostree install <pkg>` (requires reboot to apply)
-- **User-space tools**: Use Homebrew (`brew install`) - bashrc already adds linuxbrew to PATH
+- **User-space tools**: Use mise (see Tool Management below); Homebrew only for what mise can't provide
 - **Applications**: Prefer Flatpaks
 - **Development environments**: Consider distrobox containers
 
@@ -79,13 +86,13 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 - Borderless windows (i3 `default_border none`) via a forced `kwinrulesrc` rule; instant desktop switch by disabling the slide effect
 - Keybindings are a clean personal port of `i3/config`, written to `kglobalshortcutsrc` via `kwriteconfig6` (KDE has no hand-editable rc); edits must be made with the kglobalaccel daemon quiescent, and a re-login activates them
 - All KDE/keyd/Zellij installers self-gate on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland
-- Local multiplexer is Zellij (`install/zellij.sh`, pure defaults); tmux stays the remote/SSH multiplexer
+- Local multiplexer is Zellij (installed by mise, pure defaults); tmux stays the remote/SSH multiplexer
 - Design/plan: `docs/superpowers/specs/` and `docs/superpowers/plans/`
 
 ### What Works Without Changes
 - All shell configs, vim/neovim, tmux, git
-- Homebrew-installed tools (ripgrep, fzf, tmux, neovim, bat, eza, fd, tailspin, lnav)
-- Version managers in user space (plenv, pyenv, nvm, cargo)
+- mise-installed tools and runtimes (all user space)
+- Homebrew-installed tools (neovim nightly, entr)
 
 ## Code Quality
 
@@ -117,4 +124,4 @@ shfmt -i 2 -ci -w bashrc install.sh
 
 ## Maintenance
 
-Run `./install.sh` weekly to pick up dotfile changes and upgrade brew tools. The shell displays a reminder if it's been over a week. Use `--no-upgrade` to skip brew upgrades.
+Run `./install.sh` weekly to pick up dotfile changes and upgrade mise and brew tools. The shell displays a reminder if it's been over a week. Use `--no-upgrade` to skip upgrades.

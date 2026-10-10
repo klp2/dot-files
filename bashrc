@@ -321,6 +321,22 @@ if [[ -d $HOME/.cargo ]]; then
   pathadd "$HOME/.cargo/bin"
 fi
 
+# mise - CLI tools and runtimes (config in ~/dot-files/config/mise). Activated
+# before anything below that checks for fzf, bat, eza, starship, or zoxide.
+pathadd "$HOME/.local/bin"
+if command -v mise &>/dev/null; then
+  # Shims go on PATH first, so the real tool paths activate adds land ahead
+  # of them. activate updates PATH from a prompt hook, which only interactive
+  # shells run; hook-env applies it now, so the startup code below calls the
+  # real binaries rather than paying for a shim each time. The shims stay as
+  # the fallback for anything that does not source this file: a git hook
+  # inherits PATH from whatever shell ran git. Needed by gaem, whose mise.toml
+  # pins gh and jq for scripts that run non-interactively.
+  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
+  eval "$(mise activate bash)"
+  eval "$(mise hook-env -s bash)"
+fi
+
 # Modern CLI tool configs
 if [[ -f "$HOME/.config/ripgrep/config" ]]; then
   export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
@@ -489,9 +505,15 @@ else
 fi
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-[ -f /usr/share/bash-completion/completions/git ] && source /usr/share/bash-completion/completions/git
+# bash-completion loads completions on demand: git's, and the ones install.sh
+# generates for mise tools in ~/.local/share/bash-completion/completions
+if [[ $- == *i* && -f /usr/share/bash-completion/bash_completion ]]; then
+  source /usr/share/bash-completion/bash_completion
+elif [ -f /usr/share/bash-completion/completions/git ]; then
+  source /usr/share/bash-completion/completions/git
+fi
 
-# Linuxbrew completions (bat, eza, fd, delta, zoxide, lazygit, golangci-lint)
+# Completions for the remaining Linuxbrew formulae
 if [ -d /home/linuxbrew/.linuxbrew/etc/bash_completion.d ]; then
   for f in /home/linuxbrew/.linuxbrew/etc/bash_completion.d/*; do
     [ -f "$f" ] && source "$f"
@@ -508,42 +530,6 @@ fi
 # plenv - only if installed
 if command -v plenv &>/dev/null; then
   eval "$(plenv init -)"
-fi
-
-# mise - polyglot runtime manager (replacement for asdf)
-if command -v mise &>/dev/null; then
-  eval "$(mise activate bash)"
-  # activate works through a prompt hook, so it reaches interactive shells
-  # only. The shims are plain files and need no hook, so any shell that
-  # sources this file gets the pinned tools. A git hook does not source it; it
-  # inherits PATH from whatever shell ran git. Needed by gaem, whose mise.toml
-  # pins gh and jq for scripts that run non-interactively.
-  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
-fi
-
-# nvm - lazy load for faster shell startup
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # Lazy-load nvm: define placeholder functions that load nvm on first use
-  nvm() {
-    unset -f nvm node npm npx
-    # shellcheck source=/dev/null
-    \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm "$@"
-  }
-  node() {
-    nvm
-    command node "$@"
-  }
-  npm() {
-    nvm
-    command npm "$@"
-  }
-  npx() {
-    nvm
-    command npx "$@"
-  }
 fi
 
 # zoxide - must be at end of bashrc

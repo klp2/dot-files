@@ -314,8 +314,8 @@ require('lazy').setup({
   -- we track the `main` branch (the rewrite API). Main has no declarative
   -- `setup({...})` — instead `ts.install({...})` triggers async parser
   -- installs and a FileType autocmd starts highlighting per-buffer. Parser
-  -- compilation needs the `tree-sitter` CLI on PATH (brew formula
-  -- tree-sitter-cli, installed by install.sh).
+  -- compilation needs the `tree-sitter` CLI on PATH (installed by mise
+  -- from config/mise/common.toml).
   -- Pattern borrowed from https://github.com/WhoIsSethDaniel/dotfiles
   {
     'nvim-treesitter/nvim-treesitter',

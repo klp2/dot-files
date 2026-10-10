@@ -16,11 +16,9 @@ SCRIPTS=(
   install/vim.sh
   install/nvim.sh
   install/keyd.sh
-  install/zellij.sh
   install/kde-tiling.sh
   install/1password.sh
   bin/git-prompt-fallback
-  bin/install-starship.sh
 )
 
 FAILED=0

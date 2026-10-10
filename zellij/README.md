@@ -1,7 +1,7 @@
 # Zellij
 
-Installed via Homebrew on the local KDE/Wayland personal desktop only
-(see `install/zellij.sh`). Used as the local multiplexer; tmux remains the
+Installed by mise on personal machines (see `config/mise/mise.personal.toml`).
+Used as the local multiplexer; tmux remains the
 remote/SSH multiplexer (see `tmux/`).
 
 **No config by design.** We run pure upstream Zellij defaults to lean on its

@@ -14,9 +14,7 @@ else
   git -C "$DOT_FILES_DIR" pull --ff-only 2>/dev/null || true
 fi
 
-# NONINTERACTIVE=1 tells Homebrew installer to skip sudo -v prompt
 # --yes skips install.sh's own interactive prompts
-export NONINTERACTIVE=1
 cd "$DOT_FILES_DIR" && bash install.sh --update --yes
 
 # Install/update Claude Code
