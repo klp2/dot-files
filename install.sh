@@ -177,6 +177,9 @@ if [[ $envtype != 'remote-work' ]]; then
       MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
     fi
     MISE_LOCKED=0 mise lock --global --quiet
+    # Locking records npm tools against a lock artifact, and mise reports them
+    # missing until they are reinstalled from it
+    MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
     # Shims are symlinks to the mise binary, so repoint them if it moved
     mise reshim
     export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"

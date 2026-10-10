@@ -325,16 +325,12 @@ fi
 # before anything below that checks for fzf, bat, eza, starship, or zoxide.
 pathadd "$HOME/.local/bin"
 if command -v mise &>/dev/null; then
-  # Shims go on PATH first, so the real tool paths activate adds land ahead
-  # of them. activate updates PATH from a prompt hook, which only interactive
-  # shells run; hook-env applies it now, so the startup code below calls the
-  # real binaries rather than paying for a shim each time. The shims stay as
-  # the fallback for anything that does not source this file: a git hook
-  # inherits PATH from whatever shell ran git. Needed by gaem, whose mise.toml
-  # pins gh and jq for scripts that run non-interactively.
-  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
+  # activate applies the tool PATH right away and again from a prompt hook,
+  # and puts the shims behind it as the fallback for anything that does not
+  # source this file: a git hook inherits PATH from whatever shell ran git.
+  # Needed by gaem, whose mise.toml pins gh and jq for scripts that run
+  # non-interactively.
   eval "$(mise activate bash)"
-  eval "$(mise hook-env -s bash)"
 fi
 
 # Modern CLI tool configs
