@@ -27,6 +27,15 @@ strip_components = 1
 bin_path = "bin"
 postinstall = 'mkdir -p "$MISE_TOOL_INSTALL_PATH/bin" && for f in ghidraRun support/analyzeHeadless support/pyghidraRun; do ln -sf "../$f" "$MISE_TOOL_INSTALL_PATH/bin/"; done'
 
+# XRoar (Dragon/CoCo emulator). Upstream ships no Linux binaries, so
+# klp2/xroar-builds builds them from a checksum-pinned source tarball. No
+# release-age wait for our own builds; the pin in that repo is the gate. Until
+# conda-forge accepts its recipe (then this becomes conda:xroar).
+[tools."github:klp2/xroar-builds"]
+version = "latest"
+asset_pattern = "xroar-*-linux-x86_64.tar.gz"
+minimum_release_age = "0d"
+
 # MaxMind's GitHub org enforces SAML, which rejects the token mise sends to the
 # GitHub API, so these use the http backend instead: versions come from the
 # public releases feed and checksums from each release's checksums.txt, with no
