@@ -332,11 +332,20 @@ require('lazy').setup({
         'yaml',
       })
 
-      -- Auto-install missing parsers + start highlighting/indent on FileType
+      -- Auto-install missing parsers + start highlighting/indent on FileType.
+      -- Only for languages nvim-treesitter has a parser for: plugin UI
+      -- buffers (fidget, lazy, ...) set filetypes it would warn about.
+      local available = {}
+      for _, l in ipairs(ts.get_available()) do
+        available[l] = true
+      end
       vim.api.nvim_create_autocmd('FileType', {
         group = vim.api.nvim_create_augroup('TreesitterSetup', { clear = true }),
         callback = function(event)
           local lang = vim.treesitter.language.get_lang(event.match) or event.match
+          if not available[lang] then
+            return
+          end
           local buf = event.buf
           ts.install(lang):await(function()
             if vim.treesitter.language.add(lang) then
