@@ -1,27 +1,9 @@
 #!/usr/bin/env bash
-# neovim nightly and lazy.nvim plugins. A final hook in config/mise/base.toml,
-# so it runs on every machine after the links and tools are in place.
+# lazy.nvim plugins. A final hook in config/mise/base.toml, so it runs on every
+# machine after the links and tools are in place; neovim itself is a mise tool
+# (config/mise/common.toml).
 
 set -eu -o pipefail
-
-PREFIX=~/dot-files
-
-source "$PREFIX/bash_common.sh"
-
-# Install/update neovim via Homebrew (not on remote-work or devcontainer-work where mise provides it)
-if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal' || $DOTFILES_ENVTYPE == 'remote-personal' ]] && command -v brew &>/dev/null; then
-  if brew list --formula neovim &>/dev/null && ! command -v nvim &>/dev/null; then
-    # Installed but not linked: what an interrupted upgrade leaves behind
-    echo "Relinking neovim..."
-    brew link neovim || echo "WARNING: could not relink neovim; run 'brew link neovim'."
-  elif ! command -v nvim &>/dev/null; then
-    echo "Installing neovim (nightly)..."
-    brew install --yes neovim --HEAD
-  elif brew list neovim --versions 2>/dev/null | grep -q HEAD; then
-    echo "Checking for neovim nightly updates..."
-    brew upgrade --yes neovim --fetch-HEAD || echo "WARNING: neovim nightly upgrade failed (see above)."
-  fi
-fi
 
 # Run Lazy sync if nvim is available (install/update plugins); bootstrap has
 # already linked init.lua from base.toml

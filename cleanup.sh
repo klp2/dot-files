@@ -89,7 +89,7 @@ if command -v brew &>/dev/null; then
   BREW_INSTALLED=$(brew list --formula 2>/dev/null)
   for formula in ast-grep bat cmake difftastic docker-compose dust eza fd fzf \
     geoipupdate gh git-delta glow golangci-lint gopls goreleaser jq just \
-    lazygit lnav mmdbinspect ripgrep rojo rust shellcheck shfmt sqlc sr \
+    lazygit lnav mmdbinspect neovim ripgrep rojo rust shellcheck shfmt sqlc sr \
     starship tailspin tldr tlrc tree-sitter-cli zellij zoxide; do
     grep -qx "$formula" <<<"$BREW_INSTALLED" || continue
     echo "Found: Homebrew $formula"

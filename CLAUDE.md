@@ -32,7 +32,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 
 ### Editor Configuration
 - **Vim**: Uses vim-plug for plugins. Config in `vim/vimrc`. Go and Perl development focused with ALE linting, fzf integration, and perltidy formatting. Keybindings roughly aligned with neovim.
-- **Neovim**: Simplified config with lazy.nvim. Single `init.lua` with LSP (gopls, pyright, etc.), telescope, treesitter, copilot. Nightly builds via Homebrew. Keybindings:
+- **Neovim**: Simplified config with lazy.nvim. Single `init.lua` with LSP (gopls, pyright, etc.), telescope, treesitter, copilot. Stable releases via mise (`common.toml`). Keybindings:
   - `=` runs perltidy (Perl files)
   - `<leader>perl` / `<leader>gomain` / `<leader>bash` for language templates
   - `<C-h/j/k/l>` for window navigation
@@ -54,10 +54,10 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 - `config/mise/config.<env>.toml` (`desktop`, `local-personal`, `remote-work`) → `~/.config/mise/`, linked on every machine by base.toml; only the selected ones load. They hold `[bootstrap.hooks]` that run `install/*.sh`, `[bootstrap.files]`/`services` (keyd config, `~/.ssh` modes), and edit entries (the SSH `Include` line), which take no variants
 - Tool configs are base.toml variants in conf.d, everywhere but remote-work: `common.toml` → `conf.d/10-dotfiles.toml`; `mise.work.toml` / `mise.personal.toml` → `conf.d/20-work.toml` / `20-personal.toml`, which win on overlap. `config.toml` is no longer ours (the devcontainer image's own stays)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; `http:` with the public releases feed for MaxMind's tools, whose org's SAML enforcement rejects the GitHub API token; asdf/vfox backends are disabled
-- Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr, `flatpak-user:` for LibreOffice), applied by `mise bootstrap --only packages` in a run of their own, since a failed package aborts a bootstrap run; entries whose manager is missing are skipped. `install/flatpak.sh` (a desktop pre-packages hook) installs Flatpak and adds the Flathub remote, which mise does not do
+- Machine-wide installs are `[bootstrap.packages]` entries (`flatpak-user:` for LibreOffice), applied by `mise bootstrap --only packages` in a run of their own, since a failed package aborts a bootstrap run; entries whose manager is missing are skipped. `install/flatpak.sh` (a desktop pre-packages hook) installs Flatpak and adds the Flathub remote, which mise does not do
 - `install.sh` runs `mise bootstrap --skip packages,tools --force-dotfiles` after its own tool install/upgrade/lock steps. Hooks run on every bootstrap, so `install/*.sh` must stay safe to repeat; a failing hook aborts the run. Avoid `pre/post-dotfiles` hooks (they also fire on plain `mise dot apply`) and a global `[tasks.bootstrap]` (it would show in every project)
 - Dry-run changes against the real home with an isolated `MISE_CONFIG_DIR` (not `MISE_GLOBAL_CONFIG_FILE`), run from outside `$HOME`, or mise also finds the live `~/.config/mise/conf.d` as project config
-- Homebrew itself remains for neovim nightly (`install/nvim.sh`) and the `brew:` package entries; `cleanup.sh` offers to uninstall brew formulae mise replaced
+- The dotfiles no longer install or need Homebrew. Where it is already installed, bashrc still puts it on PATH, and `cleanup.sh` offers to uninstall brew formulae mise replaced
 - Settings: `base.toml` has `minimum_release_age = "7d"`, `self_update.auto = true`, and the disabled backends; `common.toml` has `lockfile = true` (work adds `locked = true`)
 - `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
 
@@ -65,7 +65,7 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 
 - `install.sh` → migrates old markers, auto-creates marker via heuristic, writes miserc, then `mise bootstrap` runs the installers as hooks: `nvim.sh` everywhere (base.toml); `flatpak.sh`, `keyd.sh` (pre-packages), `1password.sh`, `vim.sh` on desktops; `kde-tiling.sh` on local-personal; `vim.sh` on remote-work
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection to pick `~/.local_vimrc`, installs vim-plug and plugins (`~/.vimrc` is a base.toml link)
-- `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), syncs lazy.nvim plugins
+- `install/nvim.sh` → syncs lazy.nvim plugins (neovim itself is a mise tool)
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
 - `bashrc` activates mise before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
 - `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)
@@ -78,7 +78,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Package Management
 - **DO NOT use `dnf install`** - the base system is read-only
 - **System packages**: Use `rpm-ostree install <pkg>` (requires reboot to apply)
-- **User-space tools**: Use mise (see Tool Management above); Homebrew only for what mise can't provide
+- **User-space tools**: Use mise (see Tool Management above)
 - **Applications**: Prefer Flatpaks
 - **Development environments**: Consider distrobox containers
 
@@ -99,7 +99,6 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### What Works Without Changes
 - All shell configs, vim/neovim, tmux, git
 - mise-installed tools and runtimes (all user space)
-- Homebrew-installed tools (neovim nightly, entr)
 
 ## Code Quality
 
@@ -131,4 +130,4 @@ shfmt -i 2 -ci -w bashrc install.sh
 
 ## Maintenance
 
-Run `./install.sh` weekly to pick up dotfile changes and upgrade mise and brew tools. The shell displays a reminder if it's been over a week. Use `--no-upgrade` to skip upgrades.
+Run `./install.sh` weekly to pick up dotfile changes and upgrade mise tools and packages. The shell displays a reminder if it's been over a week. Use `--no-upgrade` to skip upgrades.

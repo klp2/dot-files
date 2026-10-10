@@ -13,10 +13,8 @@ lockfile = true
 lockfile_platforms = ["linux-x64"]
 
 # Machine-wide installs through the host's package managers; an entry whose
-# manager is missing (no brew or flatpak in the devcontainer) is skipped
+# manager is missing (no flatpak in the devcontainer) is skipped
 [bootstrap.packages]
-# No release binaries, so no mise tool
-"brew:entr" = "latest"
 # install/flatpak.sh (a pre-packages hook) adds the Flathub remote first
 "flatpak-user:org.libreoffice.LibreOffice" = "latest"
 
@@ -38,6 +36,7 @@ jq = "latest"
 just = "latest"
 lazygit = "latest"
 lnav = "latest"
+neovim = "latest"
 node = "lts"
 ripgrep = "latest"
 shellcheck = "latest"

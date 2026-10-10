@@ -125,16 +125,6 @@ run_reviewed_installer() {
   return $rc
 }
 
-# Homebrew, for neovim nightly (install/nvim.sh) and the brew: entries in
-# [bootstrap.packages]; mise covers everything else
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v brew &>/dev/null; then
-  echo ""
-  echo "=== Homebrew Setup ==="
-  if run_reviewed_installer Homebrew https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  fi
-fi
-
 # mise: dotfile links everywhere, plus CLI tools, runtimes, and packages
 # everywhere but remote-work, which stays minimal.
 # Use the standalone mise in ~/.local/bin, which self-updates without brew,
