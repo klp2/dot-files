@@ -1,11 +1,9 @@
-# Tools and packages shared by every environment except remote-work.
-# install.sh links this into ~/.config/mise/conf.d/, so the per-environment
-# config.toml layers on top and wins wherever both name the same entry.
+# Tools and packages shared by every environment except remote-work, on top of
+# base.toml. install.sh links this into ~/.config/mise/conf.d/, so the
+# per-environment config.toml layers on top and wins wherever both name the
+# same entry.
 
 [settings]
-# Disable backends that use community-maintained bash scripts (supply chain risk)
-# See: https://github.com/jdx/mise/discussions/4054
-disable_backends = ["asdf", "vfox"]
 # Record exact download URLs and checksums in ~/.config/mise/mise.lock;
 # install.sh moves it forward on upgrade
 lockfile = true
@@ -13,13 +11,6 @@ lockfile = true
 # list. Without it, mise locks all 7 of its default platforms (macOS and
 # Windows too), which takes most of install.sh's lock step
 lockfile_platforms = ["linux-x64"]
-# Skip releases younger than this, so a compromised release has time to be
-# caught and pulled before it lands here
-minimum_release_age = "7d"
-# Between install.sh runs, mise updates itself (checking at most weekly, and
-# honoring minimum_release_age) before an interactive command. Standalone
-# installs only; a packaged mise such as the devcontainer image's cannot.
-self_update.auto = true
 
 # Machine-wide installs through the host's package managers; an entry whose
 # manager is missing (no brew or flatpak in the devcontainer) is skipped

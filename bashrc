@@ -74,8 +74,9 @@ pathadd "$HOME/.cargo/bin"
 pathadd "$HOME/.opencode/bin"
 pathadd "$HOME/.local/bin"
 
-# mise - CLI tools and runtimes (config in ~/dot-files/config/mise)
-if command -v mise &>/dev/null; then
+# mise - CLI tools and runtimes (config in ~/dot-files/config/mise). On
+# remote-work mise only links the dotfiles from install.sh, so skip activate.
+if [[ $envtype != 'remote-work' ]] && command -v mise &>/dev/null; then
   # activate applies the tool PATH right away and again from a prompt hook,
   # and puts the shims behind it as the fallback for anything that does not
   # source this file: a git hook inherits PATH from whatever shell ran git.

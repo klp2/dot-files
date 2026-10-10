@@ -1,0 +1,40 @@
+# Settings and dotfile links for every environment, remote-work included.
+# install.sh links this into ~/.config/mise/conf.d/; common.toml adds the tools
+# everywhere but remote-work, where mise only deploys these links.
+
+[settings]
+# Disable backends that use community-maintained bash scripts (supply chain risk)
+# See: https://github.com/jdx/mise/discussions/4054
+disable_backends = ["asdf", "vfox"]
+# Skip releases younger than this, so a compromised release has time to be
+# caught and pulled before it lands here
+minimum_release_age = "7d"
+# Between install.sh runs, mise updates itself (checking at most weekly, and
+# honoring minimum_release_age) before an interactive command. Standalone
+# installs only; a packaged mise such as the devcontainer image's cannot.
+self_update.auto = true
+
+# Deployed by `mise dot apply` in install.sh. A relative source would resolve
+# against conf.d, where this file is linked, so sources spell out ~/dot-files.
+# Links that depend on the environment or on what is installed (vim, i3,
+# Regolith, alacritty, SSH, devcontainer) are still made by install.sh.
+[dotfiles]
+"~/.bash_common.sh" = "~/dot-files/bash_common.sh"
+"~/.bash_profile" = "~/dot-files/bash_profile"
+"~/.bashrc" = "~/dot-files/bashrc"
+"~/.golangci.yml" = "~/dot-files/golangci.yml"
+"~/.perltidyrc" = "~/dot-files/perltidyrc"
+"~/.profile" = "~/dot-files/profile"
+"~/.psqlrc" = "~/dot-files/psql/psqlrc"
+"~/.screenrc" = "~/dot-files/screenrc"
+"~/.tmux.conf" = "~/dot-files/tmux/tmux.conf"
+"~/.tmux-default-layout" = "~/dot-files/tmux/tmux-default-layout"
+"~/.tmux-three-win-layout" = "~/dot-files/tmux/tmux-three-win-layout"
+"~/bin/git-prompt-fallback" = "~/dot-files/bin/git-prompt-fallback"
+"~/.config/bat/config" = "~/dot-files/config/bat/config"
+"~/.config/lnav/config.json" = "~/dot-files/config/lnav/config.json"
+"~/.config/nvim/init.lua" = "~/dot-files/nvim/init.lua"
+"~/.config/ripgrep/config" = "~/dot-files/config/ripgrep/config"
+"~/.config/starship.toml" = "~/dot-files/starship.toml"
+# A copy, so it can carry its own mode
+"~/.dataprinter" = { source = "~/dot-files/dataprinter", mode = "copy", permissions = "0700" }

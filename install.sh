@@ -135,27 +135,51 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
   fi
 fi
 
-# mise: CLI tools, runtimes, and packages (not on remote-work, which stays minimal)
-if [[ $envtype != 'remote-work' ]]; then
-  # Use the standalone mise in ~/.local/bin, which self-updates without brew,
-  # unless a non-brew mise is already provided (e.g. the devcontainer image).
-  brew_mise=""
-  if command -v brew &>/dev/null && brew list --formula mise &>/dev/null; then
-    brew_mise="yes"
-  fi
-  if [[ ! -x ~/.local/bin/mise ]] && { [[ -n "$brew_mise" ]] || ! command -v mise &>/dev/null; }; then
-    echo ""
-    echo "=== mise Setup ==="
-    run_reviewed_installer mise https://mise.run || true
-  fi
-  export PATH="$HOME/.local/bin:$PATH"
-  if [[ -n "$brew_mise" && -x ~/.local/bin/mise ]]; then
-    echo "Removing Homebrew's mise (replaced by ~/.local/bin/mise)..."
-    brew uninstall mise || echo "WARNING: could not uninstall Homebrew's mise; ~/.local/bin/mise still takes precedence."
-  fi
+# mise: dotfile links everywhere, plus CLI tools, runtimes, and packages
+# everywhere but remote-work, which stays minimal.
+# Use the standalone mise in ~/.local/bin, which self-updates without brew,
+# unless a non-brew mise is already provided (e.g. the devcontainer image) that
+# is new enough to have `mise dotfiles`.
+brew_mise=""
+if command -v brew &>/dev/null && brew list --formula mise &>/dev/null; then
+  brew_mise="yes"
+fi
+if [[ ! -x ~/.local/bin/mise ]] && { [[ -n "$brew_mise" ]] || ! mise dotfiles --help &>/dev/null; }; then
+  echo ""
+  echo "=== mise Setup ==="
+  run_reviewed_installer mise https://mise.run || true
+fi
+export PATH="$HOME/.local/bin:$PATH"
+if [[ -n "$brew_mise" && -x ~/.local/bin/mise ]]; then
+  echo "Removing Homebrew's mise (replaced by ~/.local/bin/mise)..."
+  brew uninstall mise || echo "WARNING: could not uninstall Homebrew's mise; ~/.local/bin/mise still takes precedence."
+fi
+if ! mise dotfiles --help &>/dev/null; then
+  echo "ERROR: linking the dotfiles needs a mise with 'mise dotfiles'; rerun once it is installed."
+  exit 1
+fi
+if [[ -n "$UPGRADE" && -x ~/.local/bin/mise ]]; then
+  mise self-update --yes || true
+fi
 
+# The links go first: install/nvim.sh needs init.lua in place to sync plugins.
+# --force replaces whatever is at a target, as `ln -sf` did.
+mkdir -p ~/.config/mise/conf.d
+ln -sf "$SELF_PATH"/config/mise/base.toml ~/.config/mise/conf.d/05-base.toml
+if [[ "$SELF_PATH" != "$(cd -P ~/dot-files 2>/dev/null && pwd -P)" ]]; then
+  echo "WARNING: base.toml links to ~/dot-files, not this checkout ($SELF_PATH)."
+fi
+echo "Linking dotfiles..."
+mise dotfiles apply --force --yes
+# ackrc and perlcriticrc left the repo long ago; drop the links left dangling
+for f in ~/.ackrc ~/.perlcriticrc; do
+  if [[ -L $f && ! -e $f ]]; then
+    rm "$f"
+  fi
+done
+
+if [[ $envtype != 'remote-work' ]]; then
   # common.toml goes in conf.d so the per-environment config.toml wins on overlap
-  mkdir -p ~/.config/mise/conf.d
   ln -sf "$SELF_PATH"/config/mise/common.toml ~/.config/mise/conf.d/10-dotfiles.toml
   if [[ $envtype == 'devcontainer-work' ]]; then
     # Also conf.d, so it coexists with the Dockerfile's default config.toml
@@ -170,40 +194,36 @@ if [[ $envtype != 'remote-work' ]]; then
     ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
   fi
 
-  if command -v mise &>/dev/null; then
-    if [[ -n "$UPGRADE" && -x ~/.local/bin/mise ]]; then
-      mise self-update --yes || true
-    fi
-    # A tool that fails to install is reported, not fatal: mise still installs
-    # the rest, and the next run retries it.
-    echo "Installing mise tools..."
-    MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
-    # The lockfile pins "latest" tools to whatever resolved at first install,
-    # so `mise install` alone never moves them forward.
-    if [[ -n "$UPGRADE" ]]; then
-      echo "Upgrading mise tools..."
-      MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
-    fi
-    MISE_LOCKED=0 mise lock --global --quiet
-    # Locking records npm tools against a lock artifact, and mise reports them
-    # missing until they are reinstalled from it
-    MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
-    # Shims are symlinks to the mise binary, so repoint them if it moved
-    mise reshim
-    export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
+  # A tool that fails to install is reported, not fatal: mise still installs
+  # the rest, and the next run retries it.
+  echo "Installing mise tools..."
+  MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+  # The lockfile pins "latest" tools to whatever resolved at first install,
+  # so `mise install` alone never moves them forward.
+  if [[ -n "$UPGRADE" ]]; then
+    echo "Upgrading mise tools..."
+    MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
+  fi
+  MISE_LOCKED=0 mise lock --global --quiet
+  # Locking records npm tools against a lock artifact, and mise reports them
+  # missing until they are reinstalled from it
+  MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+  # Shims are symlinks to the mise binary, so repoint them if it moved
+  mise reshim
+  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
 
-    # Bash completions, loaded on demand by bash-completion (see bashrc)
-    comp_dir="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions"
-    mkdir -p "$comp_dir"
-    while read -r cmd gen; do
-      command -v "$cmd" &>/dev/null || continue
-      # shellcheck disable=SC2086  # $gen is a command line, split on purpose
-      if $gen >"$comp_dir/$cmd.tmp" 2>/dev/null; then
-        mv "$comp_dir/$cmd.tmp" "$comp_dir/$cmd"
-      else
-        rm -f "$comp_dir/$cmd.tmp"
-      fi
-    done <<'EOF'
+  # Bash completions, loaded on demand by bash-completion (see bashrc)
+  comp_dir="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions"
+  mkdir -p "$comp_dir"
+  while read -r cmd gen; do
+    command -v "$cmd" &>/dev/null || continue
+    # shellcheck disable=SC2086  # $gen is a command line, split on purpose
+    if $gen >"$comp_dir/$cmd.tmp" 2>/dev/null; then
+      mv "$comp_dir/$cmd.tmp" "$comp_dir/$cmd"
+    else
+      rm -f "$comp_dir/$cmd.tmp"
+    fi
+  done <<'EOF'
 ast-grep ast-grep completions bash
 bat bat --completion bash
 delta delta --generate-completion bash
@@ -220,13 +240,12 @@ starship starship completions bash
 zellij zellij setup --generate-completion bash
 EOF
 
-    # Machine-wide packages (brew, flatpak); flatpak.sh adds the Flathub remote
-    "$SELF_PATH"/install/flatpak.sh
-    echo "Installing bootstrap packages..."
-    mise bootstrap packages apply --yes || echo "WARNING: some bootstrap packages failed to install (see above)."
-    if [[ -n "$UPGRADE" ]]; then
-      mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
-    fi
+  # Machine-wide packages (brew, flatpak); flatpak.sh adds the Flathub remote
+  "$SELF_PATH"/install/flatpak.sh
+  echo "Installing bootstrap packages..."
+  mise bootstrap packages apply --yes || echo "WARNING: some bootstrap packages failed to install (see above)."
+  if [[ -n "$UPGRADE" ]]; then
+    mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
   fi
 fi
 
@@ -242,44 +261,11 @@ fi
 "$SELF_PATH"/install/1password.sh
 "$SELF_PATH"/install/kde-tiling.sh
 
-# Prompt setup - git-prompt-fallback and starship config
-cp "$SELF_PATH"/bin/git-prompt-fallback ~/bin/
-chmod +x ~/bin/git-prompt-fallback
-mkdir -p ~/.config
-ln -sf "$SELF_PATH"/starship.toml ~/.config/starship.toml
-
-# Tool configs (bat, ripgrep, lnav)
-mkdir -p ~/.config/bat
-mkdir -p ~/.config/ripgrep
-mkdir -p ~/.config/lnav
-ln -sf "$SELF_PATH"/config/bat/config ~/.config/bat/config
-ln -sf "$SELF_PATH"/config/ripgrep/config ~/.config/ripgrep/config
-ln -sf "$SELF_PATH"/config/lnav/config.json ~/.config/lnav/config.json
-
 # Alacritty terminal config (only if alacritty is installed)
 if command -v alacritty &>/dev/null; then
   mkdir -p ~/.config/alacritty
   ln -sf "$SELF_PATH"/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
 fi
-
-ln -sf "$SELF_PATH"/ackrc ~/.ackrc
-cp "$SELF_PATH"/golangci.yml ~/.golangci.yml
-
-ln -sf "$SELF_PATH"/bashrc ~/.bashrc
-ln -sf "$SELF_PATH"/bash_profile ~/.bash_profile
-ln -sf "$SELF_PATH"/bash_common.sh ~/.bash_common.sh
-
-cp "$SELF_PATH"/dataprinter ~/.dataprinter
-chmod 700 ~/.dataprinter
-
-ln -sf "$SELF_PATH"/perlcriticrc ~/.perlcriticrc
-ln -sf "$SELF_PATH"/perltidyrc ~/.perltidyrc
-ln -sf "$SELF_PATH"/profile ~/.profile
-ln -sf "$SELF_PATH"/screenrc ~/.screenrc
-ln -sf "$SELF_PATH"/tmux/tmux.conf ~/.tmux.conf
-ln -sf "$SELF_PATH"/tmux/tmux-default-layout ~/.tmux-default-layout
-ln -sf "$SELF_PATH"/tmux/tmux-three-win-layout ~/.tmux-three-win-layout
-ln -sf "$SELF_PATH"/psql/psqlrc ~/.psqlrc
 
 # i3 configs: always on the work laptop (Regolith), and on a personal box only
 # when i3 is actually installed. has_i3 rather than a session check, because the

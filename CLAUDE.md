@@ -21,7 +21,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 - Environment types via marker files in `$HOME`:
   - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), mise, vim
   - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, mise, xcape, vim
-  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools)
+  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools; mise only links the dotfiles)
   - `~/.remote-personal` → personal server, full tooling (mise, neovim, starship) but no vim, xcape, or gpgconf
 - Heuristic detection when no marker exists (graphical session → local, hostname contains "maxmind" → work)
 - `install.sh` auto-creates marker file on first run with diagnostic output
@@ -48,19 +48,20 @@ This symlinks configs to home directory, installs mise and its tools and package
 Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)
 
 ### Tool Management
-- **mise** installs CLI tools and runtimes everywhere except remote-work, which stays minimal. Personal and local-work machines use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
+- **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere except remote-work, which stays minimal (bashrc does not activate mise there). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
+- `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Links that depend on the environment or on what is installed (vim, i3, Regolith, alacritty, SSH, devcontainer) are still `ln -sf` in the installers
 - `config/mise/common.toml` → `~/.config/mise/conf.d/10-dotfiles.toml` (shared tool list); per-environment `mise.personal.toml` / `mise.work.toml` → `~/.config/mise/config.toml`, which wins on overlap (devcontainer links the work file into conf.d instead, beside the image's own config.toml)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; `http:` with the public releases feed for MaxMind's tools, whose org's SAML enforcement rejects the GitHub API token; asdf/vfox backends are disabled
 - Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr, `flatpak-user:` for LibreOffice), applied by `mise bootstrap packages apply`; entries whose manager is missing are skipped. `install/flatpak.sh` installs Flatpak and adds the Flathub remote, which mise does not do
 - Homebrew itself remains for neovim nightly (`install/nvim.sh`) and the `brew:` package entries; `cleanup.sh` offers to uninstall brew formulae mise replaced
-- Settings in `common.toml`: `lockfile = true` everywhere (work adds `locked = true`), `minimum_release_age = "7d"`, `self_update.auto = true`
+- Settings: `base.toml` has `minimum_release_age = "7d"`, `self_update.auto = true`, and the disabled backends; `common.toml` has `lockfile = true` (work adds `locked = true`)
 - `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
 
 ## File Relationships
 
 - `install.sh` → migrates old markers, auto-creates marker via heuristic, calls `install/vim.sh` (skipped for remote-personal) and `install/nvim.sh`
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection, installs vim-plug, symlinks vimrc
-- `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), symlinks init.lua, syncs lazy.nvim plugins
+- `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), syncs lazy.nvim plugins
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
 - `bashrc` activates mise before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
 - `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)

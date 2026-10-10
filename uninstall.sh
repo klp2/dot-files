@@ -46,11 +46,9 @@ echo "=== Removing shell config symlinks ==="
 remove_symlink_if_points_to_dotfiles ~/.bashrc
 remove_symlink_if_points_to_dotfiles ~/.bash_profile
 remove_symlink_if_points_to_dotfiles ~/.profile
-remove_symlink_if_points_to_dotfiles ~/.ackrc
 
 echo
 echo "=== Removing Perl config symlinks ==="
-remove_symlink_if_points_to_dotfiles ~/.perlcriticrc
 remove_symlink_if_points_to_dotfiles ~/.perltidyrc
 
 echo

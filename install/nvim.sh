@@ -21,11 +21,8 @@ if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal'
   fi
 fi
 
-# Link neovim config
-mkdir -p ~/.config/nvim
-ln -sf "$PREFIX/nvim/init.lua" ~/.config/nvim/init.lua
-
-# Run Lazy sync if nvim is available (install/update plugins)
+# Run Lazy sync if nvim is available (install/update plugins); install.sh has
+# already linked init.lua from base.toml
 if command -v nvim &>/dev/null; then
   echo "Syncing neovim plugins..."
   nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
