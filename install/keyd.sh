@@ -92,4 +92,4 @@ echo "keyd: installing $SRC -> $DEST (requires sudo)"
 sudo install -D -m 0644 "$SRC" "$DEST"
 sudo systemctl enable --now keyd
 sudo keyd reload || sudo systemctl restart keyd
-echo "keyd: applied. Tap Caps for Esc; hold Caps for Ctrl."
+echo "keyd: applied. Tap Caps for Esc; hold Caps for Ctrl; both Shifts toggle Caps Lock."

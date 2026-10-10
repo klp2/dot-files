@@ -68,18 +68,20 @@ if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'r
   alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
 fi
 
-# Keyboard remaps: X11 sessions only (local envtypes).
+# Keyboard remaps: X11 fallback for machines without keyd (local envtypes).
 # keyd works at the kernel layer and covers Wayland too, so wherever it is
-# running it owns the Caps remap and xcape must stay out of the way, or Caps
-# ends up double-bound. Session type is checked at runtime rather than by
-# envtype because this laptop alternates between GNOME/Wayland and i3/X11.
+# running it owns both the Caps remap and the both-Shift Caps Lock toggle (see
+# keyd/default.conf); xcape and setxkbmap must stay out of the way, or keys end
+# up double-bound. Session type is checked at runtime rather than by envtype
+# because this laptop alternates between GNOME/Wayland and i3/X11.
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
-  if [[ $platform == 'linux' && "$XDG_SESSION_TYPE" == "x11" ]]; then
+  if [[ $platform == 'linux' && "$XDG_SESSION_TYPE" == "x11" ]] &&
+    ! systemctl is-active --quiet keyd 2>/dev/null; then
     # Caps is remapped away, so recover capslock via both shift keys together
     if command -v setxkbmap &>/dev/null; then
       setxkbmap -option shift:both_capslock
     fi
-    if ! systemctl is-active --quiet keyd 2>/dev/null && command -v xcape &>/dev/null; then
+    if command -v xcape &>/dev/null; then
       xcape -e 'Control_L=Escape'
     fi
   fi
