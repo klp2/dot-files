@@ -241,10 +241,18 @@ mise bootstrap --only packages --yes || echo "WARNING: some bootstrap packages f
 if [[ -n "$UPGRADE" ]]; then
   mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
 fi
+# Repos (tpm) too, so a failed clone or pull doesn't stop the rest. Bootstrap
+# only clones a missing repo; update also fast-forwards the existing ones.
+echo "Updating bootstrap repos..."
+if [[ -n "$UPGRADE" ]]; then
+  mise bootstrap repos update --yes || echo "WARNING: some bootstrap repos failed to update (see above)."
+else
+  mise bootstrap repos apply --yes || echo "WARNING: some bootstrap repos failed to clone (see above)."
+fi
 # Files, services, links, and the final hooks (vim, neovim, 1Password, KDE
 # tiling). Tools were installed above, outside the lock.
 echo "Running mise bootstrap..."
-mise bootstrap --skip packages,tools --force-dotfiles --yes
+mise bootstrap --skip packages,repos,tools --force-dotfiles --yes
 
 # Alacritty terminal config (only if alacritty is installed)
 if command -v alacritty &>/dev/null; then
@@ -292,15 +300,6 @@ git submodule update
 # Install git hooks for this repo
 ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
 ln -sf ../../hooks/pre-push .git/hooks/pre-push
-
-LOCALCHECKOUT=~/.tmux/plugins/tpm
-if [ ! -d $LOCALCHECKOUT ]; then
-  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-else
-  pushd $LOCALCHECKOUT
-  git pull origin master
-  popd
-fi
 
 # Run cleanup for updates only (interactive, skip with --yes)
 if [[ "$INSTALL_MODE" == "update" && -z "$AUTO_YES" ]]; then

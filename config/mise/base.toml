@@ -19,6 +19,11 @@ self_update.auto = true
 [bootstrap.hooks]
 final = "~/dot-files/install/nvim.sh"
 
+# tmux plugin manager, for the plugins in tmux.conf. install.sh clones it and,
+# when upgrading, fast-forwards it.
+[bootstrap.repos."~/.tmux/plugins/tpm"]
+url = "https://github.com/tmux-plugins/tpm"
+
 # Deployed by `mise dot apply` and `mise bootstrap` in install.sh. A relative
 # source would resolve against conf.d, where this file is linked, so sources
 # spell out ~/dot-files. Links that depend on a runtime check rather than the
