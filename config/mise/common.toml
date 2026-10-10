@@ -21,6 +21,7 @@ lockfile_platforms = ["linux-x64"]
 [tools]
 ast-grep = "latest"
 bat = "latest"
+btop = "latest"
 delta = "latest"
 dust = "latest"
 eza = "latest"
@@ -39,13 +40,12 @@ lnav = "latest"
 neovim = "latest"
 node = "lts"
 ripgrep = "latest"
+# For the cargo: tools below; also the Rust toolchain itself
+rust = "latest"
 shellcheck = "latest"
 shfmt = "latest"
 starship = "latest"
 tlrc = "latest"
-# Pinned: later releases ship no Linux binaries (the registry's default,
-# cargo:tokei, builds from source and needs rust)
-"aqua:XAMPPRocky/tokei" = "12.1.2"
 tree-sitter = "latest"
 # Lets `mise completion bash` generate completions
 usage = "latest"
@@ -54,6 +54,26 @@ zoxide = "latest"
 "github:Wilfred/difftastic" = "latest"
 "github:bensadeh/tailspin" = "latest"
 "github:klp2/sr" = "latest"
+# TCP port checks, in place of telnet or nc: `tcping host port`
+"github:pouriyajamshidi/tcping" = { version = "latest", asset_pattern = "tcping-linux-amd64-static.tar.gz" }
+# Built from source: releases after 12.1.2 ship no Linux binaries. install.sh
+# loads rust's environment before the install pass that builds these.
+"cargo:tokei" = "latest"
+# conda-forge builds, for tools with no release binaries
+"conda:htop" = "latest"
+"conda:patch" = "latest"
+"conda:tig" = "latest"
+
+# 1Password CLI. aqua's entry can't list versions, so this reads them from
+# 1Password's release page like the MaxMind tools; the regex skips betas, which
+# have no Linux build. 1Password publishes no checksums (the zip carries a GPG
+# signature instead).
+[tools."http:op"]
+version = "latest"
+version_order = "semver"
+version_list_url = "https://app-updates.agilebits.com/product_history/CLI2"
+version_regex = 'pkg/v(\d+\.\d+\.\d+)/op_linux_amd64_v'
+url = "https://cache.agilebits.com/dist/1P/op2/pkg/v{{ version }}/op_linux_amd64_v{{ version }}.zip"
 
 # Settings for the tools above; base.toml has the ones every machine gets
 [env]

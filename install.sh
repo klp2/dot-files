@@ -189,6 +189,10 @@ if [[ $envtype != 'remote-work' ]]; then
   # the rest, and the next run retries it.
   echo "Installing mise tools..."
   MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+  # cargo: tools build only with rust's environment (RUSTUP_TOOLCHAIN) loaded,
+  # which `mise install` does not set up itself. Load it, so on a machine that
+  # just got rust above, the second install below builds what failed here.
+  eval "$(mise env -s bash)"
   # The lockfile pins "latest" tools to whatever resolved at first install,
   # so `mise install` alone never moves them forward.
   if [[ -n "$UPGRADE" ]]; then
@@ -226,6 +230,7 @@ golangci-lint golangci-lint completion bash
 goreleaser goreleaser completion bash
 just just --completions bash
 mise mise completion bash
+op op completion bash
 rg rg --generate complete-bash
 sqlc sqlc completion bash
 starship starship completions bash

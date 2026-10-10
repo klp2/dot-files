@@ -5,11 +5,27 @@ cmake = "latest"
 docker-cli = "latest"
 docker-compose = "latest"
 goreleaser = "latest"
-rust = "latest"
+# For ghidra, which needs a JDK 21
+java = "temurin-21"
 sqlc = "latest"
+# sqlite3
+sqlite = "latest"
 zellij = "latest"
 "github:rojo-rbx/rojo" = "latest"
 "npm:@google/gemini-cli" = "latest"
+# hb-shape, hb-view, hb-info
+"conda:harfbuzz" = "latest"
+
+# Ghidra's release zip has its launchers in two directories (ghidraRun at the
+# top, analyzeHeadless and pyghidraRun in support/), and bin_path takes one, so
+# postinstall links the three into bin/. They find their install through
+# readlink -f. bin_path stops mise's automatic strip of the zip's top directory.
+[tools."github:NationalSecurityAgency/ghidra"]
+version = "latest"
+asset_pattern = "ghidra_*_PUBLIC_*.zip"
+strip_components = 1
+bin_path = "bin"
+postinstall = 'mkdir -p "$MISE_TOOL_INSTALL_PATH/bin" && for f in ghidraRun support/analyzeHeadless support/pyghidraRun; do ln -sf "../$f" "$MISE_TOOL_INSTALL_PATH/bin/"; done'
 
 # MaxMind's GitHub org enforces SAML, which rejects the token mise sends to the
 # GitHub API, so these use the http backend instead: versions come from the

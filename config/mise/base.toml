@@ -38,6 +38,10 @@ gd = "git diff"
 gs = "git status"
 # Local branches, least recently committed first
 lgb = "git for-each-ref --sort=committerdate refs/heads/ --format='%(committerdate:short) %(authorname) %(refname:short)'"
+# Local branches merged into HEAD (not the current one or main), and deleting
+# them with the safe `git branch -d`. Squash-merged branches don't show.
+show-merged-branches = 'git branch --no-color --merged | grep -v "\*" | grep -v main'
+delete-merged-branches = "show-merged-branches | xargs -n 1 git branch -d"
 # Integer to dotted IPv4 and back
 intip = "perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 ipint = "perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
