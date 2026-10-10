@@ -9,6 +9,10 @@ disable_backends = ["asdf", "vfox"]
 # Record exact download URLs and checksums in ~/.config/mise/mise.lock;
 # install.sh moves it forward on upgrade
 lockfile = true
+# Each machine locks only for itself; mise adds the current platform to this
+# list. Without it, mise locks all 7 of its default platforms (macOS and
+# Windows too), which takes most of install.sh's lock step
+lockfile_platforms = ["linux-x64"]
 # Skip releases younger than this, so a compromised release has time to be
 # caught and pulled before it lands here
 minimum_release_age = "7d"
