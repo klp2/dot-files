@@ -417,7 +417,7 @@ autocmd FileType yaml :setlocal sw=2 ts=2 sts=2
 " Treat Mojo templates (mostly) like HTML
 autocmd FileType html.epl setlocal sw=2 ts=2 sts=2
 
-" Don't override iTerm2's window transparency
+" Keep the terminal's own background (and any transparency)
 hi Normal ctermbg=none
 
 " Accelerated up and down on wrapped lines

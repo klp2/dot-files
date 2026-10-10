@@ -42,7 +42,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 - Vi mode enabled (`set -o vi`)
 - Custom prompt function `cynprompt` with git status integration via `bin/git-prompt`
 - Persistent history to `~/.persistent_history`
-- Heavy Perl tooling: plenv, perltidy, perlcritic
+- Heavy Perl tooling: perltidy, perlcritic
 
 ### Git Aliases (set by `git-config.sh`)
 Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)

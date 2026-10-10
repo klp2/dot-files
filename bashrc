@@ -19,7 +19,7 @@ if [[ $envtype == 'devcontainer-work' ]] && ! infocmp "$TERM" &>/dev/null; then
   export TERM=xterm-256color
 fi
 # COLORTERM is not forwarded over the devpod ssh hop
-: "${COLORTERM:=truecolor}"
+export COLORTERM="${COLORTERM:-truecolor}"
 
 # Remind to update dotfiles weekly
 check_dotfiles_update_reminder() {
@@ -48,7 +48,6 @@ fi
 
 alias vi=nvim
 export EDITOR=nvim
-export me=$USER
 
 # use vim mappings to move around the command line
 set -o vi
@@ -60,12 +59,29 @@ pathadd() {
   fi
 }
 
-# Brew PATH and alias (all envtypes except remote-work)
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' || $envtype == 'devcontainer-work' ]]; then
-  if [[ $platform == 'linux' && -d "/home/linuxbrew/" ]]; then
-    pathadd "/home/linuxbrew/.linuxbrew/bin/"
-  fi
+# PATH, set up early: the 1Password block below needs op (from brew), and
+# everything that checks for fzf, bat, eza, starship, or zoxide needs mise.
+# pathadd prepends, so these run from lowest priority to highest; mise
+# activate then puts its tools ahead of all of them.
+if [[ $envtype != 'remote-work' ]]; then
+  pathadd "/home/linuxbrew/.linuxbrew/bin"
   alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
+fi
+pathadd "/usr/local/sbin"
+pathadd "/usr/local/bin"
+pathadd "$HOME/bin"
+pathadd "$HOME/.cargo/bin"
+pathadd "$HOME/.opencode/bin"
+pathadd "$HOME/.local/bin"
+
+# mise - CLI tools and runtimes (config in ~/dot-files/config/mise)
+if command -v mise &>/dev/null; then
+  # activate applies the tool PATH right away and again from a prompt hook,
+  # and puts the shims behind it as the fallback for anything that does not
+  # source this file: a git hook inherits PATH from whatever shell ran git.
+  # Needed by gaem, whose mise.toml pins gh and jq for scripts that run
+  # non-interactively.
+  eval "$(mise activate bash)"
 fi
 
 # Keyboard remaps: X11 fallback for machines without keyd (local envtypes).
@@ -237,31 +253,23 @@ if [[ $- == *i* ]]; then
   bind '"\e[B": history-search-forward'
 fi
 
-# sets the prompt to have the hostname, time, loginname@tty, directory and prompt
-# on the next line.. see man bash(1) under PROMPTING
-PS1='a\033[00;34m\332\304\260\033[01;34m\260\261\033[01;37;44m \h \033[01;34;40m\261\260\033[00;34m\260\304(\033[01;37m\t\033[00;34m)-(\033[01;37m\u\033[00;34m@\033[01;37m$(basename `tty`)\033[00;34m)\304(\033[01;37m\w/\033[00;34m)\304-\n\300 \033[01;37m\$ \033[00;37;40m'
-
-# uses ls options (colors, formatting)
-LS_OPTIONS="--color=auto"
-LSCOLORS="ExFxCxDxBxEGEDABAGACAD"
-
 # search history (use rg for ripgrep)
 hist() { history | rg "$1"; }
 
 # check tty usage, sorting by tty's
 # shellcheck disable=SC2142  # \$7 is awk field reference, not bash positional param
-alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort +6'
+alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort -k7'
 
-alias time='NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
-
-# run ls with the specified colors
-alias ls="ls $LS_OPTIONS"
+# Verbose resource usage (peak RSS, page faults, context switches) written to
+# time.output.<epoch>. Not named time: that would shadow the bash keyword,
+# which can time functions, builtins, and whole pipelines.
+alias vtime='NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
 
 # checks the count on given process name
 alias pscnt='echo "The current process count is: $(ps ax|wc -l)"'
 
-# lists all the process sorted by pid/cputime
-alias allps='ps auxww|sort +1 -n|more'
+# lists all the process sorted by pid
+alias allps='ps auxww|sort -k2,2n|more'
 
 # lists load averages:
 # shellcheck disable=SC2142  # \$1 \$2 \$3 are awk field references, not bash positional params
@@ -272,7 +280,6 @@ tarcp() { tar cvf - . | (cd "$1" && tar xvf -); }
 
 alias cdr='cd $(git root)'
 alias delete-merged-branches='show-merged-branches | xargs -n 1 git branch -d'
-alias ll='ls -alhG'
 alias ps='ps auxw'
 alias show-merged-branches='git branch --no-color --merged | grep -v "\*" | grep -v main'
 
@@ -312,28 +319,6 @@ mssh() {
 # integer to ip address and back
 alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
 alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
-
-export COLORTERM LS_OPTIONS LSCOLORS PATH PS1
-
-pathadd "/usr/local/sbin"
-pathadd "/usr/local/bin"
-pathadd "$HOME/local/bin"
-pathadd "$HOME/bin"
-if [[ -d $HOME/.cargo ]]; then
-  pathadd "$HOME/.cargo/bin"
-fi
-
-# mise - CLI tools and runtimes (config in ~/dot-files/config/mise). Activated
-# before anything below that checks for fzf, bat, eza, starship, or zoxide.
-pathadd "$HOME/.local/bin"
-if command -v mise &>/dev/null; then
-  # activate applies the tool PATH right away and again from a prompt hook,
-  # and puts the shims behind it as the fallback for anything that does not
-  # source this file: a git hook inherits PATH from whatever shell ran git.
-  # Needed by gaem, whose mise.toml pins gh and jq for scripts that run
-  # non-interactively.
-  eval "$(mise activate bash)"
-fi
 
 # Modern CLI tool configs
 if [[ -f "$HOME/.config/ripgrep/config" ]]; then
@@ -401,7 +386,11 @@ fi
 # text when piped, and eza only changes how columns are rendered. Never parse
 # those columns in a script - use stat/find -printf for machine-readable output.
 command -v bat &>/dev/null && alias cat='bat --paging=never'
-command -v eza &>/dev/null && alias ls='eza' && alias ll='eza -la --git' && alias lt='eza -la --git --sort oldest' && alias tree='eza --tree'
+if command -v eza &>/dev/null; then
+  alias ls='eza' && alias ll='eza -la --git' && alias lt='eza -la --git --sort oldest' && alias tree='eza --tree'
+else
+  alias ls='ls --color=auto' && alias ll='ls -alh'
+fi
 command -v tspin &>/dev/null && alias tf='tspin -f'
 
 # rg and fd are NOT drop-in replacements - they reject standard syntax outright
@@ -418,34 +407,13 @@ function diffcol() {
   awk -v col="$1" 'NR==FNR{c[col]++;next};c[col] == 0' "$2" "$3"
 }
 
-function testme() {
-  awk -v col="$1" -v col2="$2" -v col3="$3" '{ print col }'
-  return 0
-}
-
-# If the first arg to "vi" contains "::" then assume it's a Perl module that's
-# either in lib or t/lib
-function vi() {
-  local vi=$(type -fp vim)
-  string=$1
-  if [[ ! $string == *"::"* ]]; then
-    $vi "$@"
-    return 1
-  fi
-
-  string=$(sed 's/::/\//g;' <<<"$1")
-  string="lib/$string.pm"
-  if [[ ! -e $string ]]; then
-    string="t/$string"
-  fi
-  $vi "$string"
-}
-
 [ -f "$HOME/.local-bashrc" ] && source "$HOME/.local-bashrc"
 
 # clean up PATH
 # http://linuxg.net/oneliners-for-removing-the-duplicates-in-your-path/
 PATH=$(echo -n "$PATH" | awk -v RS=: -v ORS=: '!arr[$0]++')
+# ORS leaves a trailing colon, an empty entry that puts the cwd on PATH
+PATH=${PATH%:}
 
 # lazy add ssh keys
 if [[ -d "$HOME/.ssh/keys" ]]; then
@@ -502,7 +470,6 @@ else
   cynprompt
 fi
 
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 # bash-completion loads completions on demand: git's, and the ones install.sh
 # generates for mise tools in ~/.local/share/bash-completion/completions
 if [[ $- == *i* && -f /usr/share/bash-completion/bash_completion ]]; then
@@ -518,21 +485,5 @@ if [ -d /home/linuxbrew/.linuxbrew/etc/bash_completion.d ]; then
   done
 fi
 
-# pyenv - only if installed
-if [ -d "$HOME/.pyenv" ]; then
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init -)"
-fi
-
-# plenv - only if installed
-if command -v plenv &>/dev/null; then
-  eval "$(plenv init -)"
-fi
-
 # zoxide - must be at end of bashrc
 command -v zoxide &>/dev/null && eval "$(zoxide init bash)"
-export PATH="$HOME/.local/bin:$PATH"
-
-# opencode (only where installed)
-[[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
