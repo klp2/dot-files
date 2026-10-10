@@ -4,6 +4,7 @@
 #   start-dev claude-b 1619   # in the worktree for issue #1619
 #   start-dev codex 1619      # same, with the main checkout also writable
 #   start-dev claude-b        # in the main checkout
+#   start-dev claude 1619 'Check the status of issue #1619.'   # opening prompt
 #
 # Machine-local on purpose (#1619). The launchers it execs live outside the
 # repository too, and the repository half — scripts/new-worktree.sh — is what
@@ -28,9 +29,10 @@ set -uo pipefail
 gaem="${GAEM_MAIN_CHECKOUT:-$HOME/code/cc/games/gaem}"
 
 usage() {
-  printf 'usage: %s <launcher> [issue-number]\n' "${0##*/}" >&2
+  printf 'usage: %s <launcher> [issue-number [prompt]]\n' "${0##*/}" >&2
   printf '  launcher      codex, claude, claude-a or claude-b\n' >&2
   printf '  issue-number  root the session in that issue'"'"'s worktree\n' >&2
+  printf '  prompt        the session'"'"'s opening message\n' >&2
   printf '  GAEM_MAIN_CHECKOUT overrides %s\n' "$gaem" >&2
 }
 
@@ -59,7 +61,7 @@ fi
 
 issue="$1"
 shift
-[ "$#" -eq 0 ] || {
+[ "$#" -le 1 ] || {
   usage
   exit 2
 }
@@ -85,6 +87,6 @@ if [ "$launcher" = codex ]; then
   # the main checkout. Keep the issue worktree primary while permitting those
   # two repository-required seams.
   printf 'start-dev: Codex session name: /rename %s\n' "$session_name" >&2
-  exec "$launcher" --add-dir "$gaem"
+  exec "$launcher" --add-dir "$gaem" "$@"
 fi
-exec "$launcher" --name "$session_name"
+exec "$launcher" --name "$session_name" "$@"

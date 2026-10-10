@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Open gaem issue #N's worktree as its own herdr workspace and start an agent
-# in it, so the sidebar shows the issue's branch and git status:
+# in it, asking it to check the issue's status. The sidebar then shows the
+# issue's branch and git status:
 #
 #   hdev 1818            # claude
 #   hdev 1818 codex      # any start-dev launcher
@@ -38,8 +39,10 @@ issue="$1"
 launcher="${2:-claude}"
 [[ $issue =~ ^[0-9]+$ ]] || die "issue number must be digits (got: $issue)"
 
+prompt="Check the status of issue #$issue."
+
 if [ "${HERDR_ENV:-}" != 1 ]; then
-  exec start-dev "$launcher" "$issue"
+  exec start-dev "$launcher" "$issue" "$prompt"
 fi
 
 command -v herdr >/dev/null 2>&1 || die 'herdr not found'
@@ -61,5 +64,8 @@ fi
 pane="$(jq -r '.result.root_pane.pane_id // empty' <<<"$opened")"
 [ -n "$pane" ] || die "herdr opened the workspace but returned no root pane"
 
-herdr pane run "$pane" "start-dev $launcher $issue" >/dev/null ||
+herdr pane run "$pane" "$(printf 'start-dev %q %q %q' "$launcher" "$issue" "$prompt")" >/dev/null ||
   die "could not start $launcher in pane $pane"
+
+printf 'hdev: #%s opened in workspace %s (%s); %s started there\n' \
+  "$issue" "$(jq -r '.result.workspace.workspace_id' <<<"$opened")" "$worktree" "$launcher" >&2
