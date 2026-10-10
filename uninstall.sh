@@ -42,35 +42,30 @@ remove_symlink_if_points_to_dotfiles() {
   fi
 }
 
-echo "=== Removing shell config symlinks ==="
-remove_symlink_if_points_to_dotfiles ~/.bashrc
-remove_symlink_if_points_to_dotfiles ~/.bash_profile
-remove_symlink_if_points_to_dotfiles ~/.profile
+echo "=== Removing links and copies that mise deployed ==="
+# Everything in base.toml's [dotfiles] and the files it links in, including the
+# ~/.dataprinter copy and the SSH Include line. Runs while that config is still
+# in place, since mise reads it to find its targets. --force because mise
+# refuses to remove a line edit (it carries no ownership marker) or a copy
+# changed since it was deployed.
+if command -v mise &>/dev/null; then
+  if [[ "$DRY_RUN" == true ]]; then
+    mise dotfiles unapply --force --dry-run
+  else
+    mise dotfiles unapply --force || echo "WARNING: mise could not remove every deployed file (see above)."
+  fi
+else
+  echo "WARNING: mise not found; the links in config/mise/base.toml stay in place."
+fi
 
 echo
-echo "=== Removing Perl config symlinks ==="
-remove_symlink_if_points_to_dotfiles ~/.perltidyrc
-
-echo
-echo "=== Removing vim/neovim config ==="
-remove_symlink_if_points_to_dotfiles ~/.vimrc
+echo "=== Removing links made by the installers ==="
 remove_symlink_if_points_to_dotfiles ~/.local_vimrc
-remove_symlink_if_points_to_dotfiles ~/.config/nvim/init.lua
-
-echo
-echo "=== Removing tmux config symlinks ==="
-remove_symlink_if_points_to_dotfiles ~/.tmux.conf
-remove_symlink_if_points_to_dotfiles ~/.tmux-default-layout
-remove_symlink_if_points_to_dotfiles ~/.tmux-three-win-layout
-
-echo
-echo "=== Removing other config symlinks ==="
-remove_symlink_if_points_to_dotfiles ~/.screenrc
-remove_symlink_if_points_to_dotfiles ~/.psqlrc
 remove_symlink_if_points_to_dotfiles ~/.config/i3
 remove_symlink_if_points_to_dotfiles ~/.config/i3status
-remove_symlink_if_points_to_dotfiles ~/.config/devcontainer-local/startup.sh
-remove_symlink_if_points_to_dotfiles ~/.ssh/config.d/1password.conf
+remove_symlink_if_points_to_dotfiles ~/.config/alacritty/alacritty.toml
+remove_symlink_if_points_to_dotfiles ~/.config/regolith3/Xresources
+remove_symlink_if_points_to_dotfiles ~/.config/regolith3/i3status-rust/config.toml
 
 echo
 echo "=== Removing mise config ==="
@@ -81,10 +76,8 @@ remove_if_exists ~/.config/mise/miserc.toml
 
 echo
 echo "=== Removing copied files ==="
-remove_if_exists ~/.dataprinter
 remove_if_exists ~/bin/vim_file_template
 remove_if_exists ~/bin/git-prompt
-remove_if_exists ~/.vim/after/syntax/perl/heredoc-sql.vim
 
 echo
 echo "=== The following require manual confirmation ==="
