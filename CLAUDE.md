@@ -94,6 +94,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 - Keybindings are a clean personal port of `i3/config`, written to `kglobalshortcutsrc` via `kwriteconfig6` (KDE has no hand-editable rc); edits must be made with the kglobalaccel daemon quiescent, and a re-login activates them
 - `install/kde-tiling.sh` runs only on local-personal (a hook in `config.local-personal.toml`) and still self-gates on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland, since the personal laptop also has GNOME and i3 sessions
 - Local multiplexer is Zellij (installed by mise, pure defaults); tmux stays the remote/SSH multiplexer
+- Agent sessions run in herdr (installed outside mise in `~/.local/bin`): `config/herdr/config.toml` is a desktop base.toml link (prefix `ctrl+space`, system notifications). `bin/start-dev` and `bin/hdev` (local-personal links into `~/bin`) launch gaem agents in an issue worktree; `hdev` first opens that worktree as its own herdr workspace
 - Design/plan: `docs/superpowers/specs/` and `docs/superpowers/plans/`
 
 ### What Works Without Changes

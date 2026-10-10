@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Open gaem issue #N's worktree as its own herdr workspace and start an agent
+# in it, so the sidebar shows the issue's branch and git status:
+#
+#   hdev 1818            # claude
+#   hdev 1818 codex      # any start-dev launcher
+#
+# The worktree comes from the repo's scripts/new-worktree.sh, and start-dev
+# launches the agent in the workspace's first pane. If the worktree is already
+# open in a workspace, it focuses that instead of starting a second agent.
+# Outside herdr it falls through to start-dev.
+set -uo pipefail
+
+gaem="${GAEM_MAIN_CHECKOUT:-$HOME/code/cc/games/gaem}"
+
+usage() {
+  printf 'usage: %s <issue-number> [launcher]\n' "${0##*/}" >&2
+  printf '  launcher  a start-dev launcher (default: claude)\n' >&2
+}
+
+die() {
+  printf 'hdev: %s\n' "$1" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  '' | -h | --help)
+    usage
+    exit 2
+    ;;
+esac
+[ "$#" -le 2 ] || {
+  usage
+  exit 2
+}
+
+issue="$1"
+launcher="${2:-claude}"
+[[ $issue =~ ^[0-9]+$ ]] || die "issue number must be digits (got: $issue)"
+
+if [ "${HERDR_ENV:-}" != 1 ]; then
+  exec start-dev "$launcher" "$issue"
+fi
+
+command -v herdr >/dev/null 2>&1 || die 'herdr not found'
+command -v jq >/dev/null 2>&1 || die 'jq not found — it parses the herdr JSON'
+command -v "$launcher" >/dev/null 2>&1 || die "no such launcher on PATH: $launcher"
+
+worktree="$(cd "$gaem" && ./scripts/new-worktree.sh "$issue")" ||
+  die "new-worktree.sh failed for #$issue — nothing opened"
+
+opened="$(herdr worktree open --cwd "$gaem" --path "$worktree" --label "$issue" --focus)" ||
+  die "herdr could not open $worktree"
+
+if [ "$(jq -r '.result.already_open' <<<"$opened")" = true ]; then
+  printf 'hdev: #%s is already open in workspace %s; focused it\n' \
+    "$issue" "$(jq -r '.result.workspace.workspace_id' <<<"$opened")" >&2
+  exit 0
+fi
+
+pane="$(jq -r '.result.root_pane.pane_id // empty' <<<"$opened")"
+[ -n "$pane" ] || die "herdr opened the workspace but returned no root pane"
+
+herdr pane run "$pane" "start-dev $launcher $issue" >/dev/null ||
+  die "could not start $launcher in pane $pane"

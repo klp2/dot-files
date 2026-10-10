@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Start an agent session in the right directory for the work:
+#
+#   start-dev claude-b 1619   # in the worktree for issue #1619
+#   start-dev codex 1619      # same, with the main checkout also writable
+#   start-dev claude-b        # in the main checkout
+#
+# Machine-local on purpose (#1619). The launchers it execs live outside the
+# repository too, and the repository half — scripts/new-worktree.sh — is what
+# encodes the conventions and stays under review.
+#
+# With an issue number the session roots in the worktree, which is the only
+# thing that gives gopls a workspace containing the files being edited and the
+# only thing that puts the six gitignored hookify guardrails on the hook
+# process's cwd (CLAUDE.md § gopls diagnostics in linked worktrees).
+#
+# Without one it roots in the main checkout, which is where work that has no
+# issue belongs: the journal, the three changelogs, docs/release/readiness.md,
+# intake, and release prep are all direct-to-main or main-checkout work.
+#
+# Issue selection stays out of this deliberately. AGENTS.md § Selecting the
+# next issue ranks by tier, skips any milestone with live WIP elsewhere in it,
+# and reads blockedBy state — a shell script can run those queries but cannot
+# make those calls, and encoding half of them would produce a launcher that
+# looks like it picks correctly.
+set -uo pipefail
+
+gaem="${GAEM_MAIN_CHECKOUT:-$HOME/code/cc/games/gaem}"
+
+usage() {
+  printf 'usage: %s <launcher> [issue-number]\n' "${0##*/}" >&2
+  printf '  launcher      codex, claude, claude-a or claude-b\n' >&2
+  printf '  issue-number  root the session in that issue'"'"'s worktree\n' >&2
+  printf '  GAEM_MAIN_CHECKOUT overrides %s\n' "$gaem" >&2
+}
+
+die() {
+  printf 'start-dev: %s\n' "$1" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  '' | -h | --help)
+    usage
+    exit 2
+    ;;
+esac
+
+launcher="$1"
+shift
+command -v "$launcher" >/dev/null 2>&1 || die "no such launcher on PATH: $launcher"
+
+[ -d "$gaem" ] || die "no checkout at $gaem — set GAEM_MAIN_CHECKOUT"
+
+if [ "$#" -eq 0 ]; then
+  cd "$gaem" || die "cannot cd to $gaem"
+  exec "$launcher"
+fi
+
+issue="$1"
+shift
+[ "$#" -eq 0 ] || {
+  usage
+  exit 2
+}
+[[ $issue =~ ^[0-9]+$ ]] || die "issue number must be digits (got: $issue)"
+
+# Run it FROM $gaem, not merely by its path. new-worktree.sh resolves the
+# checkout it operates on with `git rev-parse --git-common-dir` against its own
+# cwd, so invoking it by absolute path from somewhere else picks the repository
+# the caller happens to be standing in. Caught running start-dev with
+# GAEM_MAIN_CHECKOUT pointed at a fixture: it re-attached the real worktree.
+#
+# It prints the absolute worktree path on stdout and everything else on stderr,
+# so the diagnostics stay visible while this captures the path.
+worktree="$(cd "$gaem" && ./scripts/new-worktree.sh "$issue")" ||
+  die "new-worktree.sh failed for #$issue — nothing launched"
+
+[ -d "$worktree" ] || die "new-worktree.sh printed a path that is not a directory: $worktree"
+
+cd "$worktree" || die "cannot cd to $worktree"
+session_name=${worktree##*/}
+if [ "$launcher" = codex ]; then
+  # The worktree's shared Git metadata and append-only coord channel live in
+  # the main checkout. Keep the issue worktree primary while permitting those
+  # two repository-required seams.
+  printf 'start-dev: Codex session name: /rename %s\n' "$session_name" >&2
+  exec "$launcher" --add-dir "$gaem"
+fi
+exec "$launcher" --name "$session_name"

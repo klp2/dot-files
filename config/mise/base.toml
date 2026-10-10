@@ -112,3 +112,18 @@ variants = [{ profile = "local-work" }]
 [dotfiles."~/.ssh/config.d/1password.conf"]
 source = "~/dot-files/ssh/1password.conf"
 variants = [{ profile = "desktop" }]
+
+# herdr, the agent-aware multiplexer on local desktops
+[dotfiles."~/.config/herdr/config.toml"]
+source = "~/dot-files/config/herdr/config.toml"
+variants = [{ profile = "desktop" }]
+
+# gaem launchers: start-dev roots an agent in an issue's worktree, and hdev
+# opens that worktree as its own herdr workspace first
+[dotfiles."~/bin/start-dev"]
+source = "~/dot-files/bin/start-dev"
+variants = [{ profile = "local-personal" }]
+
+[dotfiles."~/bin/hdev"]
+source = "~/dot-files/bin/hdev"
+variants = [{ profile = "local-personal" }]

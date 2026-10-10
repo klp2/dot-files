@@ -1,0 +1,23 @@
+# herdr (https://herdr.dev). `herdr --default-config` prints every option;
+# `herdr config check` validates this file and `prefix+shift+r` reloads it.
+onboarding = false
+
+[keys]
+# Caps (Ctrl) + thumb; unused by Claude Code, Codex, vim and readline, and
+# distinct from the remote tmux prefix (C-a)
+prefix = "ctrl+space"
+next_agent = "prefix+a"
+previous_agent = "prefix+shift+a"
+focus_agent = "prefix+alt+1..9"
+
+[theme]
+name = "dracula"
+auto_switch = false
+
+[ui]
+agent_panel_sort = "priority"
+show_agent_labels_on_pane_borders = true
+
+[ui.toast]
+# KDE desktop notifications, seen even when the terminal is not focused
+delivery = "system"
