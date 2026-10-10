@@ -12,6 +12,10 @@ lockfile = true
 # Skip releases younger than this, so a compromised release has time to be
 # caught and pulled before it lands here
 minimum_release_age = "7d"
+# Between install.sh runs, mise updates itself (checking at most weekly, and
+# honoring minimum_release_age) before an interactive command. Standalone
+# installs only; a packaged mise such as the devcontainer image's cannot.
+self_update.auto = true
 
 # Machine-wide installs through the host's package managers; an entry whose
 # manager is missing (no brew or flatpak in the devcontainer) is skipped

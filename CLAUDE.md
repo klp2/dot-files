@@ -12,7 +12,7 @@ This is a personal dotfiles repository that manages configuration for bash, vim,
 ./install.sh
 ```
 
-This symlinks configs to home directory, runs vim-plug installation, sets up git configuration, and installs TPM for tmux. Migrates old marker files and creates a new one if needed via heuristic detection.
+This symlinks configs to home directory, installs mise and its tools and packages, runs vim-plug installation, sets up git configuration, and installs TPM for tmux. Migrates old marker files and creates a new one if needed via heuristic detection.
 
 ## Key Architecture Decisions
 
@@ -53,7 +53,7 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; `http:` with the public releases feed for MaxMind's tools, whose org's SAML enforcement rejects the GitHub API token; asdf/vfox backends are disabled
 - Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr, `flatpak-user:` for LibreOffice), applied by `mise bootstrap packages apply`; entries whose manager is missing are skipped. `install/flatpak.sh` installs Flatpak and adds the Flathub remote, which mise does not do
 - Homebrew itself remains for neovim nightly (`install/nvim.sh`) and the `brew:` package entries; `cleanup.sh` offers to uninstall brew formulae mise replaced
-- Settings in `common.toml`: `lockfile = true` everywhere (work adds `locked = true`), `minimum_release_age = "7d"`
+- Settings in `common.toml`: `lockfile = true` everywhere (work adds `locked = true`), `minimum_release_age = "7d"`, `self_update.auto = true`
 - `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
 
 ## File Relationships
@@ -62,7 +62,7 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection, installs vim-plug, symlinks vimrc
 - `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), symlinks init.lua, syncs lazy.nvim plugins
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
-- `bashrc` sources `~/.local-bashrc` at end (NVM lazy-loaded for fast shell startup)
+- `bashrc` activates mise before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
 - `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)
 - `uninstall.sh` reverts changes made by install.sh
 
@@ -73,7 +73,7 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Package Management
 - **DO NOT use `dnf install`** - the base system is read-only
 - **System packages**: Use `rpm-ostree install <pkg>` (requires reboot to apply)
-- **User-space tools**: Use mise (see Tool Management below); Homebrew only for what mise can't provide
+- **User-space tools**: Use mise (see Tool Management above); Homebrew only for what mise can't provide
 - **Applications**: Prefer Flatpaks
 - **Development environments**: Consider distrobox containers
 
