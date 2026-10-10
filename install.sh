@@ -158,14 +158,15 @@ if ! mise dotfiles --help &>/dev/null; then
   echo "ERROR: linking the dotfiles needs a mise with 'mise dotfiles'; rerun once it is installed."
   exit 1
 fi
+# base.toml before self-update, which reads its minimum_release_age
+mkdir -p ~/.config/mise/conf.d
+ln -sf "$SELF_PATH"/config/mise/base.toml ~/.config/mise/conf.d/05-base.toml
 if [[ -n "$UPGRADE" && -x ~/.local/bin/mise ]]; then
   mise self-update --yes || true
 fi
 
 # The links go first: install/nvim.sh needs init.lua in place to sync plugins.
 # --force replaces whatever is at a target, as `ln -sf` did.
-mkdir -p ~/.config/mise/conf.d
-ln -sf "$SELF_PATH"/config/mise/base.toml ~/.config/mise/conf.d/05-base.toml
 if [[ "$SELF_PATH" != "$(cd -P ~/dot-files 2>/dev/null && pwd -P)" ]]; then
   echo "WARNING: base.toml links to ~/dot-files, not this checkout ($SELF_PATH)."
 fi
