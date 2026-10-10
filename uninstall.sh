@@ -69,6 +69,15 @@ remove_symlink_if_points_to_dotfiles ~/.screenrc
 remove_symlink_if_points_to_dotfiles ~/.psqlrc
 remove_symlink_if_points_to_dotfiles ~/.config/i3
 remove_symlink_if_points_to_dotfiles ~/.config/i3status
+remove_symlink_if_points_to_dotfiles ~/.config/devcontainer-local/startup.sh
+remove_symlink_if_points_to_dotfiles ~/.ssh/config.d/1password.conf
+
+echo
+echo "=== Removing mise config ==="
+for f in ~/.config/mise/conf.d/*.toml ~/.config/mise/config.*.toml; do
+  remove_symlink_if_points_to_dotfiles "$f"
+done
+remove_if_exists ~/.config/mise/miserc.toml
 
 echo
 echo "=== Removing copied files ==="

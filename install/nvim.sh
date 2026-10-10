@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# neovim nightly and lazy.nvim plugins. A final hook in config/mise/base.toml,
+# so it runs on every machine after the links and tools are in place.
 
 set -eu -o pipefail
 
@@ -21,7 +23,7 @@ if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal'
   fi
 fi
 
-# Run Lazy sync if nvim is available (install/update plugins); install.sh has
+# Run Lazy sync if nvim is available (install/update plugins); bootstrap has
 # already linked init.lua from base.toml
 if command -v nvim &>/dev/null; then
   echo "Syncing neovim plugins..."

@@ -14,10 +14,6 @@ export IS_MM
 # represent that, so anything depending on the desktop, the session type, or an
 # installed binary must be gated on these runtime predicates instead of $envtype.
 
-is_local_desktop() {
-  [ -f "$HOME/.local-personal" ] || [ -f "$HOME/.local-work" ]
-}
-
 is_local_personal() {
   [ -f "$HOME/.local-personal" ]
 }

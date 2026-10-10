@@ -1,0 +1,44 @@
+# Bootstrap steps for the local machines (local-work, local-personal), loaded
+# when miserc.toml selects the "desktop" env. base.toml links this into
+# ~/.config/mise/ and holds their links as variants. Hooks run on every
+# `mise bootstrap`, so each script must be safe to repeat.
+
+[bootstrap.hooks]
+# Before packages: the flatpak-user entries need the Flathub remote, and keyd
+# must be installed before the services step enables it
+pre-packages = ["~/dot-files/install/flatpak.sh", "~/dot-files/install/keyd.sh"]
+final = ["~/dot-files/install/1password.sh", "~/dot-files/install/vim.sh"]
+
+# Caps=Esc(tap)/Ctrl(hold). Written even before keyd is layered on Fedora
+# Atomic, so the remap is live after the reboot that brings keyd in.
+[bootstrap.directories."/etc/keyd"]
+owner = "root"
+group = "root"
+mode = "0755"
+
+[bootstrap.files."/etc/keyd/default.conf"]
+source = "~/dot-files/keyd/default.conf"
+owner = "root"
+group = "root"
+mode = "0644"
+notify = ["keyd"]
+
+[bootstrap.services.keyd]
+state = "running"
+
+# The SSH fragment linked by base.toml. The Include must precede every Host
+# block: ssh scopes a bare Include to whichever Host section encloses it, so
+# appending would bind the fragment to the last host. An edit entry takes no
+# variants, hence here rather than in base.toml.
+[dotfiles]
+"~/.ssh/config/dotfiles-include" = { line = "Include ~/.ssh/config.d/*.conf", position = "prepend" }
+
+# ssh refuses a config that others can write to
+[bootstrap.directories."~/.ssh"]
+mode = "0700"
+
+[bootstrap.directories."~/.ssh/config.d"]
+mode = "0700"
+
+[bootstrap.files."~/.ssh/config"]
+mode = "0600"

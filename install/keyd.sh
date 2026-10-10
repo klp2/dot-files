@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Install the keyd Caps=Esc(tap)/Ctrl(hold) remap on local desktops.
+# Install keyd, for the Caps=Esc(tap)/Ctrl(hold) remap on local desktops. A
+# pre-packages hook in config/mise/config.desktop.toml; mise itself writes
+# /etc/keyd/default.conf and keeps the service running.
 #
 # keyd operates at the kernel evdev layer, so unlike xcape it works under
 # Wayland as well as X11 and in gamescope. That is what lets one config serve
@@ -12,13 +14,6 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=/dev/null
 source "$REPO_DIR/bash_functions.sh"
 
-if ! is_local_desktop; then
-  echo "keyd: skipping (not a local desktop)"
-  exit 0
-fi
-
-SRC="$REPO_DIR/keyd/default.conf"
-DEST="/etc/keyd/default.conf"
 KEYD_VERSION="${KEYD_VERSION:-v2.6.0}"
 
 # Fedora Atomic: keyd is not in the base repos, and layering needs a reboot, so
@@ -33,7 +28,7 @@ layer it (needs a reboot to apply). alacritty IS in the base repos:
     sudo curl -fsSL -o /etc/yum.repos.d/_copr_alternateved-keyd.repo "$repo"
     sudo rpm-ostree install keyd alacritty
     systemctl reboot
-Then re-run ./install.sh to apply the config.
+install.sh writes the config regardless, so the remap is live after the reboot.
 EOF
   return 1
 }
@@ -82,14 +77,3 @@ if ! command -v keyd >/dev/null 2>&1; then
       ;;
   esac
 fi
-
-if sudo test -f "$DEST" && sudo cmp -s "$SRC" "$DEST"; then
-  echo "keyd: config already current"
-  exit 0
-fi
-
-echo "keyd: installing $SRC -> $DEST (requires sudo)"
-sudo install -D -m 0644 "$SRC" "$DEST"
-sudo systemctl enable --now keyd
-sudo keyd reload || sudo systemctl restart keyd
-echo "keyd: applied. Tap Caps for Esc; hold Caps for Ctrl; both Shifts toggle Caps Lock."

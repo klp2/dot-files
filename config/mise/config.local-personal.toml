@@ -1,0 +1,7 @@
+# Bootstrap steps for local-personal, on top of config.desktop.toml. base.toml
+# links this into ~/.config/mise/.
+
+[bootstrap.hooks]
+# Krohnkite tiling and i3-style keys; the script itself checks for KDE/Wayland,
+# since the personal laptop also has GNOME and i3 sessions
+final = "~/dot-files/install/kde-tiling.sh"

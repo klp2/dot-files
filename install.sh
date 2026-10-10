@@ -161,12 +161,27 @@ fi
 # base.toml before self-update, which reads its minimum_release_age
 mkdir -p ~/.config/mise/conf.d
 ln -sf "$SELF_PATH"/config/mise/base.toml ~/.config/mise/conf.d/05-base.toml
+# The mise envs this machine selects, which base.toml's variants and the
+# config.<env>.toml files key on: the envtype, plus "desktop" on local machines
+mise_envs="\"$envtype\""
+if [[ $envtype == local-* ]]; then
+  mise_envs="\"desktop\", $mise_envs"
+fi
+printf '# Written by install.sh from the ~/.%s marker\nenv = [%s]\n' "$envtype" "$mise_envs" >~/.config/mise/miserc.toml
+# The tool configs install.sh used to link are base.toml variants in conf.d
+# now. A regular config.toml (the devcontainer image's) is not ours; keep it.
+for f in ~/.config/mise/config.toml ~/.config/mise/conf.d/50-personal.toml; do
+  if [[ -L $f && $(readlink "$f") == */config/mise/mise.*.toml ]]; then
+    rm "$f"
+  fi
+done
 if [[ -n "$UPGRADE" && -x ~/.local/bin/mise ]]; then
   mise self-update --yes || true
 fi
 
-# The links go first: install/nvim.sh needs init.lua in place to sync plugins.
-# --force replaces whatever is at a target, as `ln -sf` did.
+# The links go first, so the conf.d tool configs and config.<env>.toml files
+# are in place before the mise commands below load them. --force replaces
+# whatever is at a target, as `ln -sf` did.
 if [[ "$SELF_PATH" != "$(cd -P ~/dot-files 2>/dev/null && pwd -P)" ]]; then
   echo "WARNING: base.toml links to ~/dot-files, not this checkout ($SELF_PATH)."
 fi
@@ -180,21 +195,6 @@ for f in ~/.ackrc ~/.perlcriticrc; do
 done
 
 if [[ $envtype != 'remote-work' ]]; then
-  # common.toml goes in conf.d so the per-environment config.toml wins on overlap
-  ln -sf "$SELF_PATH"/config/mise/common.toml ~/.config/mise/conf.d/10-dotfiles.toml
-  if [[ $envtype == 'devcontainer-work' ]]; then
-    # Also conf.d, so it coexists with the Dockerfile's default config.toml
-    ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/conf.d/50-personal.toml
-    # Clean up old symlink from previous installs (preserve Dockerfile's regular file)
-    if [ -L ~/.config/mise/config.toml ]; then
-      rm ~/.config/mise/config.toml
-    fi
-  elif [[ $envtype == 'local-work' ]]; then
-    ln -sf "$SELF_PATH"/config/mise/mise.work.toml ~/.config/mise/config.toml
-  else
-    ln -sf "$SELF_PATH"/config/mise/mise.personal.toml ~/.config/mise/config.toml
-  fi
-
   # A tool that fails to install is reported, not fatal: mise still installs
   # the rest, and the next run retries it.
   echo "Installing mise tools..."
@@ -240,27 +240,21 @@ sqlc sqlc completion bash
 starship starship completions bash
 zellij zellij setup --generate-completion bash
 EOF
-
-  # Machine-wide packages (brew, flatpak); flatpak.sh adds the Flathub remote
-  "$SELF_PATH"/install/flatpak.sh
-  echo "Installing bootstrap packages..."
-  mise bootstrap packages apply --yes || echo "WARNING: some bootstrap packages failed to install (see above)."
-  if [[ -n "$UPGRADE" ]]; then
-    mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
-  fi
 fi
 
-# Skip vim on remote-personal and devcontainer-work (neovim only)
-if [[ $envtype != 'remote-personal' && $envtype != 'devcontainer-work' ]]; then
-  "$SELF_PATH"/install/vim.sh
+# The rest of the setup is `mise bootstrap`, from base.toml and the selected
+# config.<env>.toml files: their hooks run install/*.sh. Packages get a run of
+# their own, because a failed package aborts a bootstrap run and these were
+# never fatal; their pre-packages hooks (Flathub remote, keyd) run with them.
+echo "Installing bootstrap packages..."
+mise bootstrap --only packages --yes || echo "WARNING: some bootstrap packages failed to install (see above)."
+if [[ -n "$UPGRADE" ]]; then
+  mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
 fi
-"$SELF_PATH"/install/nvim.sh
-
-# Local KDE/Wayland personal desktop extras (each self-gates; no-op elsewhere):
-# keyd Caps remap, 1Password, and Krohnkite i3-style tiling.
-"$SELF_PATH"/install/keyd.sh
-"$SELF_PATH"/install/1password.sh
-"$SELF_PATH"/install/kde-tiling.sh
+# Files, services, links, and the final hooks (vim, neovim, 1Password, KDE
+# tiling). Tools were installed above, outside the lock.
+echo "Running mise bootstrap..."
+mise bootstrap --skip packages,tools --force-dotfiles --yes
 
 # Alacritty terminal config (only if alacritty is installed)
 if command -v alacritty &>/dev/null; then
@@ -268,19 +262,14 @@ if command -v alacritty &>/dev/null; then
   ln -sf "$SELF_PATH"/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
 fi
 
-# i3 configs: always on the work laptop (Regolith), and on a personal box only
-# when i3 is actually installed. has_i3 rather than a session check, because the
-# personal laptop may be installed from its GNOME session but still needs these
-# in place for the next i3 login; the check keeps ~/.config/i3 off the KDE box.
-if [[ $envtype == 'local-work' ]] || { [[ $envtype == 'local-personal' ]] && has_i3; }; then
+# i3 configs on a personal box, only when i3 is actually installed (the work
+# laptop gets them from base.toml). has_i3 rather than a session check, because
+# the personal laptop may be installed from its GNOME session but still needs
+# these in place for the next i3 login; the check keeps ~/.config/i3 off the
+# KDE box.
+if [[ $envtype == 'local-personal' ]] && has_i3; then
   ln -sfn "$SELF_PATH"/i3 ~/.config/i3
   ln -sfn "$SELF_PATH"/i3status ~/.config/i3status
-fi
-
-if [[ $envtype == 'local-work' ]]; then
-  # Devcontainer local customizations (symlink so deploy dereferences)
-  mkdir -p ~/.config/devcontainer-local
-  ln -sf "$SELF_PATH"/devcontainer/startup.sh ~/.config/devcontainer-local/startup.sh
 fi
 
 # Regolith 3: tracked Xresources and i3status-rust config.
@@ -303,27 +292,6 @@ fi
 
 if ! [ -d ~/.ssh/keys ]; then
   mkdir -p ~/.ssh/keys
-fi
-
-# SSH: manage a fragment, never the whole config. ~/.ssh/config holds
-# machine-specific host entries and absolute key paths, and both Trellis and the
-# 1Password app rewrite it unprompted -- symlinking it would drop their edits
-# into this git tree. Only local desktops get the 1Password agent.
-if is_local_desktop; then
-  mkdir -p ~/.ssh/config.d
-  chmod 700 ~/.ssh ~/.ssh/config.d
-  ln -sf "$SELF_PATH"/ssh/1password.conf ~/.ssh/config.d/1password.conf
-  touch ~/.ssh/config
-  chmod 600 ~/.ssh/config
-  SSH_INCLUDE='Include ~/.ssh/config.d/*.conf'
-  if ! grep -qF "$SSH_INCLUDE" ~/.ssh/config; then
-    # Must precede every Host block: ssh scopes a bare Include to whichever Host
-    # section encloses it, so appending would bind the fragment to the last host.
-    echo "Adding '$SSH_INCLUDE' to ~/.ssh/config"
-    printf '%s\n\n' "$SSH_INCLUDE" | cat - ~/.ssh/config >~/.ssh/config.dotfiles-tmp
-    mv ~/.ssh/config.dotfiles-tmp ~/.ssh/config
-    chmod 600 ~/.ssh/config
-  fi
 fi
 
 git submodule init

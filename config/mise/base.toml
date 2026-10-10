@@ -1,6 +1,7 @@
 # Settings and dotfile links for every environment, remote-work included.
-# install.sh links this into ~/.config/mise/conf.d/; common.toml adds the tools
-# everywhere but remote-work, where mise only deploys these links.
+# install.sh links this into ~/.config/mise/conf.d/. Its variants below link in
+# common.toml and the work or personal tools everywhere but remote-work, where
+# mise only deploys links and runs the bootstrap hooks.
 
 [settings]
 # Disable backends that use community-maintained bash scripts (supply chain risk)
@@ -14,10 +15,15 @@ minimum_release_age = "7d"
 # installs only; a packaged mise such as the devcontainer image's cannot.
 self_update.auto = true
 
-# Deployed by `mise dot apply` in install.sh. A relative source would resolve
-# against conf.d, where this file is linked, so sources spell out ~/dot-files.
-# Links that depend on the environment or on what is installed (vim, i3,
-# Regolith, alacritty, SSH, devcontainer) are still made by install.sh.
+# Runs on every `mise bootstrap` (install.sh), so it must be safe to repeat
+[bootstrap.hooks]
+final = "~/dot-files/install/nvim.sh"
+
+# Deployed by `mise dot apply` and `mise bootstrap` in install.sh. A relative
+# source would resolve against conf.d, where this file is linked, so sources
+# spell out ~/dot-files. Links that depend on a runtime check rather than the
+# environment (~/.local_vimrc, i3 on a personal machine, Regolith, alacritty)
+# are still made by the installers.
 [dotfiles]
 "~/.bash_common.sh" = "~/dot-files/bash_common.sh"
 "~/.bash_profile" = "~/dot-files/bash_profile"
@@ -38,3 +44,71 @@ self_update.auto = true
 "~/.config/starship.toml" = "~/dot-files/starship.toml"
 # A copy, so it can carry its own mode
 "~/.dataprinter" = { source = "~/dot-files/dataprinter", mode = "copy", permissions = "0700" }
+
+# Per-environment links. install.sh writes ~/.config/mise/miserc.toml from the
+# envtype marker: each machine selects its envtype as its mise env, and
+# local-work and local-personal also select "desktop". A variant names one
+# profile, and an entry with no matching variant is skipped. Never give one
+# entry two profiles that a machine selects together (desktop and local-work):
+# the tie makes mise reject the entry.
+
+# The per-environment bootstrap configs; only the selected ones load
+"~/.config/mise/config.desktop.toml" = "~/dot-files/config/mise/config.desktop.toml"
+"~/.config/mise/config.local-personal.toml" = "~/dot-files/config/mise/config.local-personal.toml"
+"~/.config/mise/config.remote-work.toml" = "~/dot-files/config/mise/config.remote-work.toml"
+
+# Tools, everywhere but remote-work. These stay in conf.d rather than in
+# config.<env>.toml files: MISE_ENV, -E, or a project's .miserc.toml replaces
+# the env list from miserc.toml, which would drop them. Later conf.d files win
+# on overlap, so the work and personal files layer on top of common.toml.
+[dotfiles."~/.config/mise/conf.d/10-dotfiles.toml"]
+source = "~/dot-files/config/mise/common.toml"
+variants = [
+  { profile = "local-work" },
+  { profile = "local-personal" },
+  { profile = "remote-personal" },
+  { profile = "devcontainer-work" },
+]
+
+[dotfiles."~/.config/mise/conf.d/20-work.toml"]
+source = "~/dot-files/config/mise/mise.work.toml"
+variants = [{ profile = "local-work" }, { profile = "devcontainer-work" }]
+
+[dotfiles."~/.config/mise/conf.d/20-personal.toml"]
+source = "~/dot-files/config/mise/mise.personal.toml"
+variants = [{ profile = "local-personal" }, { profile = "remote-personal" }]
+
+# vim, everywhere but remote-personal and devcontainer-work (neovim only).
+# install/vim.sh picks ~/.local_vimrc, which depends on mm-perl being installed.
+[dotfiles."~/.vimrc"]
+source = "~/dot-files/vim/vimrc"
+variants = [{ profile = "desktop" }, { profile = "remote-work" }]
+
+# SQL heredoc syntax highlighting for Perl
+[dotfiles."~/.vim/after/syntax/perl/heredoc-sql.vim"]
+source = "~/dot-files/vim/heredoc-sql.vim"
+variants = [{ profile = "desktop" }, { profile = "remote-work" }]
+
+# i3 on the work laptop (Regolith). A personal machine gets these from
+# install.sh only when i3 is installed.
+[dotfiles."~/.config/i3"]
+source = "~/dot-files/i3"
+variants = [{ profile = "local-work" }]
+
+[dotfiles."~/.config/i3status"]
+source = "~/dot-files/i3status"
+variants = [{ profile = "local-work" }]
+
+# Devcontainer local customizations (a symlink, so deploy dereferences it)
+[dotfiles."~/.config/devcontainer-local/startup.sh"]
+source = "~/dot-files/devcontainer/startup.sh"
+variants = [{ profile = "local-work" }]
+
+# SSH: a fragment, never the whole config. ~/.ssh/config holds machine-specific
+# host entries and absolute key paths, and both Trellis and the 1Password app
+# rewrite it unprompted, so linking it would drop their edits into this tree.
+# Only local desktops get the 1Password agent. config.desktop.toml adds the
+# Include line (an edit entry, which takes no variants) and sets the modes.
+[dotfiles."~/.ssh/config.d/1password.conf"]
+source = "~/dot-files/ssh/1password.conf"
+variants = [{ profile = "desktop" }]

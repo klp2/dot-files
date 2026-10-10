@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install + enable Krohnkite and apply the i3-style keybindings on the personal
 # KDE/Wayland desktop. Idempotent; backs up kglobalshortcutsrc before editing.
+# A final hook in config/mise/config.local-personal.toml.
 #
 # Krohnkite's directional focus/move/resize defaults already match the i3 config
 # (Meta+HJKL / Meta+Shift+HJKL / Meta+Ctrl+HJKL), so this only sets native KWin

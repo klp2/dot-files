@@ -1,7 +1,7 @@
 # Tools and packages shared by every environment except remote-work, on top of
-# base.toml. install.sh links this into ~/.config/mise/conf.d/, so the
-# per-environment config.toml layers on top and wins wherever both name the
-# same entry.
+# base.toml, which links this into ~/.config/mise/conf.d/10-dotfiles.toml. The
+# work or personal file links in as conf.d/20-*.toml, so it layers on top and
+# wins wherever both name the same entry.
 
 [settings]
 # Record exact download URLs and checksums in ~/.config/mise/mise.lock;
@@ -17,7 +17,7 @@ lockfile_platforms = ["linux-x64"]
 [bootstrap.packages]
 # No release binaries, so no mise tool
 "brew:entr" = "latest"
-# install/flatpak.sh adds the Flathub remote first
+# install/flatpak.sh (a pre-packages hook) adds the Flathub remote first
 "flatpak-user:org.libreoffice.LibreOffice" = "latest"
 
 [tools]

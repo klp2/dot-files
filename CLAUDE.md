@@ -49,18 +49,22 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 
 ### Tool Management
 - **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere except remote-work, which stays minimal (bashrc does not activate mise there). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
-- `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Links that depend on the environment or on what is installed (vim, i3, Regolith, alacritty, SSH, devcontainer) are still `ln -sf` in the installers
-- `config/mise/common.toml` → `~/.config/mise/conf.d/10-dotfiles.toml` (shared tool list); per-environment `mise.personal.toml` / `mise.work.toml` → `~/.config/mise/config.toml`, which wins on overlap (devcontainer links the work file into conf.d instead, beside the image's own config.toml)
+- mise envs: `install.sh` writes `~/.config/mise/miserc.toml` from the marker on every run: `env = [<envtype>]`, plus `"desktop"` first on local-work and local-personal. `MISE_ENV`, `-E`, or a project's `.miserc.toml` *replaces* that list, so tool lists and settings never live in `config.<env>.toml` files, only bootstrap-time config
+- `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force` and again in `mise bootstrap`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Per-environment links are `variants` (`profile` = a mise env; one name per variant, and no entry may name two profiles one machine selects, or the tie voids it). Links gated on a runtime check (`~/.local_vimrc` by mm-perl, i3 on a personal box with i3, Regolith, alacritty) are still `ln -sf` in the installers
+- `config/mise/config.<env>.toml` (`desktop`, `local-personal`, `remote-work`) → `~/.config/mise/`, linked on every machine by base.toml; only the selected ones load. They hold `[bootstrap.hooks]` that run `install/*.sh`, `[bootstrap.files]`/`services` (keyd config, `~/.ssh` modes), and edit entries (the SSH `Include` line), which take no variants
+- Tool configs are base.toml variants in conf.d, everywhere but remote-work: `common.toml` → `conf.d/10-dotfiles.toml`; `mise.work.toml` / `mise.personal.toml` → `conf.d/20-work.toml` / `20-personal.toml`, which win on overlap. `config.toml` is no longer ours (the devcontainer image's own stays)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; `http:` with the public releases feed for MaxMind's tools, whose org's SAML enforcement rejects the GitHub API token; asdf/vfox backends are disabled
-- Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr, `flatpak-user:` for LibreOffice), applied by `mise bootstrap packages apply`; entries whose manager is missing are skipped. `install/flatpak.sh` installs Flatpak and adds the Flathub remote, which mise does not do
+- Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr, `flatpak-user:` for LibreOffice), applied by `mise bootstrap --only packages` in a run of their own, since a failed package aborts a bootstrap run; entries whose manager is missing are skipped. `install/flatpak.sh` (a desktop pre-packages hook) installs Flatpak and adds the Flathub remote, which mise does not do
+- `install.sh` runs `mise bootstrap --skip packages,tools --force-dotfiles` after its own tool install/upgrade/lock steps. Hooks run on every bootstrap, so `install/*.sh` must stay safe to repeat; a failing hook aborts the run. Avoid `pre/post-dotfiles` hooks (they also fire on plain `mise dot apply`) and a global `[tasks.bootstrap]` (it would show in every project)
+- Dry-run changes against the real home with an isolated `MISE_CONFIG_DIR` (not `MISE_GLOBAL_CONFIG_FILE`), run from outside `$HOME`, or mise also finds the live `~/.config/mise/conf.d` as project config
 - Homebrew itself remains for neovim nightly (`install/nvim.sh`) and the `brew:` package entries; `cleanup.sh` offers to uninstall brew formulae mise replaced
 - Settings: `base.toml` has `minimum_release_age = "7d"`, `self_update.auto = true`, and the disabled backends; `common.toml` has `lockfile = true` (work adds `locked = true`)
 - `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
 
 ## File Relationships
 
-- `install.sh` → migrates old markers, auto-creates marker via heuristic, calls `install/vim.sh` (skipped for remote-personal) and `install/nvim.sh`
-- `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection, installs vim-plug, symlinks vimrc
+- `install.sh` → migrates old markers, auto-creates marker via heuristic, writes miserc, then `mise bootstrap` runs the installers as hooks: `nvim.sh` everywhere (base.toml); `flatpak.sh`, `keyd.sh` (pre-packages), `1password.sh`, `vim.sh` on desktops; `kde-tiling.sh` on local-personal; `vim.sh` on remote-work
+- `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection to pick `~/.local_vimrc`, installs vim-plug and plugins (`~/.vimrc` is a base.toml link)
 - `install/nvim.sh` → installs neovim nightly via Homebrew (local-work, local-personal, remote-personal), syncs lazy.nvim plugins
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
 - `bashrc` activates mise before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
@@ -81,14 +85,14 @@ One deployment target is Bazzite (Fedora Atomic/immutable distro with KDE). Key 
 ### Wayland Considerations
 - Bazzite with KDE uses Wayland by default
 - `xcape` does not work on Wayland (bashrc checks `$XDG_SESSION_TYPE`)
-- For Caps→Esc(tap)/Ctrl(hold) remap, use `keyd` (config in `keyd/`, applied by `install/keyd.sh`). keyd is NOT in Fedora base repos — enable the `alternateved/keyd` COPR (`.repo` into `/etc/yum.repos.d/`) then `rpm-ostree install keyd` + reboot. `install/keyd.sh` prints the exact commands.
+- For Caps→Esc(tap)/Ctrl(hold) remap, use `keyd` (config in `keyd/`, written to `/etc/keyd` by `[bootstrap.files]` in `config.desktop.toml`; `install/keyd.sh` installs keyd itself). keyd is NOT in Fedora base repos — enable the `alternateved/keyd` COPR (`.repo` into `/etc/yum.repos.d/`) then `rpm-ostree install keyd` + reboot. `install/keyd.sh` prints the exact commands.
 - Clipboard tools: use `wl-copy`/`wl-paste` instead of `xclip`
 
 ### Tiling on KDE/Wayland (personal desktop)
 - i3-style tiling via Krohnkite (vendored + pinned in `kwin/`, installed by `install/kde-tiling.sh`)
 - Borderless windows (i3 `default_border none`) via a forced `kwinrulesrc` rule; instant desktop switch by disabling the slide effect
 - Keybindings are a clean personal port of `i3/config`, written to `kglobalshortcutsrc` via `kwriteconfig6` (KDE has no hand-editable rc); edits must be made with the kglobalaccel daemon quiescent, and a re-login activates them
-- All KDE/keyd/Zellij installers self-gate on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland
+- `install/kde-tiling.sh` runs only on local-personal (a hook in `config.local-personal.toml`) and still self-gates on `is_kde_wayland_personal` (`bash_functions.sh`): `~/.local-personal` + KDE + Wayland, since the personal laptop also has GNOME and i3 sessions
 - Local multiplexer is Zellij (installed by mise, pure defaults); tmux stays the remote/SSH multiplexer
 - Design/plan: `docs/superpowers/specs/` and `docs/superpowers/plans/`
 

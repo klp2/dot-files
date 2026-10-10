@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install the 1Password CLI (op) on local desktops and seed the untracked
-# secret-reference file that bashrc's opload/oprun helpers read.
+# secret-reference file that bashrc's opload/oprun helpers read. A final hook
+# in config/mise/config.desktop.toml.
 #
 # Homebrew is deliberately not used: 1password-cli ships as a Homebrew *cask*,
 # and casks are macOS-only, so Linuxbrew cannot install it. Each distro gets its
@@ -14,11 +15,6 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=/dev/null
 source "$REPO_DIR/bash_functions.sh"
-
-if ! is_local_desktop; then
-  echo "1password: skipping (not a local desktop)"
-  exit 0
-fi
 
 OP_ENV_FILE="$HOME/.config/op/env"
 OP_AUTOLOAD_FILE="$HOME/.config/op/autoload"
