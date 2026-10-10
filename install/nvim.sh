@@ -16,10 +16,10 @@ if [[ $DOTFILES_ENVTYPE == 'local-work' || $DOTFILES_ENVTYPE == 'local-personal'
     brew link neovim || echo "WARNING: could not relink neovim; run 'brew link neovim'."
   elif ! command -v nvim &>/dev/null; then
     echo "Installing neovim (nightly)..."
-    brew install neovim --HEAD
+    brew install --yes neovim --HEAD
   elif brew list neovim --versions 2>/dev/null | grep -q HEAD; then
     echo "Checking for neovim nightly updates..."
-    brew upgrade neovim --fetch-HEAD || echo "WARNING: neovim nightly upgrade failed (see above)."
+    brew upgrade --yes neovim --fetch-HEAD || echo "WARNING: neovim nightly upgrade failed (see above)."
   fi
 fi
 

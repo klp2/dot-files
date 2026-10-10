@@ -65,6 +65,8 @@ pathadd() {
 # activate then puts its tools ahead of all of them.
 if [[ $envtype != 'remote-work' ]]; then
   pathadd "/home/linuxbrew/.linuxbrew/bin"
+  # Homebrew 7 asks before every install and upgrade; don't
+  export HOMEBREW_NO_ASK=1
   alias brewski='brew update && brew upgrade && brew cleanup; brew doctor'
 fi
 pathadd "/usr/local/sbin"
