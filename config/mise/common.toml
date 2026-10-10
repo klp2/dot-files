@@ -1,11 +1,25 @@
-# CLI tools shared by every environment except remote-work. install.sh links
-# this into ~/.config/mise/conf.d/, so the per-environment config.toml layers
-# on top and wins wherever both name the same tool.
+# Tools and packages shared by every environment except remote-work.
+# install.sh links this into ~/.config/mise/conf.d/, so the per-environment
+# config.toml layers on top and wins wherever both name the same entry.
 
 [settings]
 # Disable backends that use community-maintained bash scripts (supply chain risk)
 # See: https://github.com/jdx/mise/discussions/4054
 disable_backends = ["asdf", "vfox"]
+# Record exact download URLs and checksums in ~/.config/mise/mise.lock;
+# install.sh moves it forward on upgrade
+lockfile = true
+# Skip releases younger than this, so a compromised release has time to be
+# caught and pulled before it lands here
+minimum_release_age = "7d"
+
+# Machine-wide installs through the host's package managers; an entry whose
+# manager is missing (no brew or flatpak in the devcontainer) is skipped
+[bootstrap.packages]
+# No release binaries, so no mise tool
+"brew:entr" = "latest"
+# install/flatpak.sh adds the Flathub remote first
+"flatpak-user:org.libreoffice.LibreOffice" = "latest"
 
 [tools]
 ast-grep = "latest"

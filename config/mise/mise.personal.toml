@@ -9,3 +9,9 @@ sqlc = "latest"
 zellij = "latest"
 "github:rojo-rbx/rojo" = "latest"
 "npm:@google/gemini-cli" = "latest"
+
+[bootstrap.packages]
+# MaxMind's GitHub org enforces SAML, which rejects the token mise sends for
+# release lookups, so these come from brew rather than github: tools
+"brew:geoipupdate" = "latest"
+"brew:mmdbinspect" = "latest"

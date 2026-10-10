@@ -51,7 +51,9 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 - **mise** installs CLI tools and runtimes everywhere except remote-work, which stays minimal. Personal and local-work machines use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
 - `config/mise/common.toml` → `~/.config/mise/conf.d/10-dotfiles.toml` (shared tool list); per-environment `mise.personal.toml` / `mise.work.toml` → `~/.config/mise/config.toml`, which wins on overlap (devcontainer links the work file into conf.d instead, beside the image's own config.toml)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; asdf/vfox backends are disabled
-- Homebrew remains only for neovim nightly (`install/nvim.sh`) and entr (no release binaries); `cleanup.sh` offers to uninstall brew formulae mise replaced
+- Machine-wide installs are `[bootstrap.packages]` entries (`brew:` for entr and the MaxMind tools, `flatpak-user:` for LibreOffice), applied by `mise bootstrap packages apply`; entries whose manager is missing are skipped. `install/flatpak.sh` installs Flatpak and adds the Flathub remote, which mise does not do
+- Homebrew itself remains for neovim nightly (`install/nvim.sh`) and the `brew:` package entries; `cleanup.sh` offers to uninstall brew formulae mise replaced
+- Settings in `common.toml`: `lockfile = true` everywhere (work adds `locked = true`), `minimum_release_age = "7d"`
 - `install.sh` generates bash completions for mise tools into `~/.local/share/bash-completion/completions`; bashrc loads bash-completion, which picks them up on demand
 
 ## File Relationships

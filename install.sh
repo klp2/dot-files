@@ -35,8 +35,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-# install/libreoffice.sh reads it too
-export UPGRADE
 
 # Detect install mode or use forced mode
 if [[ -n "$FORCE_MODE" ]]; then
@@ -127,7 +125,17 @@ run_reviewed_installer() {
   return $rc
 }
 
-# mise: CLI tools and runtimes (not on remote-work, which stays minimal)
+# Homebrew, for neovim nightly (install/nvim.sh) and the brew: entries in
+# [bootstrap.packages]; mise covers everything else
+if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]] && ! command -v brew &>/dev/null; then
+  echo ""
+  echo "=== Homebrew Setup ==="
+  if run_reviewed_installer Homebrew https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  fi
+fi
+
+# mise: CLI tools, runtimes, and packages (not on remote-work, which stays minimal)
 if [[ $envtype != 'remote-work' ]]; then
   # Use the standalone mise in ~/.local/bin, which self-updates without brew,
   # unless a non-brew mise is already provided (e.g. the devcontainer image).
@@ -211,24 +219,13 @@ sqlc sqlc completion bash
 starship starship completions bash
 zellij zellij setup --generate-completion bash
 EOF
-  fi
-fi
 
-# Homebrew covers only what mise can't: neovim nightly (install/nvim.sh) and
-# entr, which publishes no release binaries.
-if [[ $envtype == 'local-work' || $envtype == 'local-personal' || $envtype == 'remote-personal' ]]; then
-  if ! command -v brew &>/dev/null; then
-    echo ""
-    echo "=== Homebrew Setup ==="
-    if run_reviewed_installer Homebrew https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh; then
-      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    fi
-  fi
-  if command -v brew &>/dev/null; then
-    if ! brew list --formula entr &>/dev/null; then
-      brew install entr
-    elif [[ -n "$UPGRADE" ]]; then
-      brew upgrade entr || true
+    # Machine-wide packages (brew, flatpak); flatpak.sh adds the Flathub remote
+    "$SELF_PATH"/install/flatpak.sh
+    echo "Installing bootstrap packages..."
+    mise bootstrap packages apply --yes || echo "WARNING: some bootstrap packages failed to install (see above)."
+    if [[ -n "$UPGRADE" ]]; then
+      mise bootstrap packages upgrade --yes || echo "WARNING: some bootstrap packages failed to upgrade (see above)."
     fi
   fi
 fi
@@ -240,10 +237,9 @@ fi
 "$SELF_PATH"/install/nvim.sh
 
 # Local KDE/Wayland personal desktop extras (each self-gates; no-op elsewhere):
-# keyd Caps remap, 1Password, LibreOffice, and Krohnkite i3-style tiling.
+# keyd Caps remap, 1Password, and Krohnkite i3-style tiling.
 "$SELF_PATH"/install/keyd.sh
 "$SELF_PATH"/install/1password.sh
-"$SELF_PATH"/install/libreoffice.sh
 "$SELF_PATH"/install/kde-tiling.sh
 
 # Prompt setup - git-prompt-fallback and starship config

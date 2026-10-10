@@ -1,7 +1,7 @@
 # Work machines (local-work, devcontainer-work), on top of common.toml.
 
 [settings]
-lockfile = true
+# Never resolve versions outside the lockfile (install.sh sets MISE_LOCKED=0)
 locked = true
 
 [tools]

@@ -18,6 +18,7 @@ SCRIPTS=(
   install/keyd.sh
   install/kde-tiling.sh
   install/1password.sh
+  install/flatpak.sh
   bin/git-prompt-fallback
 )
 
