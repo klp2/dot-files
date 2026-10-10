@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Open gaem issue #N's worktree as its own herdr workspace and start an agent
-# in it, asking it to check the issue's status. The sidebar then shows the
-# issue's branch and git status:
+# in it. Its opening prompt has it check the issue against current main, then
+# pick it up, close it, or ask. The sidebar shows the issue's branch and git
+# status:
 #
 #   hdev 1818            # claude
 #   hdev 1818 codex      # any start-dev launcher
@@ -39,7 +40,7 @@ issue="$1"
 launcher="${2:-claude}"
 [[ $issue =~ ^[0-9]+$ ]] || die "issue number must be digits (got: $issue)"
 
-prompt="Check the status of issue #$issue."
+prompt="Check the status of issue #$issue against current main. If the main problem still exists: first update the issue text for any minor drift (moved files, renamed symbols, partial fixes), then pick it up per AGENTS.md and begin work. If the problem definitely no longer exists: close the issue with a comment explaining why, citing the evidence. If you are unsure either way: ask me questions before changing the issue or starting work."
 
 if [ "${HERDR_ENV:-}" != 1 ]; then
   exec start-dev "$launcher" "$issue" "$prompt"
