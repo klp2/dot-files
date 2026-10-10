@@ -43,6 +43,9 @@ shellcheck = "latest"
 shfmt = "latest"
 starship = "latest"
 tlrc = "latest"
+# Pinned: later releases ship no Linux binaries (the registry's default,
+# cargo:tokei, builds from source and needs rust)
+"aqua:XAMPPRocky/tokei" = "12.1.2"
 tree-sitter = "latest"
 # Lets `mise completion bash` generate completions
 usage = "latest"
@@ -51,3 +54,38 @@ zoxide = "latest"
 "github:Wilfred/difftastic" = "latest"
 "github:bensadeh/tailspin" = "latest"
 "github:klp2/sr" = "latest"
+
+# Settings for the tools above; base.toml has the ones every machine gets
+[env]
+# fd respects .gitignore and is faster than fzf's default walker
+FZF_DEFAULT_COMMAND = "fd --type f --hidden --follow --exclude .git"
+FZF_CTRL_T_COMMAND = "fd --type f --hidden --follow --exclude .git"
+FZF_ALT_C_COMMAND = "fd --type d --hidden --follow --exclude .git"
+FZF_DEFAULT_OPTS = '''
+  --height=40%
+  --layout=reverse
+  --border=rounded
+  --info=inline
+  --margin=1
+  --padding=1
+  --bind='ctrl-y:execute-silent(echo {} | wl-copy)'
+  --bind='ctrl-/:toggle-preview'
+  --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
+  --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9
+  --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6
+  --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
+'''
+FZF_CTRL_T_OPTS = "--preview 'bat --style=numbers --color=always --line-range :500 {}'"
+
+# Display-level replacements, safe everywhere: bat emits plain text when piped,
+# and eza only changes how columns are rendered. Never parse those columns in a
+# script - use stat/find -printf for machine-readable output. These override
+# base.toml's ls and ll.
+[shell_alias]
+cat = "bat --paging=never"
+ls = "eza"
+ll = "eza -la --git"
+lt = "eza -la --git --sort oldest"
+tree = "eza --tree"
+tf = "tspin -f"
+loc = "tokei"

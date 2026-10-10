@@ -46,9 +46,6 @@ if [[ $envtype == 'local-work' ]] && command -v mm-perl &>/dev/null; then
   alias perl=mm-perl
 fi
 
-alias vi=nvim
-export EDITOR=nvim
-
 # use vim mappings to move around the command line
 set -o vi
 
@@ -76,15 +73,18 @@ pathadd "$HOME/.cargo/bin"
 pathadd "$HOME/.opencode/bin"
 pathadd "$HOME/.local/bin"
 
-# mise - CLI tools and runtimes (config in ~/dot-files/config/mise). On
-# remote-work mise only links the dotfiles from install.sh, so skip activate.
-if [[ $envtype != 'remote-work' ]] && command -v mise &>/dev/null; then
-  # activate applies the tool PATH right away and again from a prompt hook,
-  # and puts the shims behind it as the fallback for anything that does not
-  # source this file: a git hook inherits PATH from whatever shell ran git.
-  # Needed by gaem, whose mise.toml pins gh and jq for scripts that run
-  # non-interactively.
+# mise - CLI tools and runtimes, plus the environment variables and aliases
+# from [env] and [shell_alias] (config in ~/dot-files/config/mise). Every
+# machine activates it; remote-work just has no tools.
+if command -v mise &>/dev/null; then
+  # activate applies the tool PATH, env, and aliases right away and again from
+  # a prompt hook, and puts the shims behind it as the fallback for anything
+  # that does not source this file: a git hook inherits PATH from whatever
+  # shell ran git. Needed by gaem, whose mise.toml pins gh and jq for scripts
+  # that run non-interactively.
   eval "$(mise activate bash)"
+elif [[ $- == *i* ]]; then
+  echo "mise not found, so its aliases and environment are missing. Run ~/dot-files/install.sh" >&2
 fi
 
 # Keyboard remaps: X11 fallback for machines without keyd (local envtypes).
@@ -259,53 +259,8 @@ fi
 # search history (use rg for ripgrep)
 hist() { history | rg "$1"; }
 
-# check tty usage, sorting by tty's
-# shellcheck disable=SC2142  # \$7 is awk field reference, not bash positional param
-alias ttyuse='ps auxww|awk "\$7 ~ /^p/ && \$7 !~ /-/ {print}"|sort -k7'
-
-# Verbose resource usage (peak RSS, page faults, context switches) written to
-# time.output.<epoch>. Not named time: that would shadow the bash keyword,
-# which can time functions, builtins, and whole pipelines.
-alias vtime='NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
-
-# checks the count on given process name
-alias pscnt='echo "The current process count is: $(ps ax|wc -l)"'
-
-# lists all the process sorted by pid
-alias allps='ps auxww|sort -k2,2n|more'
-
-# lists load averages:
-# shellcheck disable=SC2142  # \$1 \$2 \$3 are awk field references, not bash positional params
-alias load='uptime|cut -dl -f2-|cut -d: -f2-|awk "{print \" 1 min load average: \" \$1 \"\n 5 min load average: \" \$2 \"\n15 min load average: \" \$3 \".\"}"'
-
 # cp with preservation of all inode information
 tarcp() { tar cvf - . | (cd "$1" && tar xvf -); }
-
-alias cdr='cd $(git root)'
-alias delete-merged-branches='show-merged-branches | xargs -n 1 git branch -d'
-alias ps='ps auxw'
-alias show-merged-branches='git branch --no-color --merged | grep -v "\*" | grep -v main'
-
-# conversions
-alias d2b="perl -e 'printf qq|%b\n|, int( shift )'"
-alias d2h="perl -e 'printf qq|%X\n|, int( shift )'"
-alias d2o="perl -e 'printf qq|%o\n|, int( shift )'"
-alias h2b="perl -e 'printf qq|%b\n|, hex( shift )'"
-alias h2d="perl -e 'printf qq|%d\n|, hex( shift )'"
-alias h2o="perl -e 'printf qq|%o\n|, hex( shift )'"
-alias o2b="perl -e 'printf qq|%b\n|, oct( shift )'"
-alias o2d="perl -e 'printf qq|%d\n|, oct( shift )'"
-alias o2h="perl -e 'printf qq|%X\n|, oct( shift )'"
-
-alias ga="git add"
-alias lgb="git for-each-ref --sort=committerdate refs/heads/ --format='%(committerdate:short) %(authorname) %(refname:short)'"
-alias gb="git branch"
-alias co="git checkout"
-alias gs="git status"
-alias gd="git diff"
-alias gc="git commit -v -e -m"
-alias gp="git push"
-alias t="tmux"
 
 # Sync devcontainer-local config then start devcontainer
 devup() {
@@ -319,46 +274,9 @@ mssh() {
   TERM=xterm-256color command mssh "$@"
 }
 
-# integer to ip address and back
-alias intip="perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
-alias ipint="perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
-
-# Modern CLI tool configs
-if [[ -f "$HOME/.config/ripgrep/config" ]]; then
-  export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
-fi
-
-# fzf configuration - use fd for file finding, bat for preview
+# fzf shell integration (keybindings: Ctrl-R, Ctrl-T, Alt-C + tab completion);
+# its FZF_* settings are [env] in config/mise/common.toml
 if command -v fzf &>/dev/null; then
-  # Use fd if available (respects .gitignore, faster)
-  if command -v fd &>/dev/null; then
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
-  fi
-
-  # fzf appearance and behavior
-  export FZF_DEFAULT_OPTS="
-    --height=40%
-    --layout=reverse
-    --border=rounded
-    --info=inline
-    --margin=1
-    --padding=1
-    --bind='ctrl-y:execute-silent(echo {} | wl-copy)'
-    --bind='ctrl-/:toggle-preview'
-    --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9
-    --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9
-    --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6
-    --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
-  "
-
-  # Preview with bat if available
-  if command -v bat &>/dev/null; then
-    export FZF_CTRL_T_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
-  fi
-
-  # Shell integration (keybindings: Ctrl-R, Ctrl-T, Alt-C + tab completion)
   eval "$(fzf --bash)"
 
   # Git helpers powered by fzf
@@ -384,17 +302,9 @@ if command -v fzf &>/dev/null; then
   }
 fi
 
-# Modern CLI tool aliases (conditional on availability).
-# These are display-level replacements and are safe everywhere: bat emits plain
-# text when piped, and eza only changes how columns are rendered. Never parse
-# those columns in a script - use stat/find -printf for machine-readable output.
-command -v bat &>/dev/null && alias cat='bat --paging=never'
-if command -v eza &>/dev/null; then
-  alias ls='eza' && alias ll='eza -la --git' && alias lt='eza -la --git --sort oldest' && alias tree='eza --tree'
-else
-  alias ls='ls --color=auto' && alias ll='ls -alh'
-fi
-command -v tspin &>/dev/null && alias tf='tspin -f'
+# The other aliases and exported settings (vi, git, eza, bat, EDITOR, ...) are
+# [shell_alias] and [env] in config/mise: base.toml everywhere, common.toml
+# where mise installs the tools they need. mise activate (above) sets them.
 
 # rg and fd are NOT drop-in replacements - they reject standard syntax outright
 # (`grep -E 'a|b'` and `find . -name '*.md'` both exit 2), which silently breaks

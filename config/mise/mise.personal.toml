@@ -2,6 +2,7 @@
 
 [tools]
 cmake = "latest"
+docker-cli = "latest"
 docker-compose = "latest"
 goreleaser = "latest"
 rust = "latest"

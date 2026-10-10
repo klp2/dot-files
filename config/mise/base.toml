@@ -1,7 +1,7 @@
-# Settings and dotfile links for every environment, remote-work included.
-# install.sh links this into ~/.config/mise/conf.d/. Its variants below link in
-# common.toml and the work or personal tools everywhere but remote-work, where
-# mise only deploys links and runs the bootstrap hooks.
+# Settings, shell environment, and dotfile links for every environment,
+# remote-work included. install.sh links this into ~/.config/mise/conf.d/. Its
+# variants below link in common.toml and the work or personal tools everywhere
+# but remote-work, which gets no tools.
 
 [settings]
 # Disable backends that use community-maintained bash scripts (supply chain risk)
@@ -14,6 +14,37 @@ minimum_release_age = "7d"
 # honoring minimum_release_age) before an interactive command. Standalone
 # installs only; a packaged mise such as the devcontainer image's cannot.
 self_update.auto = true
+
+# Exported by `mise activate` in bashrc, and set for tools run through mise
+# (shims, `mise x`). Values are not shell-expanded: ~ stays literal, so paths
+# use {{ env.HOME }}. Anything that needs a runtime check or is envtype-specific
+# stays in bashrc: a config.<env>.toml would lose it in projects that select
+# their own env (MISE_ENV or a .miserc.toml).
+[env]
+EDITOR = "nvim"
+# Linked below
+RIPGREP_CONFIG_PATH = "{{ env.HOME }}/.config/ripgrep/config"
+
+# Set by `mise activate` in every shell that sources bashrc, interactive or not
+# (bash expands them only in interactive ones), so interactive-only aliases
+# (find, grep) stay in bashrc. common.toml overrides ls and ll with eza.
+[shell_alias]
+vi = "nvim"
+t = "tmux"
+ls = "ls --color=auto"
+ll = "ls -alh"
+ga = "git add"
+gd = "git diff"
+gs = "git status"
+# Local branches, least recently committed first
+lgb = "git for-each-ref --sort=committerdate refs/heads/ --format='%(committerdate:short) %(authorname) %(refname:short)'"
+# Integer to dotted IPv4 and back
+intip = "perl -MSocket=inet_ntoa -le 'print inet_ntoa(pack(\"N\",shift))'"
+ipint = "perl -MSocket -le 'print unpack(\"N\",inet_aton(shift))'"
+# Verbose resource usage (peak RSS, page faults, context switches) written to
+# time.output.<epoch>. Not named time: that would shadow the bash keyword,
+# which can time functions, builtins, and whole pipelines.
+vtime = 'NOWTIME=$(date +%s);/usr/bin/time -v -o time.output.$NOWTIME'
 
 # Runs on every `mise bootstrap` (install.sh), so it must be safe to repeat
 [bootstrap.hooks]

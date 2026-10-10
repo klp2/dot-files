@@ -21,7 +21,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 - Environment types via marker files in `$HOME`:
   - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), mise, vim
   - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, mise, xcape, vim
-  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools; mise only links the dotfiles)
+  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools; mise links the dotfiles and sets base.toml's env and aliases)
   - `~/.remote-personal` → personal server, full tooling (mise, neovim, starship) but no vim, xcape, or gpgconf
 - Heuristic detection when no marker exists (graphical session → local, hostname contains "maxmind" → work)
 - `install.sh` auto-creates marker file on first run with diagnostic output
@@ -42,20 +42,21 @@ This symlinks configs to home directory, installs mise and its tools and package
 - Vi mode enabled (`set -o vi`)
 - Custom prompt function `cynprompt` with git status integration via `bin/git-prompt`
 - Persistent history to `~/.persistent_history`
+- Exported settings and aliases live in mise `[env]` / `[shell_alias]`: base.toml (every machine) and common.toml (the eza/bat/fzf/tokei ones, which override base.toml's `ls`/`ll` fallbacks). `mise activate` sets both in every shell that sources bashrc, interactive or not, so interactive-only aliases (`find`→fd, `grep`→rg) and anything needing a runtime or envtype check (`SSH_AUTH_SOCK`, `BROWSER`, `perl`→mm-perl, `HIST*`, PATH) stay in bashrc. Never put them in `config.<env>.toml`, which a project's `MISE_ENV`/`.miserc.toml` drops. `[env]` values are not shell-expanded (`{{ env.HOME }}`, not `~`)
 - Heavy Perl tooling: perltidy, perlcritic
 
 ### Git Aliases (set by `git-config.sh`)
 Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)
 
 ### Tool Management
-- **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere except remote-work, which stays minimal (bashrc does not activate mise there). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
+- **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere except remote-work, which stays minimal (no tools; bashrc still activates mise there for base.toml's env and aliases). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
 - mise envs: `install.sh` writes `~/.config/mise/miserc.toml` from the marker on every run: `env = [<envtype>]`, plus `"desktop"` first on local-work and local-personal. `MISE_ENV`, `-E`, or a project's `.miserc.toml` *replaces* that list, so tool lists and settings never live in `config.<env>.toml` files, only bootstrap-time config
-- `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force` and again in `mise bootstrap`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Per-environment links are `variants` (`profile` = a mise env; one name per variant, and no entry may name two profiles one machine selects, or the tie voids it). Links gated on a runtime check (`~/.local_vimrc` by mm-perl, i3 on a personal box with i3, Regolith, alacritty) are still `ln -sf` in the installers
+- `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings, the shared `[env]`/`[shell_alias]`, `[bootstrap.repos]` (tpm), and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force` and again in `mise bootstrap`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Per-environment links are `variants` (`profile` = a mise env; one name per variant, and no entry may name two profiles one machine selects, or the tie voids it). Links gated on a runtime check (`~/.local_vimrc` by mm-perl, i3 on a personal box with i3, Regolith, alacritty) are still `ln -sf` in the installers
 - `config/mise/config.<env>.toml` (`desktop`, `local-personal`, `remote-work`) → `~/.config/mise/`, linked on every machine by base.toml; only the selected ones load. They hold `[bootstrap.hooks]` that run `install/*.sh`, `[bootstrap.files]`/`services` (keyd config, `~/.ssh` modes), and edit entries (the SSH `Include` line), which take no variants
 - Tool configs are base.toml variants in conf.d, everywhere but remote-work: `common.toml` → `conf.d/10-dotfiles.toml`; `mise.work.toml` / `mise.personal.toml` → `conf.d/20-work.toml` / `20-personal.toml`, which win on overlap. `config.toml` is no longer ours (the devcontainer image's own stays)
 - Prefer aqua backends (checksummed release binaries); `github:` for tools aqua lacks; `http:` with the public releases feed for MaxMind's tools, whose org's SAML enforcement rejects the GitHub API token; asdf/vfox backends are disabled
-- Machine-wide installs are `[bootstrap.packages]` entries (`flatpak-user:` for LibreOffice), applied by `mise bootstrap --only packages` in a run of their own, since a failed package aborts a bootstrap run; entries whose manager is missing are skipped. `install/flatpak.sh` (a desktop pre-packages hook) installs Flatpak and adds the Flathub remote, which mise does not do
-- `install.sh` runs `mise bootstrap --skip packages,tools --force-dotfiles` after its own tool install/upgrade/lock steps. Hooks run on every bootstrap, so `install/*.sh` must stay safe to repeat; a failing hook aborts the run. Avoid `pre/post-dotfiles` hooks (they also fire on plain `mise dot apply`) and a global `[tasks.bootstrap]` (it would show in every project)
+- Machine-wide installs are `[bootstrap.packages]` entries (`flatpak-user:` for LibreOffice), applied by `mise bootstrap --only packages` in a run of their own, since a failed package aborts a bootstrap run (repos get one too: `repos apply`, or `repos update` when upgrading); entries whose manager is missing are skipped. `install/flatpak.sh` (a desktop pre-packages hook) installs Flatpak and adds the Flathub remote, which mise does not do
+- `install.sh` runs `mise bootstrap --skip packages,repos,tools --force-dotfiles` after its own tool install/upgrade/lock steps. Hooks run on every bootstrap, so `install/*.sh` must stay safe to repeat; a failing hook aborts the run. Avoid `pre/post-dotfiles` hooks (they also fire on plain `mise dot apply`) and a global `[tasks.bootstrap]` (it would show in every project)
 - Dry-run changes against the real home with an isolated `MISE_CONFIG_DIR` (not `MISE_GLOBAL_CONFIG_FILE`), run from outside `$HOME`, or mise also finds the live `~/.config/mise/conf.d` as project config
 - The dotfiles no longer install or need Homebrew. Where it is already installed, bashrc still puts it on PATH, and `cleanup.sh` offers to uninstall brew formulae mise replaced
 - Settings: `base.toml` has `minimum_release_age = "7d"`, `self_update.auto = true`, and the disabled backends; `common.toml` has `lockfile = true` (work adds `locked = true`)
@@ -67,9 +68,9 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection to pick `~/.local_vimrc`, installs vim-plug and plugins (`~/.vimrc` is a base.toml link)
 - `install/nvim.sh` → syncs lazy.nvim plugins (neovim itself is a mise tool)
 - `vim/vimrc` sources `~/.local_vimrc` (set to either `maxmind_local_vimrc` or `vanilla_local_vimrc`)
-- `bashrc` activates mise before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
+- `bashrc` activates mise (which sets the `[env]`/`[shell_alias]` entries) before the setup that probes for its tools (fzf, bat, eza, starship, zoxide) and sources `~/.local-bashrc` near the end
 - `tmux/tmux.conf` uses TPM plugins (continuum, resurrect, sessionist)
-- `uninstall.sh` reverts changes made by install.sh
+- `uninstall.sh` reverts changes made by install.sh: `mise dot unapply --force` for everything in `[dotfiles]`, explicit removal for the installers' `ln -sf` links
 
 ## Bazzite/Immutable OS Notes
 
@@ -121,7 +122,6 @@ shfmt -i 2 -ci -w bashrc install.sh
 ### Acceptable shellcheck Warnings
 - SC1090/SC1091 - Can't follow dynamic `source` (unavoidable)
 - SC2155 - Declare/assign separately (style preference)
-- SC2139 - Variable expands at definition (intentional for ls alias)
 
 ### Formatting Style
 - 2-space indentation

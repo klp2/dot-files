@@ -218,6 +218,7 @@ if [[ $envtype != 'remote-work' ]]; then
 ast-grep ast-grep completions bash
 bat bat --completion bash
 delta delta --generate-completion bash
+docker docker completion bash
 fd fd --gen-completions bash
 gh gh completion -s bash
 glow glow completion bash
