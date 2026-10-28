@@ -6,3 +6,7 @@ locked = true
 
 [tools]
 "npm:linearis" = "latest"
+"github:JetBrains/teamcity-cli" = "latest"
+
+[env]
+TEAMCITY_ANALYTICS = "0"
