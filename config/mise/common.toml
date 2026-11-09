@@ -75,6 +75,16 @@ version_order = "semver"
 version_list_url = "https://app-updates.agilebits.com/product_history/CLI2"
 version_regex = 'pkg/v(\d+\.\d+\.\d+)/op_linux_amd64_v'
 url = "https://cache.agilebits.com/dist/1P/op2/pkg/v{{ version }}/op_linux_amd64_v{{ version }}.zip"
+# Desktop integration authenticates the CLI through its effective group ID.
+postinstall = '''
+set -eu
+permissions=$(stat -c '%U:%G:%a' "$MISE_TOOL_INSTALL_PATH/op")
+if [ "$permissions" != root:onepassword-cli:2755 ]; then
+  sudo groupadd -f onepassword-cli
+  sudo chown root:onepassword-cli "$MISE_TOOL_INSTALL_PATH/op"
+  sudo chmod 2755 "$MISE_TOOL_INSTALL_PATH/op"
+fi
+'''
 
 # Settings for the tools above; base.toml has the ones every machine gets
 [env]
