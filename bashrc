@@ -218,18 +218,18 @@ if command -v op &>/dev/null; then
 fi
 
 # SSH agent (local envtypes only).
-# Prefer 1Password where it is running: ssh already routes to it via
-# IdentityAgent in ~/.ssh/config.d/1password.conf, so pointing SSH_AUTH_SOCK at
-# the same socket keeps ssh-add and other agent-aware tools consistent with what
-# ssh actually uses instead of reporting a different agent's keys.
-# gpg-agent stays the fallback for boxes without 1Password (and the guard means
-# no error on hosts with no gpgconf at all).
+# gpg-agent first: it holds the YubiKey-backed key that work hosts need, and
+# no ssh config routes those hosts anywhere else. Hosts whose keys live in the
+# 1Password vault reach its agent via IdentityAgent in
+# ~/.ssh/config.d/1password.conf, which supersedes SSH_AUTH_SOCK, so this
+# export does not affect them. The 1Password socket is only a fallback for
+# boxes with no gpg at all.
 if [[ $envtype == 'local-work' || $envtype == 'local-personal' ]]; then
   if [[ $platform == 'linux' ]]; then
-    if [[ -S "$HOME/.1password/agent.sock" ]]; then
-      export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
-    elif command -v gpgconf &>/dev/null; then
+    if command -v gpgconf &>/dev/null; then
       export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    elif [[ -S "$HOME/.1password/agent.sock" ]]; then
+      export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
     fi
   fi
 fi
