@@ -64,7 +64,7 @@ Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease)
 
 ## File Relationships
 
-- `install.sh` → migrates old markers, auto-creates marker via heuristic, writes miserc, then `mise bootstrap` runs the installers as hooks: `nvim.sh` everywhere (base.toml); `flatpak.sh`, `keyd.sh` (pre-packages), `1password.sh`, `vim.sh` on desktops; `kde-tiling.sh` on local-personal; `vim.sh` on remote-work
+- `install.sh` → migrates old markers, auto-creates marker via heuristic, writes miserc, then `mise bootstrap` runs the installers as hooks: `nvim.sh` everywhere (base.toml); `flatpak.sh`, `keyd.sh` (pre-packages), `1password.sh`, `vim.sh`, `octomon.sh` on desktops; `kde-tiling.sh` on local-personal; `vim.sh` on remote-work
 - `install/1password.sh` → seeds `~/.config/op/env` and `autoload` (op itself is a mise tool)
 - `install/vim.sh` → uses `bash_functions.sh` for IS_MM detection to pick `~/.local_vimrc`, installs vim-plug and plugins (`~/.vimrc` is a base.toml link)
 - `install/nvim.sh` → syncs lazy.nvim plugins (neovim itself is a mise tool)

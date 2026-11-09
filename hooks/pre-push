@@ -19,6 +19,7 @@ SCRIPTS=(
   install/kde-tiling.sh
   install/1password.sh
   install/flatpak.sh
+  install/octomon.sh
   bin/git-prompt-fallback
 )
 
