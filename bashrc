@@ -164,6 +164,11 @@ if command -v op &>/dev/null; then
     op run --env-file="$OP_ENV_FILE" -- "$@"
   }
 
+  # oprefresh -- reload autoloaded secrets after rotating a token in the vault.
+  oprefresh() {
+    __op_autoload --refresh
+  }
+
   # __op_autoload -- export the names in $OP_AUTOLOAD_FILE, once per session.
   # The resolved values are cached in $XDG_RUNTIME_DIR (tmpfs, 0600, cleared at
   # logout), so only the first shell of a session pays the op call and any
@@ -173,10 +178,10 @@ if command -v op &>/dev/null; then
   # offline 1Password leaves an existing value in the environment intact.
   __op_autoload() {
     local cache="${XDG_RUNTIME_DIR:-/tmp}/op-autoload.env"
-    local name ref value tmp
+    local name ref value tmp failed=0
     local -A want=() seen=()
 
-    if [[ -s $cache && ! $OP_ENV_FILE -nt $cache && ! $OP_AUTOLOAD_FILE -nt $cache ]]; then
+    if [[ ${1:-} != --refresh && -s $cache && ! $OP_ENV_FILE -nt $cache && ! $OP_AUTOLOAD_FILE -nt $cache ]]; then
       while IFS='=' read -r name value || [[ -n $name ]]; do
         [[ -n $name ]] && export "$name=$value"
       done <"$cache"
@@ -203,16 +208,21 @@ if command -v op &>/dev/null; then
         value="$(op read "$ref" 2>/dev/null)" || value=''
         seen[$ref]="$value"
       fi
-      [[ -n $value ]] || continue
+      if [[ -z $value ]]; then
+        failed=1
+        [[ ${1:-} != --refresh ]] || echo "oprefresh: could not read $name; existing value unchanged" >&2
+        continue
+      fi
       export "$name=$value"
       printf '%s=%s\n' "$name" "$value" >>"$tmp"
     done <"$OP_ENV_FILE"
 
-    if [[ -s $tmp ]]; then
+    if [[ -s $tmp && $failed == 0 ]]; then
       chmod 600 "$tmp" && mv -f "$tmp" "$cache"
     else
       rm -f "$tmp"
     fi
+    return "$failed"
   }
   __op_autoload
 fi

@@ -71,5 +71,6 @@ cat <<'EOF'
   2. Settings > Developer     -> turn on "Integrate with 1Password CLI"
 Then add your references to ~/.config/op/env and use:
     opload            # export the secrets into this shell
+    oprefresh         # refresh autoloaded secrets and their cache after rotation
     oprun -- cmd ...  # run cmd with them injected, leaving the shell clean
 EOF
