@@ -69,9 +69,19 @@ fi
 pathadd "/usr/local/sbin"
 pathadd "/usr/local/bin"
 pathadd "$HOME/bin"
+pathadd "$HOME/.claude/bin"
+pathadd "$HOME/go/bin"
 pathadd "$HOME/.cargo/bin"
 pathadd "$HOME/.opencode/bin"
 pathadd "$HOME/.local/bin"
+
+# Keep global npm binaries from the old nvm install available; mise activation
+# below puts its managed runtimes ahead of this fallback.
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  _nvm_default_bin=$(ls -d "$HOME/.nvm"/versions/node/v"$(cat "$HOME/.nvm/alias/default" 2>/dev/null)"*/bin 2>/dev/null | sort -V | tail -1)
+  [ -n "$_nvm_default_bin" ] && pathadd "$_nvm_default_bin"
+  unset _nvm_default_bin
+fi
 
 # mise - CLI tools and runtimes, plus the environment variables and aliases
 # from [env] and [shell_alias] (config in ~/dot-files/config/mise). Every

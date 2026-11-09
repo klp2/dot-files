@@ -185,6 +185,7 @@ let g:hier_highlight_group_locw = 'HierWarning'
 let g:hier_highlight_group_loci = 'Normal'
 
 "====[ Golang stuff ]=====
+let g:go_bin_path = expand('~/go/bin')
 let g:go_fmt_command = "gopls"
 let g:go_template_autocreate = 0  " Use <leader>gomain instead
 " get signature/type info for object under cursor
