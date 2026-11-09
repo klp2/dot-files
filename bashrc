@@ -85,7 +85,7 @@ fi
 
 # mise - CLI tools and runtimes, plus the environment variables and aliases
 # from [env] and [shell_alias] (config in ~/dot-files/config/mise). Every
-# machine activates it; remote-work just has no tools.
+# machine activates it, including remote-work with its minimal tool set.
 if command -v mise &>/dev/null; then
   # activate applies the tool PATH, env, and aliases right away and again from
   # a prompt hook, and puts the shims behind it as the fallback for anything

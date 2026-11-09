@@ -1,7 +1,7 @@
 # Settings, shell environment, and dotfile links for every environment,
 # remote-work included. install.sh links this into ~/.config/mise/conf.d/. Its
 # variants below link in common.toml and the work or personal tools everywhere
-# but remote-work, which gets no tools.
+# but remote-work, which gets only its minimal tool config.
 
 [settings]
 # Disable backends that use community-maintained bash scripts (supply chain risk)
@@ -102,7 +102,7 @@ url = "https://github.com/tmux-plugins/tpm"
 "~/.config/mise/config.local-personal.toml" = "~/dot-files/config/mise/config.local-personal.toml"
 "~/.config/mise/config.remote-work.toml" = "~/dot-files/config/mise/config.remote-work.toml"
 
-# Tools, everywhere but remote-work. These stay in conf.d rather than in
+# Tools. These stay in conf.d rather than in
 # config.<env>.toml files: MISE_ENV, -E, or a project's .miserc.toml replaces
 # the env list from miserc.toml, which would drop them. Later conf.d files win
 # on overlap, so the work and personal files layer on top of common.toml.
@@ -118,6 +118,10 @@ variants = [
 [dotfiles."~/.config/mise/conf.d/20-work.toml"]
 source = "~/dot-files/config/mise/mise.work.toml"
 variants = [{ profile = "local-work" }, { profile = "devcontainer-work" }]
+
+[dotfiles."~/.config/mise/conf.d/20-remote-work.toml"]
+source = "~/dot-files/config/mise/mise.remote-work.toml"
+variants = [{ profile = "remote-work" }]
 
 [dotfiles."~/.config/mise/conf.d/20-personal.toml"]
 source = "~/dot-files/config/mise/mise.personal.toml"

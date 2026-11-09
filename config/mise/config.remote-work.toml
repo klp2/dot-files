@@ -1,5 +1,4 @@
-# Bootstrap steps for remote-work, which gets no mise tools. base.toml links
-# this into ~/.config/mise/.
+# Bootstrap steps for remote-work. base.toml links this into ~/.config/mise/.
 
 [bootstrap.hooks]
 final = "~/dot-files/install/vim.sh"

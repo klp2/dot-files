@@ -126,7 +126,7 @@ run_reviewed_installer() {
 }
 
 # mise: dotfile links everywhere, plus CLI tools, runtimes, and packages
-# everywhere but remote-work, which stays minimal.
+# with a minimal tool set on remote-work.
 # Use the standalone mise in ~/.local/bin, which self-updates without brew,
 # unless a non-brew mise is already provided (e.g. the devcontainer image) that
 # is new enough to have `mise dotfiles`.
@@ -184,29 +184,29 @@ for f in ~/.ackrc ~/.perlcriticrc; do
   fi
 done
 
-if [[ $envtype != 'remote-work' ]]; then
-  # A tool that fails to install is reported, not fatal: mise still installs
-  # the rest, and the next run retries it.
-  echo "Installing mise tools..."
-  MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
-  # cargo: tools build only with rust's environment (RUSTUP_TOOLCHAIN) loaded,
-  # which `mise install` does not set up itself. Load it, so on a machine that
-  # just got rust above, the second install below builds what failed here.
-  eval "$(mise env -s bash)"
-  # The lockfile pins "latest" tools to whatever resolved at first install,
-  # so `mise install` alone never moves them forward.
-  if [[ -n "$UPGRADE" ]]; then
-    echo "Upgrading mise tools..."
-    MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
-  fi
-  MISE_LOCKED=0 mise lock --global --quiet
-  # Locking records npm tools against a lock artifact, and mise reports them
-  # missing until they are reinstalled from it
-  MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
-  # Shims are symlinks to the mise binary, so repoint them if it moved
-  mise reshim
-  export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
+# A tool that fails to install is reported, not fatal: mise still installs
+# the rest, and the next run retries it.
+echo "Installing mise tools..."
+MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+# cargo: tools build only with rust's environment (RUSTUP_TOOLCHAIN) loaded,
+# which `mise install` does not set up itself. Load it, so on a machine that
+# just got rust above, the second install below builds what failed here.
+eval "$(mise env -s bash)"
+# The lockfile pins "latest" tools to whatever resolved at first install,
+# so `mise install` alone never moves them forward.
+if [[ -n "$UPGRADE" ]]; then
+  echo "Upgrading mise tools..."
+  MISE_LOCKED=0 mise upgrade --quiet || echo "WARNING: some mise tools failed to upgrade (see above)."
+fi
+MISE_LOCKED=0 mise lock --global --quiet
+# Locking records npm tools against a lock artifact, and mise reports them
+# missing until they are reinstalled from it
+MISE_LOCKED=0 mise install --quiet || echo "WARNING: some mise tools failed to install (see above)."
+# Shims are symlinks to the mise binary, so repoint them if it moved
+mise reshim
+export PATH="${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims:$PATH"
 
+if [[ $envtype != 'remote-work' ]]; then
   # Bash completions, loaded on demand by bash-completion (see bashrc)
   comp_dir="${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions"
   mkdir -p "$comp_dir"

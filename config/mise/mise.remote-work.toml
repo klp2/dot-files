@@ -1,0 +1,11 @@
+# Minimal tools for remote work hosts, without common.toml's desktop tools.
+
+[settings]
+lockfile = true
+lockfile_platforms = ["linux-x64"]
+# install.sh allows lockfile updates during installation and upgrades.
+locked = true
+
+[tools]
+node = "lts"
+"npm:linearis" = "latest"
