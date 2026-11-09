@@ -3,6 +3,8 @@
 onboarding = false
 
 [keys]
+move_tab_previous = "prefix+shift+left"
+move_tab_next = "prefix+shift+right"
 # Caps (Ctrl) + thumb; unused by Claude Code, Codex, vim and readline, and
 # distinct from the remote tmux prefix (C-a)
 prefix = "ctrl+space"
