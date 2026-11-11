@@ -54,6 +54,7 @@ zoxide = "latest"
 # aqua's difftastic entry predates the versioned release asset names
 "github:Wilfred/difftastic" = "latest"
 "github:bensadeh/tailspin" = "latest"
+"github:jsdelivr/globalping-cli" = "latest"
 "github:klp2/sr" = "latest"
 "github:securitypedant/octomon" = "latest"
 # TCP port checks, in place of telnet or nc: `tcping host port`

@@ -9,3 +9,4 @@ locked = true
 [tools]
 node = "lts"
 "npm:linearis" = "latest"
+"github:jsdelivr/globalping-cli" = "latest"

@@ -21,7 +21,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 - Environment types via marker files in `$HOME`:
   - `~/.local-work` → work laptop with i3/Regolith, enables i3 configs, xcape (X11 only), mise, vim
   - `~/.local-personal` → personal desktop (e.g., Bazzite/KDE), enables SSH agent, mise, xcape, vim
-  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools; mise links the dotfiles, sets base.toml's env and aliases, and installs only node and linearis)
+  - `~/.remote-work` → work server, minimal config (no brew, no modern CLI tools; mise links the dotfiles, sets base.toml's env and aliases, and installs node, linearis, and Globalping CLI)
   - `~/.remote-personal` → personal server, full tooling (mise, neovim, starship) but no vim, xcape, or gpgconf
 - Heuristic detection when no marker exists (graphical session → local, hostname contains "maxmind" → work)
 - `install.sh` auto-creates marker file on first run with diagnostic output
@@ -49,7 +49,7 @@ This symlinks configs to home directory, installs mise and its tools and package
 Key aliases: `from` (fetch + rebase origin/main), `pf` (push --force-with-lease), `dom/doms/domo` (diff against origin/main variants), `prom` (pull --rebase origin main), `sw` (switch), `rs` (restore)
 
 ### Tool Management
-- **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere. remote-work stays minimal: only `mise.remote-work.toml` (node, linearis). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
+- **mise** links the dotfiles everywhere, and installs CLI tools and runtimes everywhere. remote-work stays minimal: only `mise.remote-work.toml` (node, linearis, Globalping CLI). All but the devcontainer use the standalone install at `~/.local/bin/mise` (self-updating); the devcontainer image ships its own.
 - mise envs: `install.sh` writes `~/.config/mise/miserc.toml` from the marker on every run: `env = [<envtype>]`, plus `"desktop"` first on local-work and local-personal. `MISE_ENV`, `-E`, or a project's `.miserc.toml` *replaces* that list, so tool lists and settings never live in `config.<env>.toml` files, only bootstrap-time config
 - `config/mise/base.toml` → `~/.config/mise/conf.d/05-base.toml` (every environment): mise's supply-chain settings, the shared `[env]`/`[shell_alias]`, `[bootstrap.repos]` (tpm), and the `[dotfiles]` entries that `install.sh` deploys with `mise dot apply --force` and again in `mise bootstrap`. Sources are written `~/dot-files/...` because a relative source resolves against conf.d, not the repo. Symlink is the default; `copy` only where a file needs its own mode or an app rewrites it. Per-environment links are `variants` (`profile` = a mise env; one name per variant, and no entry may name two profiles one machine selects, or the tie voids it). Links gated on a runtime check (`~/.local_vimrc` by mm-perl, i3 on a personal box with i3, Regolith, alacritty) are still `ln -sf` in the installers
 - `config/mise/config.<env>.toml` (`desktop`, `local-personal`, `remote-work`) → `~/.config/mise/`, linked on every machine by base.toml; only the selected ones load. They hold `[bootstrap.hooks]` that run `install/*.sh`, `[bootstrap.files]`/`services` (keyd config, `~/.ssh` modes), and edit entries (the SSH `Include` line), which take no variants
