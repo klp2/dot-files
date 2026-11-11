@@ -1,0 +1,6 @@
+// The official repository has no Origin or Label field; match its host/suite.
+Unattended-Upgrade::Origins-Pattern {
+    "site=persistent.oaistatic.com,codename=stable,component=main";
+};
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";

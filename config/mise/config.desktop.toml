@@ -6,7 +6,7 @@
 [bootstrap.hooks]
 # Before packages: the flatpak-user entries need the Flathub remote, and keyd
 # must be installed before the services step enables it
-pre-packages = ["~/dot-files/install/flatpak.sh", "~/dot-files/install/keyd.sh"]
+pre-packages = ["~/dot-files/install/flatpak.sh", "~/dot-files/install/keyd.sh", "~/dot-files/install/chatgpt.sh"]
 final = ["~/dot-files/install/1password.sh", "~/dot-files/install/vim.sh", "~/dot-files/install/octomon.sh"]
 
 # Octomon uses iw for Wi-Fi details when NetworkManager cannot provide them.
