@@ -1,0 +1,3 @@
+bar bar-0 mode dock
+unbindsym $mod+$wm.binding.bar_toggle
+bindsym $mod+$wm.binding.bar_toggle bar mode dock

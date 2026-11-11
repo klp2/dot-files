@@ -280,9 +280,10 @@ fi
 # Machine-specific overrides (wallpaper, look theme) go in the un-tracked
 # ~/.config/regolith3/Xresources.d/local, included via cpp by the main file.
 if [[ ($envtype == 'local-work' || $envtype == 'local-personal') && -d /etc/regolith ]]; then
-  mkdir -p ~/.config/regolith3/i3status-rust ~/.config/regolith3/Xresources.d
+  mkdir -p ~/.config/regolith3/i3status-rust ~/.config/regolith3/Xresources.d ~/.config/regolith3/sway/config.d
   ln -sf "$SELF_PATH"/regolith3/Xresources ~/.config/regolith3/Xresources
   ln -sf "$SELF_PATH"/regolith3/i3status-rust/config.toml ~/.config/regolith3/i3status-rust/config.toml
+  ln -sf "$SELF_PATH"/regolith3/sway/config.d/99_bar_always_visible ~/.config/regolith3/sway/config.d/99_bar_always_visible
   if [[ ! -e ~/.config/regolith3/Xresources.d/local ]]; then
     cat >~/.config/regolith3/Xresources.d/local <<'EOF'
 ! Machine-specific Regolith 3 overrides — not tracked in dotfiles.

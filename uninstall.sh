@@ -66,6 +66,7 @@ remove_symlink_if_points_to_dotfiles ~/.config/i3status
 remove_symlink_if_points_to_dotfiles ~/.config/alacritty/alacritty.toml
 remove_symlink_if_points_to_dotfiles ~/.config/regolith3/Xresources
 remove_symlink_if_points_to_dotfiles ~/.config/regolith3/i3status-rust/config.toml
+remove_symlink_if_points_to_dotfiles ~/.config/regolith3/sway/config.d/99_bar_always_visible
 
 echo
 echo "=== Removing mise config ==="
