@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Seed the untracked secret-reference files that bashrc's opload/oprun helpers
-# read, on local desktops. A final hook in config/mise/config.desktop.toml. The
-# 1Password CLI (op) itself is a mise tool (config/mise/common.toml).
+# read, on local desktops, and make op setgid for desktop integration. A final
+# hook in config/mise/config.desktop.toml. The 1Password CLI (op) itself is a
+# mise tool (config/mise/common.toml).
 #
 # No secret ever lands in this repo. ~/.config/op/env holds only op:// URIs,
 # which are references resolved at runtime against the vault -- useless on their
@@ -62,8 +63,23 @@ EOF
   echo "1password: seeded $OP_AUTOLOAD_FILE"
 }
 
+# Desktop integration authenticates the CLI through its effective group ID.
+# Each op upgrade installs a new binary, so this runs sudo once per upgrade.
+setgid_op() {
+  local op
+  op=$(mise which op 2>/dev/null) || return 0
+  [[ $(stat -c '%U:%G:%a' "$op") == root:onepassword-cli:2755 ]] && return 0
+  echo "1password: making $op setgid onepassword-cli (requires sudo)"
+  if ! { sudo groupadd -f onepassword-cli &&
+    sudo chown root:onepassword-cli "$op" &&
+    sudo chmod 2755 "$op"; }; then
+    echo "WARNING: op has no desktop integration. Run: sudo chown root:onepassword-cli $op && sudo chmod 2755 $op" >&2
+  fi
+}
+
 seed_env_file
 seed_autoload_file
+setgid_op
 
 cat <<'EOF'
 1password: done. To finish, in the 1Password desktop app:
