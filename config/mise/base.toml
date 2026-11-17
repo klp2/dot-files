@@ -162,6 +162,10 @@ variants = [{ profile = "local-work" }]
 source = "~/dot-files/ssh/1password.conf"
 variants = [{ profile = "desktop" }]
 
+[dotfiles."~/.ssh/config.d/work-env.conf"]
+source = "~/dot-files/ssh/work-env.conf"
+variants = [{ profile = "desktop" }]
+
 # herdr, the agent-aware multiplexer on local desktops
 [dotfiles."~/.config/herdr/config.toml"]
 source = "~/dot-files/config/herdr/config.toml"
