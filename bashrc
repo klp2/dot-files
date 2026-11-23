@@ -74,6 +74,7 @@ pathadd "$HOME/go/bin"
 pathadd "$HOME/.cargo/bin"
 pathadd "$HOME/.opencode/bin"
 pathadd "$HOME/.local/bin"
+pathadd "$HOME/.local/share/toolsmith/tools/bin"
 
 # Keep global npm binaries from the old nvm install available; mise activation
 # below puts its managed runtimes ahead of this fallback.
